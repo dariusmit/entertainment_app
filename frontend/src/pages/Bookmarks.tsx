@@ -5,12 +5,18 @@ import MovieCard from "../components/MovieCard";
 import Search from "../components/Search";
 import Header from "../components/Header";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 function Bookmarks() {
-  const { getMovieList, filteredMovieList } = useContext(Context);
+  const { isLoggedIn, getMovieList, filteredMovieList } = useContext(Context);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    getMovieList();
+    if (!isLoggedIn) {
+      navigate("/login");
+    } else {
+      getMovieList();
+    }
   }, []);
 
   return (

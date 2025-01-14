@@ -3,12 +3,14 @@ import { Context } from "../context/storeContext";
 import { useContext } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 
 function LoginForm() {
   const { inputError, setInputError, setLoggedInStatus } = useContext(Context);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const navigate = useNavigate();
 
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
@@ -34,6 +36,7 @@ function LoginForm() {
           });
           setInputError("");
           setLoggedInStatus(res.data.isLoggedIn);
+          navigate("/");
         } else {
           setInputError(res.data.message);
         }

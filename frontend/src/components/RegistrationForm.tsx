@@ -23,7 +23,7 @@ function RegistrationForm() {
       axios
         .post("http://localhost:8081/register", { email, password })
         .then((res) => {
-          if (res.data.isEmailUnique) {
+          if (!res.data.emailExists) {
             setInputError("");
             toast.success("User Created! Now you can login.", {
               position: "bottom-center",
