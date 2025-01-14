@@ -3,9 +3,10 @@ import { Context } from "../context/storeContext";
 import { useContext } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 function LoginForm() {
-  const { isLoggedIn, setLoggedInStatus } = useContext(Context);
+  const { inputError, setInputError, setLoggedInStatus } = useContext(Context);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
 
@@ -13,11 +14,29 @@ function LoginForm() {
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> {
     e.preventDefault();
+    if (!email || !password) {
+      setInputError("Fields can't be empty!");
+      return;
+    }
     axios
       .post("http://localhost:8081/login", { email, password })
       .then((res) => {
-        console.log(res.data);
-        setLoggedInStatus(res.data.isLoggedIn);
+        if (res.data.isLoggedIn) {
+          toast.success("User logged in!", {
+            position: "bottom-center",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: false,
+            pauseOnHover: false,
+            draggable: false,
+            progress: undefined,
+            theme: "dark",
+          });
+          setInputError("");
+          setLoggedInStatus(res.data.isLoggedIn);
+        } else {
+          setInputError(res.data.message);
+        }
       })
       .catch((err) => console.log(err));
   }
@@ -41,6 +60,7 @@ function LoginForm() {
               <input
                 type="email"
                 placeholder="Email address"
+                autoComplete="nope"
                 onChange={(e) => setEmail(e.target.value)}
                 className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2 w-full"
               />
@@ -51,11 +71,15 @@ function LoginForm() {
               <input
                 type="password"
                 placeholder="Password"
+                autoComplete="nope"
                 onChange={(e) => setPassword(e.target.value)}
                 className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-[8.67vw] w-full"
               />
             </div>
           </div>
+          <p className="text-[4vw] font-extralight mt-[-20px] mb-[8.67vw] text-red-500">
+            {inputError}
+          </p>
         </div>
         <button
           type="submit"
@@ -70,7 +94,7 @@ function LoginForm() {
           </Link>
         </p>
       </form>
-      {isLoggedIn && <p>User is Logged In!</p>}
+      <ToastContainer />
     </div>
   );
 }

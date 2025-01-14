@@ -15,14 +15,14 @@ const db = mysql.createConnection({
 });
 
 app.post("/login", (req, res) => {
-  const sql = `SELECT * FROM login WHERE email = ? AND password = ?`;
+  const sql = `SELECT * FROM users_list WHERE email = ? AND password = ?`;
 
   db.query(sql, [req.body.email, req.body.password], (err, data) => {
     if (err) return res.json(err.message);
     if (data.length > 0) {
-      return res.json({ message: "Login successful", isLoggedIn: true });
+      res.json({ message: "Login successful", isLoggedIn: true });
     } else {
-      return res.json({
+      res.json({
         message: "Incorrect email or password",
         isLoggedIn: false,
       });
@@ -31,14 +31,24 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const sql = `INSERT INTO login (email, password) VALUES (?, ?)`;
+  const sql_select = `SELECT * FROM users_list WHERE email = ?`;
+  const sql_insert = `INSERT INTO users_list (email, password) VALUES (?, ?)`;
+  let isEmailUnique;
 
-  db.query(sql, [req.body.email, req.body.password], (err, data) => {
+  db.query(sql_select, [req.body.email], (err, data) => {
     if (err) return res.json(err.message);
-    return res.json("User created");
+    isEmailUnique = false;
+    res.json({ message: "Email already in use!", isEmailUnique: false });
   });
+
+  if (isEmailUnique) {
+    db.query(sql_insert, [req.body.email, req.body.password], (err, data) => {
+      if (err) return res.json(err.message);
+      res.json("User created");
+    });
+  }
 });
 
 app.listen(8081, () => {
-  console.log("Listening... on port 8081");
+  console.log("Listening on port 8081");
 });

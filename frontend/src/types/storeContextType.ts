@@ -15,6 +15,8 @@ interface storeContextType {
   filteredMovieList: movieType[];
   isLoggedIn: boolean;
   setLoggedInStatus: React.Dispatch<React.SetStateAction<boolean>>;
+  inputError: string;
+  setInputError: React.Dispatch<React.SetStateAction<string>>;
 }
 
 export default storeContextType;

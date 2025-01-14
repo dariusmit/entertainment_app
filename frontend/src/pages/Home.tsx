@@ -4,6 +4,7 @@ import { Context } from "../context/storeContext";
 import MovieCard from "../components/MovieCard";
 import Search from "../components/Search";
 import Header from "../components/Header";
+import { motion } from "framer-motion";
 
 function Home() {
   const { isLoggedIn, getMovieList, filteredMovieList } = useContext(Context);
@@ -16,7 +17,12 @@ function Home() {
     <>
       <Header />
       <Search />
-      <div className="px-[4.27vw] pb-[16.27vw]">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="px-[4.27vw] pb-[16.27vw]"
+      >
         <h1 className="font-bold text-xl mt-4 mb-2">Trending</h1>
         <div className="grid gap-3 grid-flow-col overflow-x-scroll">
           {filteredMovieList &&
@@ -50,7 +56,7 @@ function Home() {
             })}
         </div>
         {isLoggedIn && <p>User is Logged In!</p>}
-      </div>
+      </motion.div>
     </>
   );
 }

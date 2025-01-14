@@ -19,6 +19,7 @@ function App() {
   const [searchError, setSearchError] = useState<string>("");
   const [searchCompleted, setSearchCompletion] = useState<boolean>(false);
   const [isLoggedIn, setLoggedInStatus] = useState<boolean>(false);
+  const [inputError, setInputError] = useState<string>("");
 
   function getMoviesFromStorage(): movieType[] {
     return JSON.parse(localStorage.getItem("movie_list") || "[]");
@@ -66,6 +67,8 @@ function App() {
         filteredMovieList,
         isLoggedIn,
         setLoggedInStatus,
+        inputError,
+        setInputError,
       }}
     >
       <BrowserRouter>

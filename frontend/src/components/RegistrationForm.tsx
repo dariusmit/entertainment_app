@@ -3,24 +3,41 @@ import { Context } from "../context/storeContext";
 import { useContext } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 
 function RegistrationForm() {
-  const { isLoggedIn } = useContext(Context);
+  const { inputError, setInputError, isLoggedIn } = useContext(Context);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [repeatedPassword, setRepeatedPassword] = useState<string>("");
-  const [inputError, setInputError] = useState<string>("");
 
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> {
     e.preventDefault();
+    if (!email || !password || !repeatedPassword) {
+      setInputError("Fields can't be empty!");
+      return;
+    }
     if (password === repeatedPassword) {
       axios
         .post("http://localhost:8081/register", { email, password })
         .then((res) => {
-          setInputError("");
-          console.log(res.data);
+          if (res.data.isEmailUnique) {
+            setInputError("");
+            toast.success("User Created! Now you can login.", {
+              position: "bottom-center",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: false,
+              pauseOnHover: false,
+              draggable: false,
+              progress: undefined,
+              theme: "dark",
+            });
+          } else {
+            setInputError("Email already in use!");
+          }
         })
         .catch((err) => console.log(err));
     } else {
@@ -47,6 +64,7 @@ function RegistrationForm() {
               <input
                 type="email"
                 placeholder="Email address"
+                autoComplete="nope"
                 onChange={(e) => setEmail(e.target.value)}
                 className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2 w-full"
               />
@@ -57,6 +75,7 @@ function RegistrationForm() {
               <input
                 type="password"
                 placeholder="Password"
+                autoComplete="nope"
                 onChange={(e) => setPassword(e.target.value)}
                 className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2 w-full"
               />
@@ -67,6 +86,7 @@ function RegistrationForm() {
               <input
                 type="password"
                 placeholder="Repeat Password"
+                autoComplete="nope"
                 onChange={(e) => setRepeatedPassword(e.target.value)}
                 className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-[8.67vw] w-full"
               />
@@ -90,6 +110,7 @@ function RegistrationForm() {
         </p>
       </form>
       {isLoggedIn && <p>User is Logged In!</p>}
+      <ToastContainer />
     </div>
   );
 }
