@@ -4,7 +4,6 @@ import { useContext } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { toast, ToastContainer } from "react-toastify";
 
 function LoginForm() {
   const { inputError, setInputError, setLoggedInStatus } = useContext(Context);
@@ -24,16 +23,6 @@ function LoginForm() {
       .post("http://localhost:8081/login", { email, password })
       .then((res) => {
         if (res.data.isLoggedIn) {
-          toast.success("User logged in!", {
-            position: "bottom-center",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: false,
-            pauseOnHover: false,
-            draggable: false,
-            progress: undefined,
-            theme: "dark",
-          });
           setInputError("");
           setLoggedInStatus(res.data.isLoggedIn);
           navigate("/");
@@ -97,7 +86,6 @@ function LoginForm() {
           </Link>
         </p>
       </form>
-      <ToastContainer />
     </div>
   );
 }

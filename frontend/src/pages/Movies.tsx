@@ -19,6 +19,12 @@ function Movies() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/login");
+    }
+  }, [isLoggedIn]);
+
   return (
     <>
       <Header />

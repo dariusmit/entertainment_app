@@ -6,9 +6,10 @@ import Shows from "./pages/Shows";
 import Bookmarks from "./pages/Bookmarks";
 import { Context } from "./context/storeContext";
 import movieType from "./types/movieType";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import axios from "axios";
 
 function App() {
   const [movieList, updateMovieList] = useState<movieType[]>(() => {
@@ -17,13 +18,24 @@ function App() {
   const [searchValue, changeSearchValue] = useState<string>("");
   const [isLoading, UpdateLoadingStatus] = useState<boolean>(false);
   const [searchError, setSearchError] = useState<string>("");
+  const [userModal, setUserModal] = useState<boolean>(false);
   const [searchCompleted, setSearchCompletion] = useState<boolean>(false);
-  const [isLoggedIn, setLoggedInStatus] = useState<boolean>(false);
+  const [isLoggedIn, setLoggedInStatus] = useState<boolean>(() => {
+    return getLoggedInStatus();
+  });
   const [inputError, setInputError] = useState<string>("");
 
   function getMoviesFromStorage(): movieType[] {
     return JSON.parse(localStorage.getItem("movie_list") || "[]");
   }
+
+  function getLoggedInStatus(): boolean {
+    return JSON.parse(sessionStorage.getItem("logged_in_status") || "false");
+  }
+
+  useEffect(() => {
+    sessionStorage.setItem("logged_in_status", JSON.stringify(isLoggedIn));
+  }, [isLoggedIn]);
 
   const filteredMovieList = useMemo(() => {
     localStorage.setItem("movie_list", JSON.stringify(movieList));
@@ -37,16 +49,17 @@ function App() {
     });
   }, [searchValue, movieList]);
 
-  async function getMovieList(): Promise<void> {
+  function getMovieList(): void {
     if (movieList.length === 0) {
       const path = "./data.json";
-      try {
-        const req = await fetch(path);
-        const res = await req.json();
-        updateMovieList(res);
-      } catch (e: any) {
-        console.log("Error: " + e.message);
-      }
+      axios
+        .get(path)
+        .then((res: any) => {
+          updateMovieList(res);
+        })
+        .catch((e: any) => {
+          console.log("Error: " + e.message);
+        });
     }
   }
 
@@ -69,6 +82,8 @@ function App() {
         setLoggedInStatus,
         inputError,
         setInputError,
+        userModal,
+        setUserModal,
       }}
     >
       <BrowserRouter>

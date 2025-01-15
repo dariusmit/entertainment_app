@@ -3,7 +3,7 @@ import movieType from "./movieType";
 interface storeContextType {
   movieList: movieType[];
   updateMovieList: React.Dispatch<React.SetStateAction<movieType[]>>;
-  getMovieList: () => Promise<void>;
+  getMovieList: () => void;
   searchValue: string;
   changeSearchValue: React.Dispatch<React.SetStateAction<string>>;
   isLoading: boolean;
@@ -17,6 +17,8 @@ interface storeContextType {
   setLoggedInStatus: React.Dispatch<React.SetStateAction<boolean>>;
   inputError: string;
   setInputError: React.Dispatch<React.SetStateAction<string>>;
+  userModal: boolean;
+  setUserModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export default storeContextType;

@@ -19,6 +19,12 @@ function Bookmarks() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/login");
+    }
+  }, [isLoggedIn]);
+
   return (
     <>
       <Header />

@@ -19,6 +19,12 @@ function Home() {
     }
   }, []);
 
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/login");
+    }
+  }, [isLoggedIn]);
+
   return (
     <>
       <Header />
