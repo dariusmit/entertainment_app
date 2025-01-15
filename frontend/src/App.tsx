@@ -10,6 +10,7 @@ import { useState, useMemo, useEffect } from "react";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import axios from "axios";
+import useDebounce from "./hooks/useDebounce";
 
 function App() {
   const [movieList, updateMovieList] = useState<movieType[]>(() => {
@@ -24,6 +25,7 @@ function App() {
     return getLoggedInStatus();
   });
   const [inputError, setInputError] = useState<string>("");
+  const debouncedSearchValue = useDebounce(searchValue);
 
   function getMoviesFromStorage(): movieType[] {
     return JSON.parse(localStorage.getItem("movie_list") || "[]");
@@ -47,7 +49,7 @@ function App() {
       }
       return movie.title.includes(searchValue);
     });
-  }, [searchValue, movieList]);
+  }, [debouncedSearchValue, movieList]);
 
   function getMovieList(): void {
     if (movieList.length === 0) {
@@ -55,7 +57,7 @@ function App() {
       axios
         .get(path)
         .then((res: any) => {
-          updateMovieList(res);
+          updateMovieList(res.data);
         })
         .catch((e: any) => {
           console.log("Error: " + e.message);

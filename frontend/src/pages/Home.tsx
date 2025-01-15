@@ -67,7 +67,6 @@ function Home() {
               );
             })}
         </div>
-        {isLoggedIn && <p>User is Logged In!</p>}
       </motion.div>
     </>
   );

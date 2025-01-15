@@ -18,6 +18,7 @@ function Search() {
         <input
           className="w-full bg-[#10141E] text-gray-500 p-2"
           type="text"
+          name="search"
           value={searchValue}
           onChange={(e) => changeSearchValue(e.target.value)}
           placeholder="Search for movies or TV series"

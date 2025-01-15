@@ -29,7 +29,6 @@ function Header() {
           }
         >
           <ul>
-            <li className="pl-4 pb-6 float-left clear-both">User info</li>
             <li
               onClick={() => {
                 setLoggedInStatus(false);

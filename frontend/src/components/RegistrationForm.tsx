@@ -63,6 +63,7 @@ function RegistrationForm() {
             <div>
               <input
                 type="email"
+                name="email"
                 placeholder="Email address"
                 autoComplete="nope"
                 onChange={(e) => setEmail(e.target.value)}
@@ -74,6 +75,7 @@ function RegistrationForm() {
             <div className="w-full">
               <input
                 type="password"
+                name="password"
                 placeholder="Password"
                 autoComplete="nope"
                 onChange={(e) => setPassword(e.target.value)}
@@ -85,6 +87,7 @@ function RegistrationForm() {
             <div className="w-full">
               <input
                 type="password"
+                name="repeat_password"
                 placeholder="Repeat Password"
                 autoComplete="nope"
                 onChange={(e) => setRepeatedPassword(e.target.value)}

@@ -51,6 +51,7 @@ function LoginForm() {
             <div>
               <input
                 type="email"
+                name="email"
                 placeholder="Email address"
                 autoComplete="nope"
                 onChange={(e) => setEmail(e.target.value)}
@@ -62,6 +63,7 @@ function LoginForm() {
             <div className="w-full">
               <input
                 type="password"
+                name="password"
                 placeholder="Password"
                 autoComplete="nope"
                 onChange={(e) => setPassword(e.target.value)}
