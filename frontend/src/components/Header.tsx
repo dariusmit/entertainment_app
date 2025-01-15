@@ -25,7 +25,7 @@ function Header() {
           className={
             !userModal
               ? "hidden"
-              : "block absolute z-20 mt-[14.93vw] p-6 top-0 right-0 w-[53.33vw] h-auto bg-[#161D2F] rounded-b-xl"
+              : "block absolute z-20 mt-[14.93vw] p-6 top-0 right-0 w-[53.33vw] h-auto bg-[#161D2F] rounded-bl-xl"
           }
         >
           <ul>
