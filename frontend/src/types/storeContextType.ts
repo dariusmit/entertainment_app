@@ -21,6 +21,7 @@ interface storeContextType {
   setUserModal: React.Dispatch<React.SetStateAction<boolean>>;
   userID: number;
   setUserID: React.Dispatch<React.SetStateAction<number>>;
+  debouncedSearchValue: string;
 }
 
 export default storeContextType;

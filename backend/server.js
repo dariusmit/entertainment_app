@@ -91,16 +91,15 @@ app.post("/remove_bookmark", (req, res) => {
 
 app.post("/retreive_bookmarked_movies", (req, res) => {
   const user_id = req.body.userID;
-  const sql_insert = `INSERT INTO moovie_titles (movie_title) VALUES (?)`;
+  const sql_select = `SELECT movie_title FROM bookmarked_movies WHERE user_id = ?`;
 
-  /** 
-  db.query(sql_insert, [movie_title], (err) => {
+  db.query(sql_select, [user_id], (err, results) => {
     if (err) return res.json(err.message);
-  });
-  */
 
-  return res.json({
-    user_id,
+    return res.json({
+      user_id,
+      results,
+    });
   });
 });
 

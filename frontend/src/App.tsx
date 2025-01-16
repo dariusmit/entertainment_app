@@ -89,6 +89,7 @@ function App() {
         setUserModal,
         userID,
         setUserID,
+        debouncedSearchValue,
       }}
     >
       <BrowserRouter>
