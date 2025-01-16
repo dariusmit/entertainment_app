@@ -19,6 +19,8 @@ interface storeContextType {
   setInputError: React.Dispatch<React.SetStateAction<string>>;
   userModal: boolean;
   setUserModal: React.Dispatch<React.SetStateAction<boolean>>;
+  userID: number;
+  setUserID: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default storeContextType;

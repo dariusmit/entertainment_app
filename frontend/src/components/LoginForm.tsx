@@ -6,7 +6,8 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
-  const { inputError, setInputError, setLoggedInStatus } = useContext(Context);
+  const { setUserID, inputError, setInputError, setLoggedInStatus } =
+    useContext(Context);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
@@ -26,6 +27,7 @@ function LoginForm() {
           setInputError("");
           setLoggedInStatus(res.data.isLoggedIn);
           navigate("/");
+          setUserID(res.data.user[0].user_id);
         } else {
           setInputError(res.data.message);
         }

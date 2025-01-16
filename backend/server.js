@@ -19,10 +19,15 @@ const db = mysql.createConnection({
 
 app.post("/login", (req, res) => {
   const sql = `SELECT * FROM users_list WHERE email = ? AND password = ?`;
-  db.query(sql, [req.body.email, req.body.password], (err, data) => {
+
+  db.query(sql, [req.body.email, req.body.password], (err, results) => {
     if (err) return res.json(err.message);
-    if (data.length > 0) {
-      res.json({ message: "Login successful", isLoggedIn: true });
+    if (results.length > 0) {
+      res.json({
+        message: "Login successful",
+        isLoggedIn: true,
+        user: results,
+      });
     } else {
       res.json({
         message: "Incorrect email or password",
@@ -36,6 +41,7 @@ app.post("/register", (req, res) => {
   const sql_select = `SELECT COUNT(*) AS count FROM users_list WHERE email = ?`;
   const sql_insert = `INSERT INTO users_list (email, password) VALUES (?, ?)`;
   let emailExists;
+
   db.query(sql_select, [req.body.email, req.body.password], (err, results) => {
     if (err) return res.json(err.message);
     const count = results[0].count;
@@ -48,6 +54,53 @@ app.post("/register", (req, res) => {
     res.json({
       emailExists: emailExists,
     });
+  });
+});
+
+app.post("/bookmark", (req, res) => {
+  const movie_title = req.body.movie.title;
+  const sql_insert = `INSERT INTO moovie_titles (movie_title) VALUES (?)`;
+
+  /** 
+  db.query(sql_insert, [movie_title], (err) => {
+    if (err) return res.json(err.message);
+  });
+  */
+
+  return res.json({
+    mesage: "bookmarked movie title inserted into database",
+    bookmarked_movie_title: movie_title,
+  });
+});
+
+app.post("/remove_bookmark", (req, res) => {
+  const movie_title = req.body.movie.title;
+  const sql_insert = `INSERT INTO moovie_titles (movie_title) VALUES (?)`;
+
+  /** 
+  db.query(sql_insert, [movie_title], (err) => {
+    if (err) return res.json(err.message);
+  });
+  */
+
+  return res.json({
+    mesage: "bookmarked movie title inserted into database",
+    bookmarked_movie_title: movie_title,
+  });
+});
+
+app.post("/retreive_bookmarked_movies", (req, res) => {
+  const user_id = req.body.userID;
+  const sql_insert = `INSERT INTO moovie_titles (movie_title) VALUES (?)`;
+
+  /** 
+  db.query(sql_insert, [movie_title], (err) => {
+    if (err) return res.json(err.message);
+  });
+  */
+
+  return res.json({
+    user_id,
   });
 });
 

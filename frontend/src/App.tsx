@@ -21,6 +21,7 @@ function App() {
   const [searchError, setSearchError] = useState<string>("");
   const [userModal, setUserModal] = useState<boolean>(false);
   const [searchCompleted, setSearchCompletion] = useState<boolean>(false);
+  const [userID, setUserID] = useState<number>(0);
   const [isLoggedIn, setLoggedInStatus] = useState<boolean>(() => {
     return getLoggedInStatus();
   });
@@ -86,6 +87,8 @@ function App() {
         setInputError,
         userModal,
         setUserModal,
+        userID,
+        setUserID,
       }}
     >
       <BrowserRouter>

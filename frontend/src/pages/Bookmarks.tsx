@@ -6,9 +6,11 @@ import Search from "../components/Search";
 import Header from "../components/Header";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 function Bookmarks() {
-  const { isLoggedIn, getMovieList, filteredMovieList } = useContext(Context);
+  const { userID, isLoggedIn, getMovieList, filteredMovieList } =
+    useContext(Context);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -17,6 +19,16 @@ function Bookmarks() {
     } else {
       getMovieList();
     }
+
+    //Reikia nusiusti user id serveriui
+    axios
+      .post("http://localhost:8081/retreive_bookmarked_movies", { userID })
+      .then((res) => {
+        console.log(res.data.user_id);
+      })
+      .catch((err: any) => {
+        if (err) console.log(err.message);
+      });
   }, []);
 
   useEffect(() => {

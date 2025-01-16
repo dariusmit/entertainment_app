@@ -1,6 +1,7 @@
 import movieType from "../types/movieType";
 import { Context } from "../context/storeContext";
 import { useContext } from "react";
+import axios from "axios";
 
 interface Props {
   movie: movieType;
@@ -22,6 +23,13 @@ function MovieCard({ movie }: Props) {
         return item;
       })
     );
+
+    axios
+      .post("http://localhost:8081/bookmark", { movie })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => console.log(err));
   }
 
   return (
