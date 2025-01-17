@@ -34,12 +34,7 @@ function Bookmarks() {
     });
   }, [debouncedSearchValue, bookmarkedMovies]);
 
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/login");
-    } else {
-      getMovieList();
-    }
+  function retreiveBookmarkedMoviesFromDB() {
     axios
       .post("http://localhost:8081/retreive_bookmarked_movies", { userID })
       .then((res) => {
@@ -56,7 +51,20 @@ function Bookmarks() {
       .catch((err: any) => {
         if (err) console.log(err.message);
       });
+  }
+
+  useEffect(() => {
+    if (!isLoggedIn) {
+      navigate("/login");
+    } else {
+      getMovieList();
+    }
+    retreiveBookmarkedMoviesFromDB();
   }, []);
+
+  useEffect(() => {
+    retreiveBookmarkedMoviesFromDB();
+  }, [movieList]);
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -69,7 +77,7 @@ function Bookmarks() {
       <Header />
       <Search />
       <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
+        initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5 }}
         className="px-[4.27vw] pb-[16.27vw]"

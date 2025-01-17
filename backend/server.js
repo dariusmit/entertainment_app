@@ -19,7 +19,6 @@ const db = mysql.createConnection({
 
 app.post("/login", (req, res) => {
   const sql = `SELECT * FROM users_list WHERE email = ? AND password = ?`;
-
   db.query(sql, [req.body.email, req.body.password], (err, results) => {
     if (err) return res.json(err.message);
     if (results.length > 0) {
@@ -41,7 +40,6 @@ app.post("/register", (req, res) => {
   const sql_select = `SELECT COUNT(*) AS count FROM users_list WHERE email = ?`;
   const sql_insert = `INSERT INTO users_list (email, password) VALUES (?, ?)`;
   let emailExists;
-
   db.query(sql_select, [req.body.email, req.body.password], (err, results) => {
     if (err) return res.json(err.message);
     const count = results[0].count;
@@ -58,44 +56,28 @@ app.post("/register", (req, res) => {
 });
 
 app.post("/bookmark", (req, res) => {
+  const user_id = req.body.userID;
   const movie_title = req.body.movie.title;
-  const sql_insert = `INSERT INTO moovie_titles (movie_title) VALUES (?)`;
-
-  /** 
-  db.query(sql_insert, [movie_title], (err) => {
+  const sql_insert = `INSERT INTO bookmarked_movies (user_id, movie_title) VALUES (?, ?)`;
+  db.query(sql_insert, [user_id, movie_title], (err) => {
     if (err) return res.json(err.message);
-  });
-  */
-
-  return res.json({
-    mesage: "bookmarked movie title inserted into database",
-    bookmarked_movie_title: movie_title,
   });
 });
 
 app.post("/remove_bookmark", (req, res) => {
+  const user_id = req.body.userID;
   const movie_title = req.body.movie.title;
-  const sql_insert = `INSERT INTO moovie_titles (movie_title) VALUES (?)`;
-
-  /** 
-  db.query(sql_insert, [movie_title], (err) => {
+  const sql_delete = `DELETE FROM bookmarked_movies WHERE user_id = ? and movie_title = ?`;
+  db.query(sql_delete, [user_id, movie_title], (err) => {
     if (err) return res.json(err.message);
-  });
-  */
-
-  return res.json({
-    mesage: "bookmarked movie title inserted into database",
-    bookmarked_movie_title: movie_title,
   });
 });
 
 app.post("/retreive_bookmarked_movies", (req, res) => {
   const user_id = req.body.userID;
   const sql_select = `SELECT movie_title FROM bookmarked_movies WHERE user_id = ?`;
-
   db.query(sql_select, [user_id], (err, results) => {
     if (err) return res.json(err.message);
-
     return res.json({
       user_id,
       results,

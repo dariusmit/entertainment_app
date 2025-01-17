@@ -8,28 +8,41 @@ interface Props {
 }
 
 function MovieCard({ movie }: Props) {
-  const { updateMovieList } = useContext(Context);
+  const { updateMovieList, userID } = useContext(Context);
+
+  function addBookmarkToDB() {
+    axios
+      .post("http://localhost:8081/bookmark", { movie, userID })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => console.log(err));
+  }
+
+  function removeBookmarkFromDB() {
+    axios
+      .post("http://localhost:8081/remove_bookmark", { movie, userID })
+      .then((res) => {
+        console.log(res);
+      })
+      .catch((err) => console.log(err));
+  }
 
   function bookmark(movie_id: number) {
     updateMovieList((prev) =>
       prev.map((item) => {
         if (item.id === movie_id) {
           if (item.isBookmarked === false) {
+            addBookmarkToDB();
             return { ...movie, isBookmarked: true };
           } else {
+            removeBookmarkFromDB();
             return { ...movie, isBookmarked: false };
           }
         }
         return item;
       })
     );
-
-    axios
-      .post("http://localhost:8081/bookmark", { movie })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((err) => console.log(err));
   }
 
   return (

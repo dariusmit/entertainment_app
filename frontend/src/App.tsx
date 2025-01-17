@@ -21,7 +21,9 @@ function App() {
   const [searchError, setSearchError] = useState<string>("");
   const [userModal, setUserModal] = useState<boolean>(false);
   const [searchCompleted, setSearchCompletion] = useState<boolean>(false);
-  const [userID, setUserID] = useState<number>(0);
+  const [userID, setUserID] = useState<number>(() => {
+    return getUserIDFromStorage();
+  });
   const [isLoggedIn, setLoggedInStatus] = useState<boolean>(() => {
     return getLoggedInStatus();
   });
@@ -32,6 +34,10 @@ function App() {
     return JSON.parse(localStorage.getItem("movie_list") || "[]");
   }
 
+  function getUserIDFromStorage(): number {
+    return JSON.parse(sessionStorage.getItem("user_id") || "0");
+  }
+
   function getLoggedInStatus(): boolean {
     return JSON.parse(sessionStorage.getItem("logged_in_status") || "false");
   }
@@ -39,6 +45,10 @@ function App() {
   useEffect(() => {
     sessionStorage.setItem("logged_in_status", JSON.stringify(isLoggedIn));
   }, [isLoggedIn]);
+
+  useEffect(() => {
+    sessionStorage.setItem("user_id", JSON.stringify(userID));
+  }, [userID]);
 
   const filteredMovieList = useMemo(() => {
     localStorage.setItem("movie_list", JSON.stringify(movieList));
