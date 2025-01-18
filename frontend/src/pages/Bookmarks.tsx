@@ -10,7 +10,7 @@ import axios from "axios";
 import { useMemo } from "react";
 
 function Bookmarks() {
-  let {
+  const {
     movieList,
     userID,
     isLoggedIn,
@@ -19,6 +19,7 @@ function Bookmarks() {
     searchValue,
     debouncedSearchValue,
   } = useContext(Context);
+
   const navigate = useNavigate();
 
   const [bookmarkedMovies, setBookmarkedMovies] = useState<movieType[]>([]);

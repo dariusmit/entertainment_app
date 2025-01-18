@@ -5,9 +5,17 @@ import axios from "axios";
 
 interface Props {
   movie: movieType;
+  styleGeneral?: string;
+  styleInfoSection?: string;
+  trendingCard?: boolean;
 }
 
-function MovieCard({ movie }: Props) {
+function MovieCard({
+  movie,
+  styleGeneral,
+  styleInfoSection,
+  trendingCard,
+}: Props) {
   const { updateMovieList, userID } = useContext(Context);
 
   function addBookmarkToDB() {
@@ -46,12 +54,14 @@ function MovieCard({ movie }: Props) {
   }
 
   return (
-    <div className="relative">
+    <div className={trendingCard ? styleGeneral : "relative"}>
       <img
-        className="w-full h-auto rounded-lg"
+        className={
+          trendingCard ? "w-full h-full rounded-lg" : "w-full h-auto rounded-lg"
+        }
         src={`../.${movie.thumbnail.regular.small}`}
       />
-      <div>
+      <div className={styleInfoSection}>
         <div className="flex">
           <p className="mr-[1.6vw]">{movie.year}</p>
           <p className="mr-[1.6vw]">·</p>
