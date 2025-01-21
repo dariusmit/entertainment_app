@@ -2,23 +2,20 @@ import movieType from "../types/movieType";
 import { Context } from "../context/storeContext";
 import { useContext } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 
 interface Props {
   movie: movieType;
-  styleGeneral?: string;
-  styleInfoSection?: string;
   trendingCard?: boolean;
 }
 
-function MovieCard({
-  movie,
-  styleGeneral,
-  styleInfoSection,
-  trendingCard,
-}: Props) {
+function MovieCard({ movie, trendingCard }: Props) {
   const { updateMovieList, userID } = useContext(Context);
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  function addBookmarkToDB() {
+  function addBookmarkToDB(): void {
     axios
       .post("http://localhost:8081/bookmark", { movie, userID })
       .then((res) => {
@@ -27,7 +24,7 @@ function MovieCard({
       .catch((err) => console.log(err));
   }
 
-  function removeBookmarkFromDB() {
+  function removeBookmarkFromDB(): void {
     axios
       .post("http://localhost:8081/remove_bookmark", { movie, userID })
       .then((res) => {
@@ -36,7 +33,7 @@ function MovieCard({
       .catch((err) => console.log(err));
   }
 
-  function bookmark(movie_id: number) {
+  function bookmark(movie_id: number): void {
     updateMovieList((prev) =>
       prev.map((item) => {
         if (item.id === movie_id) {
@@ -53,15 +50,34 @@ function MovieCard({
     );
   }
 
+  function viewContent(): void {
+    const formattedTitle = movie.title.replace(/\s+/g, "_").toLowerCase();
+
+    if (location.pathname === "/") {
+      navigate(
+        `${movie.category === "Movie" ? `/movies` : `/shows`}/${formattedTitle}`
+      );
+    } else if (location.pathname === "/bookmarks") {
+      navigate(
+        `${movie.category === "Movie" ? `/movies` : `/shows`}/${formattedTitle}`
+      );
+    } else navigate(`${location.pathname}/${formattedTitle}`);
+  }
+
   return (
-    <div className={trendingCard ? styleGeneral : "relative"}>
+    <div
+      className={`${
+        trendingCard ? `w-[64vw] h-[37.33vw]` : ``
+      } relative overflow-hidden rounded-lg`}
+    >
       <img
-        className={
-          trendingCard ? "w-full h-full rounded-lg" : "w-full h-auto rounded-lg"
-        }
+        className={`${
+          trendingCard ? `h-full` : `h-auto`
+        } w-full rounded-lg transition-transform hover:scale-105 hover:cursor-pointer mb-2`}
+        onClick={() => viewContent()}
         src={`../.${movie.thumbnail.regular.small}`}
       />
-      <div className={styleInfoSection}>
+      <div className={trendingCard ? "absolute bottom-0 left-0 p-2" : ""}>
         <div className="flex">
           <p className="mr-[1.6vw]">{movie.year}</p>
           <p className="mr-[1.6vw]">·</p>

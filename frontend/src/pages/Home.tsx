@@ -25,18 +25,6 @@ function Home() {
     }
   }, [isLoggedIn]);
 
-  /**
-    <div className="w-[64vw] h-[37.33vw] relative" key={movie.id}>
-                    <img
-                      className="rounded-lg"
-                      src={`../.${movie.thumbnail.trending.small}`}
-                    />
-                    <p className="absolute bottom-0 left-0 p-4">
-                      {movie.title}
-                    </p>
-                  </div>
- */
-
   return (
     <>
       <Header />
@@ -54,13 +42,7 @@ function Home() {
             filteredMovieList.map((movie: movieType) => {
               return (
                 movie.isTrending && (
-                  <MovieCard
-                    key={movie.id}
-                    movie={movie}
-                    styleGeneral="w-[64vw] h-[37.33vw] relative"
-                    styleInfoSection="absolute bottom-0 left-0 p-2"
-                    trendingCard
-                  />
+                  <MovieCard key={movie.id} movie={movie} trendingCard />
                 )
               );
             })}

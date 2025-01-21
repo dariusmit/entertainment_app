@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import axios from "axios";
 import useDebounce from "./hooks/useDebounce";
+import IndividualItemPage from "./pages/IndividualitemPage";
 
 function App() {
   const [movieList, updateMovieList] = useState<movieType[]>(() => {
@@ -106,6 +107,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/movies" element={<Movies />} />
+          <Route path="/movies/:slug" element={<IndividualItemPage />} />
+          <Route path="/shows/:slug" element={<IndividualItemPage />} />
           <Route path="/shows" element={<Shows />} />
           <Route path="/bookmarks" element={<Bookmarks />} />
           <Route path="/login" element={<Login />} />
