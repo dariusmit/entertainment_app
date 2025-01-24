@@ -1,6 +1,7 @@
 import { useContext } from "react";
 import Navigation from "./Navigation";
 import { Context } from "../context/storeContext";
+import { Link } from "react-router-dom";
 
 function Header() {
   const { userModal, setUserModal, setLoggedInStatus } = useContext(Context);
@@ -8,7 +9,9 @@ function Header() {
   return (
     <>
       <div className="flex items-center justify-between w-full p-[4.8vw] h-[14.93vw] bg-[#161D2F] text-white mb-[6.4vw]">
-        <img className="w-[6.67vw] h-[5.33vw]" src="../../assets/logo.svg" />
+        <Link to="/">
+          <img className="w-[6.67vw] h-[5.33vw]" src="../../assets/logo.svg" />
+        </Link>
         <Navigation />
         <img
           className="w-[6.4vw] h-[6.4vw] border border-white rounded-full"
@@ -34,7 +37,7 @@ function Header() {
                 setLoggedInStatus(false);
                 setUserModal(false);
               }}
-              className="pl-4 pb-2 float-left clear-both"
+              className="pl-4 pb-2 float-left clear-both text-[3.73vw]"
             >
               Logout
             </li>

@@ -18,10 +18,12 @@ function App() {
     return getMoviesFromStorage();
   });
   const [searchValue, changeSearchValue] = useState<string>("");
-  const [isLoading, UpdateLoadingStatus] = useState<boolean>(false);
+  const [isLoading, UpdateLoadingStatus] = useState<boolean | undefined>();
   const [searchError, setSearchError] = useState<string>("");
   const [userModal, setUserModal] = useState<boolean>(false);
-  const [searchCompleted, setSearchCompletion] = useState<boolean>(false);
+  const [searchCompleted, setSearchCompletion] = useState<
+    boolean | undefined
+  >();
   const [userID, setUserID] = useState<number>(() => {
     return getUserIDFromStorage();
   });
@@ -56,6 +58,7 @@ function App() {
     return movieList.filter((movie: movieType) => {
       if (searchValue !== "") {
         setSearchCompletion(true);
+        UpdateLoadingStatus(false);
       } else {
         setSearchCompletion(false);
       }

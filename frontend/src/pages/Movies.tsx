@@ -35,7 +35,7 @@ function Movies() {
         transition={{ duration: 0.5 }}
         className="px-[4.27vw] pb-[16.27vw]"
       >
-        <h1 className="font-bold text-xl mt-4 mb-2">Movies</h1>
+        <h1 className="font-light text-[5.33vw] mt-4 mb-2">Movies</h1>
         <div className="grid grid-cols-2 gap-3">
           {filteredMovieList &&
             filteredMovieList.length != 0 &&

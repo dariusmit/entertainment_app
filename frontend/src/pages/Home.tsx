@@ -8,7 +8,8 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 
 function Home() {
-  const { isLoggedIn, getMovieList, filteredMovieList } = useContext(Context);
+  const { isLoggedIn, getMovieList, filteredMovieList, searchCompleted } =
+    useContext(Context);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,7 +36,9 @@ function Home() {
         transition={{ duration: 0.5 }}
         className="px-[4.27vw] pb-[16.27vw]"
       >
-        <h1 className="font-bold text-xl mt-4 mb-2">Trending</h1>
+        {!searchCompleted && (
+          <h1 className="font-light text-[5.33vw] mt-4 mb-2">Trending</h1>
+        )}
         <div className="grid gap-3 grid-flow-col overflow-x-scroll">
           {filteredMovieList &&
             filteredMovieList.length != 0 &&
@@ -47,7 +50,11 @@ function Home() {
               );
             })}
         </div>
-        <h1 className="font-bold text-xl mt-4 mb-2">Recommended for you</h1>
+        {!searchCompleted && (
+          <h1 className="font-light text-[5.33vw] mt-4 mb-2">
+            Recommended for you
+          </h1>
+        )}
         <div className="grid grid-cols-2 gap-3">
           {filteredMovieList &&
             filteredMovieList.length != 0 &&

@@ -6,12 +6,16 @@ interface storeContextType {
   getMovieList: () => void;
   searchValue: string;
   changeSearchValue: React.Dispatch<React.SetStateAction<string>>;
-  isLoading: boolean;
-  UpdateLoadingStatus: React.Dispatch<React.SetStateAction<boolean>>;
+  isLoading: boolean | undefined;
+  UpdateLoadingStatus: React.Dispatch<
+    React.SetStateAction<boolean | undefined>
+  >;
   searchError: string;
   setSearchError: React.Dispatch<React.SetStateAction<string>>;
-  searchCompleted: boolean;
-  setSearchCompletion: React.Dispatch<React.SetStateAction<boolean>>;
+  searchCompleted: boolean | undefined;
+  setSearchCompletion: React.Dispatch<
+    React.SetStateAction<boolean | undefined>
+  >;
   filteredMovieList: movieType[];
   isLoggedIn: boolean;
   setLoggedInStatus: React.Dispatch<React.SetStateAction<boolean>>;

@@ -78,7 +78,7 @@ function MovieCard({ movie, trendingCard }: Props) {
         src={`../.${movie.thumbnail.regular.small}`}
       />
       <div className={trendingCard ? "absolute bottom-0 left-0 p-2" : ""}>
-        <div className="flex">
+        <div className="flex text-[3.47vw] font-extralight">
           <p className="mr-[1.6vw]">{movie.year}</p>
           <p className="mr-[1.6vw]">·</p>
           <div className="flex items-center mr-[1.6vw]">
@@ -95,7 +95,7 @@ function MovieCard({ movie, trendingCard }: Props) {
           <p className="mr-[1.6vw]">·</p>
           <p>{movie.rating}</p>
         </div>
-        <p>{movie.title}</p>
+        <p className="text-[4vw]">{movie.title}</p>
       </div>
       <div className="absolute flex justify-center items-center top-0 right-0 m-1 w-[8.53vw] h-[8.53vw]">
         <div className="bg-black absolute top-0 right-0 opacity-50 rounded-full w-[8.53vw] h-[8.53vw]">
