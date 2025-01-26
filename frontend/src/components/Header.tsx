@@ -2,9 +2,50 @@ import { useContext } from "react";
 import Navigation from "./Navigation";
 import { Context } from "../context/storeContext";
 import { Link } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { useEffect, useState } from "react";
+import styleObjectType from "../types/styleObjectType";
 
 function Header() {
   const { userModal, setUserModal, setLoggedInStatus } = useContext(Context);
+  const location = useLocation();
+
+  const style = "svg-white-filter";
+  const [styleObject, ChangeStyleObject] = useState<
+    styleObjectType | undefined
+  >();
+
+  useEffect(() => {
+    if (location.pathname == "/") {
+      ChangeStyleObject({
+        homeMenuStyle: style,
+        moviesMenuStyle: "",
+        showsMenuStyle: "",
+        bookmarksMenuStyle: "",
+      });
+    } else if (location.pathname == "/shows") {
+      ChangeStyleObject({
+        homeMenuStyle: "",
+        moviesMenuStyle: "",
+        showsMenuStyle: style,
+        bookmarksMenuStyle: "",
+      });
+    } else if (location.pathname == "/bookmarks") {
+      ChangeStyleObject({
+        homeMenuStyle: "",
+        moviesMenuStyle: "",
+        showsMenuStyle: "",
+        bookmarksMenuStyle: style,
+      });
+    } else if (location.pathname == "/movies") {
+      ChangeStyleObject({
+        homeMenuStyle: "",
+        moviesMenuStyle: style,
+        showsMenuStyle: "",
+        bookmarksMenuStyle: "",
+      });
+    }
+  }, [location.pathname]);
 
   return (
     <>
@@ -12,7 +53,7 @@ function Header() {
         <Link to="/">
           <img className="w-[6.67vw] h-[5.33vw]" src="../../assets/logo.svg" />
         </Link>
-        <Navigation />
+        <Navigation styleObject={styleObject} />
         <img
           className="w-[6.4vw] h-[6.4vw] border border-white rounded-full"
           onClick={() => {

@@ -16,13 +16,13 @@ function Search() {
     debouncedSearchValue,
   } = useContext<storeContextType>(Context);
 
-  const [foundValues, setFoundValues] = useState<number>();
-
+  const [foundValues, setFoundValues] = useState<number>(0);
   const location = useLocation();
 
   useEffect(() => {
     if (searchValue != "") {
       UpdateLoadingStatus(true);
+      setFoundValues(0);
     } else {
       setTimeout(() => UpdateLoadingStatus(false), 1000);
     }
@@ -34,15 +34,17 @@ function Search() {
     } else if (location.pathname === "/movies") {
       for (let i = 0; i < filteredMovieList.length; i++) {
         if (filteredMovieList[i].category === "Movie") {
-          setFoundValues(i);
+          setFoundValues((prev) => prev + 1);
         }
       }
     } else if (location.pathname === "/shows") {
       for (let i = 0; i < filteredMovieList.length; i++) {
         if (filteredMovieList[i].category === "TV Series") {
-          setFoundValues(i);
+          setFoundValues((prev) => prev + 1);
         }
       }
+    } else {
+      setFoundValues(filteredMovieList.length);
     }
   }
 
