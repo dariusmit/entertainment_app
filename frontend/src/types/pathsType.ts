@@ -7,6 +7,9 @@ interface pathsType {
   HorrorMovies: string;
   RomanceMovies: string;
   DocumentaryMovies: string;
+  SearchMovies: string;
+  SearchSeries: string;
+  SearchAll: string;
 }
 
 export default pathsType;

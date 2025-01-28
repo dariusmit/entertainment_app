@@ -3,6 +3,7 @@ import { Context } from "../context/storeContext";
 import storeContextType from "../types/storeContextType";
 import LoadingAnimatedItem from "./LoadingAnimatedItem";
 import { useLocation } from "react-router-dom";
+import useDebounce from "../hooks/useDebounce";
 
 function Search() {
   const {
@@ -10,10 +11,10 @@ function Search() {
     changeSearchValue,
     searchCompleted,
     isLoading,
-    filteredMovieList,
     UpdateLoadingStatus,
-    searchError,
     debouncedSearchValue,
+    setSearchCompletion,
+    searchError,
   } = useContext<storeContextType>(Context);
 
   const [foundValues, setFoundValues] = useState<number>(0);
@@ -22,12 +23,13 @@ function Search() {
   useEffect(() => {
     if (searchValue != "") {
       UpdateLoadingStatus(true);
-      setFoundValues(0);
+      //setFoundValues(0);
     } else {
       setTimeout(() => UpdateLoadingStatus(false), 1000);
     }
   }, [searchValue]);
 
+  /** 
   function countFoundValues(): void {
     if (location.pathname === "/") {
       setFoundValues(filteredMovieList.length);
@@ -48,8 +50,15 @@ function Search() {
     }
   }
 
+  */
   useEffect(() => {
-    countFoundValues();
+    //countFoundValues();
+    if (searchValue !== "") {
+      setSearchCompletion(true);
+      UpdateLoadingStatus(false);
+    } else {
+      setSearchCompletion(false);
+    }
   }, [debouncedSearchValue]);
 
   return (
