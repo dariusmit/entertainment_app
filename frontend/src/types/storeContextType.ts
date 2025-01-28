@@ -29,7 +29,7 @@ interface storeContextType {
   userID: number;
   setUserID: React.Dispatch<React.SetStateAction<number>>;
   debouncedSearchValue: string;
-  getContent: (path: string) => Promise<any>;
+  //getContent: (path: string) => Promise<any>;
   PATHS: pathsType;
 }
 

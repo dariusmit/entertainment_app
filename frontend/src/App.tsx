@@ -15,12 +15,6 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 
 function App() {
-  const [movieList, updateMovieList] = useState<movieType[]>(() => {
-    return getMoviesFromStorage();
-  });
-  const [bookmarkedMovies, setBookmarkedMovies] = useState<movieType[]>(() => {
-    return getMoviesFromStorage();
-  });
   const [searchValue, changeSearchValue] = useState<string>("");
   const [isLoading, UpdateLoadingStatus] = useState<boolean | undefined>();
   const [searchError, setSearchError] = useState<string>("");
@@ -36,6 +30,15 @@ function App() {
   });
   const [inputError, setInputError] = useState<string>("");
   const debouncedSearchValue = useDebounce(searchValue);
+
+  //Do I need these?
+  const [movieList, updateMovieList] = useState<movieType[]>(() => {
+    return getMoviesFromStorage();
+  });
+  const [bookmarkedMovies, setBookmarkedMovies] = useState<movieType[]>(() => {
+    return getMoviesFromStorage();
+  });
+  //
 
   function getMoviesFromStorage(): movieType[] {
     return JSON.parse(localStorage.getItem("movie_list") || "[]");
@@ -65,17 +68,6 @@ function App() {
       })
       .catch((err: any) => {
         if (err) console.log(err.message);
-      });
-  }
-
-  async function getContent(path: string): Promise<any> {
-    return await axios
-      .get(path)
-      .then((res: any) => {
-        return res.data.results;
-      })
-      .catch((e: any) => {
-        console.log("Error: " + e.message);
       });
   }
 
@@ -112,7 +104,6 @@ function App() {
         userID,
         setUserID,
         debouncedSearchValue,
-        getContent,
         PATHS,
       }}
     >

@@ -11,12 +11,14 @@ function BookmarksPage() {
   const {
     isLoggedIn,
     retreiveBookmarksFromDB,
-    filteredMovieList,
     searchCompleted,
+    searchValue,
+    PATHS,
   } = useContext(Context);
 
   const navigate = useNavigate();
 
+  /**
   useEffect(() => {
     if (!isLoggedIn) {
       navigate("/login");
@@ -24,6 +26,7 @@ function BookmarksPage() {
       retreiveBookmarksFromDB();
     }
   }, []);
+  */
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -35,45 +38,15 @@ function BookmarksPage() {
     <>
       <Header />
       <Search />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.5 }}
-        className="px-[4.27vw] pb-[16.27vw]"
-      >
-        {!searchCompleted && (
-          <h1 className="font-light text-[5.33vw] mt-4 mb-2">
-            Bookmarked Movies
-          </h1>
-        )}
-        <div className="grid grid-cols-2 gap-3">
-          {filteredMovieList &&
-            filteredMovieList.length != 0 &&
-            filteredMovieList.map((movie: movieType) => {
-              return (
-                movie.category === "Movie" && (
-                  <MovieCard key={movie.id} movie={movie} />
-                )
-              );
-            })}
-        </div>
-        {!searchCompleted && (
-          <h1 className="font-light text-[5.33vw] mt-4 mb-2">
-            Bookmarked TV Series
-          </h1>
-        )}
-        <div className="grid grid-cols-2 gap-3">
-          {filteredMovieList &&
-            filteredMovieList.length != 0 &&
-            filteredMovieList.map((movie: movieType) => {
-              return (
-                movie.category === "TV Series" && (
-                  <MovieCard key={movie.id} movie={movie} />
-                )
-              );
-            })}
-        </div>
-      </motion.div>
+      {searchCompleted && (
+        <MoviesSection
+          title="Search Results"
+          path={`${PATHS.SearchAll}&query=${searchValue}`}
+        />
+      )}
+      {!searchCompleted && (
+        <MoviesSection title="Bookmarks" path={PATHS.TrendingMovies} />
+      )}
     </>
   );
 }
