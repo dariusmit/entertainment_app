@@ -5,6 +5,7 @@ interface seriesType {
   first_air_date: number;
   genre_ids: [];
   vote_average: number;
+  isBookmarked?: boolean;
 }
 
 export default seriesType;

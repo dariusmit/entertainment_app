@@ -18,7 +18,7 @@ const db = mysql.createConnection({
 });
 
 app.post("/login", (req, res) => {
-  const sql = `SELECT * FROM users_list WHERE email = ? AND password = ?`;
+  const sql = `SELECT * FROM users WHERE email = ? AND password = ?`;
   db.query(sql, [req.body.email, req.body.password], (err, results) => {
     if (err) return res.json(err.message);
     if (results.length > 0) {
@@ -38,7 +38,7 @@ app.post("/login", (req, res) => {
 
 app.post("/register", (req, res) => {
   const sql_select = `SELECT COUNT(*) AS count FROM users_list WHERE email = ?`;
-  const sql_insert = `INSERT INTO users_list (email, password) VALUES (?, ?)`;
+  const sql_insert = `INSERT INTO users (email, password) VALUES (?, ?)`;
   let emailExists;
   db.query(sql_select, [req.body.email, req.body.password], (err, results) => {
     if (err) return res.json(err.message);
@@ -89,7 +89,6 @@ app.post("/bookmark_movie", (req, res) => {
     }
   }
 
-  /**
   db.query(
     sql_insert_movie_record,
     [
@@ -106,7 +105,6 @@ app.post("/bookmark_movie", (req, res) => {
   db.query(sql_insert_bookmark_record, [user_id, movie_id], (err) => {
     if (err) return res.json(err.message);
   });
-   */
 
   return res.json({
     message: `Movie with id ${movie_id} was bookmarked`,
@@ -118,7 +116,7 @@ app.post("/bookmark_series", (req, res) => {
   const series_id = req.body.id;
   const series_list = req.body.movies;
   let specific_series;
-  const sql_insert_series_record = `INSERT INTO b_series (id, name, first_air_date, vote_average) VALUES (?, ?, ?, ?)`;
+  const sql_insert_series_record = `INSERT INTO b_series (id, name, poster_path, first_air_date, vote_average) VALUES (?, ?, ?, ?, ?)`;
   const sql_insert_bookmark_record = `INSERT INTO b_user_series (user_id, content_id) VALUES (?, ?)`;
 
   for (let i = 0; i < series_list.length; i++) {
@@ -127,15 +125,12 @@ app.post("/bookmark_series", (req, res) => {
     }
   }
 
-  console.log(specific_series);
-  console.log("User id:" + user_id);
-  console.log("Movie id:" + series_id);
-
   db.query(
     sql_insert_series_record,
     [
       specific_series.id,
       specific_series.name,
+      specific_series.poster_path,
       specific_series.first_air_date,
       specific_series.vote_average,
     ],
@@ -174,25 +169,47 @@ app.post("/remove_bookmarked_series", (req, res) => {
 });
 
 app.post("/retreive_bookmarked_movies", (req, res) => {
-  const user_id = req.body.userID;
-  const sql_select = `SELECT movie_title FROM bookmarked_movies WHERE user_id = ?`;
-  db.query(sql_select, [user_id], (err, results) => {
+  const userID = req.body.user_id;
+  const sql = `SELECT * FROM b_user_movies WHERE user_id = ?`;
+  const sql1 = `SELECT * FROM b_movies`;
+  db.query(sql, [userID], (err, results) => {
     if (err) return res.json(err.message);
-    return res.json({
-      user_id,
-      results,
+    const users_bookmarks_list = results;
+    db.query(sql1, (err, results) => {
+      if (err) return res.json(err.message);
+      let return_array = [];
+      const content_array = results;
+      for (let i = 0; i < content_array.length; i++) {
+        for (let j = 0; j < users_bookmarks_list.length; j++) {
+          if (content_array[i].id === users_bookmarks_list[j].content_id) {
+            return_array.push(content_array[i]);
+          }
+        }
+      }
+      return res.json(return_array);
     });
   });
 });
 
 app.post("/retreive_bookmarked_series", (req, res) => {
-  const user_id = req.body.userID;
-  const sql_select = `SELECT movie_title FROM bookmarked_movies WHERE user_id = ?`;
-  db.query(sql_select, [user_id], (err, results) => {
+  const userID = req.body.user_id;
+  const sql = `SELECT * FROM b_user_series WHERE user_id = ?`;
+  const sql1 = `SELECT * FROM b_series`;
+  db.query(sql, [userID], (err, results) => {
     if (err) return res.json(err.message);
-    return res.json({
-      user_id,
-      results,
+    const users_bookmarks_list = results;
+    db.query(sql1, (err, results) => {
+      if (err) return res.json(err.message);
+      let return_array = [];
+      const content_array = results;
+      for (let i = 0; i < content_array.length; i++) {
+        for (let j = 0; j < users_bookmarks_list.length; j++) {
+          if (content_array[i].id === users_bookmarks_list[j].content_id) {
+            return_array.push(content_array[i]);
+          }
+        }
+      }
+      return res.json(return_array);
     });
   });
 });

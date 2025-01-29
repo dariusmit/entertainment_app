@@ -10,6 +10,8 @@ interface pathsType {
   SearchMovies: string;
   SearchSeries: string;
   SearchAll: string;
+  RetreiveBookmarkedMovies: string;
+  RetreiveBookmarkedSeries: string;
 }
 
 export default pathsType;

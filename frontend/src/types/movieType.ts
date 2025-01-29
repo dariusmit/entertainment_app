@@ -6,6 +6,7 @@ interface movieType {
   release_date: number;
   genre_ids: [];
   vote_average: number;
+  isBookmarked?: boolean;
 }
 
 export default movieType;
