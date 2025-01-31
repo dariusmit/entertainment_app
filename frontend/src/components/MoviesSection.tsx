@@ -24,39 +24,6 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
    */
   const posterRootURL = "https://image.tmdb.org/t/p/original";
 
-  function bookmarkContent(
-    movie: movieType | seriesType,
-    id: number,
-    media_type: string
-  ): void {
-    axios
-      .post("http://localhost:8081/bookmark_item", {
-        id,
-        movies,
-        userID,
-        media_type,
-      })
-      .then((res) => {
-        console.log(res.data.message);
-      })
-      .catch((err) => console.log(err));
-  }
-
-  function removeBookmark(id: number, media_type: string): void {
-    //updateBookmarks((prev) => prev.filter((item) => item.id !== id));
-    console.log("remove bookmark front end initiated was called");
-    axios
-      .post("http://localhost:8081/remove_bookmarked_item", {
-        id,
-        userID,
-        media_type,
-      })
-      .then((res) => {
-        console.log(res.data.message);
-      })
-      .catch((err) => console.log(err));
-  }
-
   //A type guard in TypeScript, which is used to narrow down a union type (trendingMovieType | originalsMovieType) to a specific type (trendingMovieType).
   //Without a type guard, TypeScript will throw errors if you try to access properties that don't exist on both types.
   //"is" - is type predicate, is a special syntax in TypeScript that informs the compiler about the type of a variable when a condition is true.
@@ -73,7 +40,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
       async function fetchBookmarkStatus() {
         const result = await isBookmarked(
           movie.id,
-          isMovieType(movie) ? movie.media_type : "series"
+          isMovieType(movie) ? "movie" : "series"
         );
         setIsBookmarkedState(result);
       }
@@ -97,28 +64,74 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
   }
  */
 
-  async function checkRecord(
-    id: number,
-    media_type: string
-  ): Promise<boolean | void> {
-    return axios
-      .post("http://localhost:8081/check_record", { id, media_type })
-      .then((res) => {
-        return res.data;
-      })
-      .catch((err) => console.log(err));
-  }
+  const [bookmarkedItems, setBookmarkedItems] = useState<number[]>([]);
 
   async function isBookmarked(
     id: number,
     media_type: string
-  ): Promise<boolean | void> {
-    return axios
-      .post("http://localhost:8081/is_bookmarked", { userID, id, media_type })
-      .then((res) => {
-        return res.data;
-      })
-      .catch((err) => console.log(err));
+  ): Promise<boolean> {
+    try {
+      const res = await axios.post("http://localhost:8081/is_bookmarked", {
+        userID,
+        id,
+        media_type,
+      });
+
+      return typeof res.data.isBookmarked === "boolean"
+        ? res.data.isBookmarked
+        : false;
+    } catch (error) {
+      console.error("Error checking bookmark status:", error);
+      return false;
+    }
+  }
+
+  async function handleBookmarkClick(movie: movieType | seriesType) {
+    const mediaType = isMovieType(movie) ? "movie" : "series";
+    const isBookmarkedStatus = await isBookmarked(movie.id, mediaType);
+
+    if (isBookmarkedStatus) {
+      await removeBookmark(movie.id, mediaType);
+    } else {
+      await bookmarkContent(movie, movie.id, mediaType);
+    }
+  }
+
+  async function bookmarkContent(
+    movie: movieType | seriesType,
+    id: number,
+    media_type: string
+  ) {
+    try {
+      const res = await axios.post("http://localhost:8081/bookmark_item", {
+        id,
+        userID,
+        movies,
+        media_type,
+      });
+      console.log(res.data.message);
+      setBookmarkedItems((prev) => [...prev, id]); // Add to bookmarked state
+    } catch (err) {
+      console.log("Error bookmarking:", err);
+    }
+  }
+
+  async function removeBookmark(id: number, media_type: string) {
+    try {
+      const res = await axios.post(
+        "http://localhost:8081/remove_bookmarked_item",
+        {
+          id,
+          userID,
+          media_type,
+        }
+      );
+
+      console.log(res.data.message);
+      setBookmarkedItems((prev) => prev.filter((item) => item !== id)); // Remove from bookmarked state
+    } catch (err) {
+      console.log("Error removing bookmark:", err);
+    }
   }
 
   /** 
@@ -238,17 +251,16 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
                     </p>
                   </div>
                   <div
-                    onClick={() =>
-                      removeBookmark(
-                        movie.id,
-                        isMovieType(movie) ? movie.media_type : "series"
-                      )
-                    }
+                    onClick={() => handleBookmarkClick(movie)}
                     className="absolute flex justify-center items-center top-0 right-0 m-1 w-[8.53vw] h-[8.53vw]"
                   >
                     <img
                       className="relative z-30"
-                      src="../../assets/icon-bookmark-empty.svg"
+                      src={
+                        bookmarkedItems.includes(movie.id)
+                          ? "../../assets/icon-bookmark-full.svg"
+                          : "../../assets/icon-bookmark-empty.svg"
+                      }
                     />
                     <div className="bg-black absolute top-0 right-0 opacity-50 rounded-full w-[8.53vw] h-[8.53vw]"></div>
                   </div>
