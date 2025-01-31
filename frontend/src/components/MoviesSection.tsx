@@ -14,57 +14,45 @@ interface Props {
 }
 
 function MoviesSection({ title, path, horizontalSection }: Props) {
-  const { userID, debouncedSearchValue, PATHS } = useContext(Context);
-  const [isLoading, changeLoadingStatus] = useState<boolean>(true);
-  const [movies, updateMovies] = useState<movieType[] | seriesType[]>([]);
-  /**
-  const [bookmarks, updateBookmarks] = useState<any[]>(
-    getBookmarksFromStorage()
-  );
-   */
   const posterRootURL = "https://image.tmdb.org/t/p/original";
 
-  //A type guard in TypeScript, which is used to narrow down a union type (trendingMovieType | originalsMovieType) to a specific type (trendingMovieType).
-  //Without a type guard, TypeScript will throw errors if you try to access properties that don't exist on both types.
+  const { userID, debouncedSearchValue, PATHS } = useContext(Context);
+
+  const [isLoading, changeLoadingStatus] = useState<boolean>(true);
+  const [movies, updateMovies] = useState<movieType[] | seriesType[]>([]);
+  const [bookmarkedItems, setBookmarkedItems] = useState<number[]>([]);
+
+  //A type guard in TypeScript, which is used to narrow down a union type to a specific type and prevent error about missing properties being thrown
   //"is" - is type predicate, is a special syntax in TypeScript that informs the compiler about the type of a variable when a condition is true.
   function isMovieType(movie: movieType | seriesType): movie is movieType {
     return "release_date" in movie;
   }
 
-  function chooseBookmarkImage(movie: movieType | seriesType): string {
-    const [isBookmarkedState, setIsBookmarkedState] = useState<
-      boolean | null | void
-    >(null);
+  async function fetchBookmarkedItems() {
+    try {
+      const res = await axios.post(
+        "http://localhost:8081/get_bookmarked_items",
+        {
+          userID,
+        }
+      );
 
-    useEffect(() => {
-      async function fetchBookmarkStatus() {
-        const result = await isBookmarked(
-          movie.id,
-          isMovieType(movie) ? "movie" : "series"
-        );
-        setIsBookmarkedState(result);
+      if (res.data) {
+        const { movies, series } = res.data;
+        setBookmarkedItems([
+          ...movies.map((m: any) => m.id),
+          ...series.map((s: any) => s.id),
+        ]);
       }
-
-      fetchBookmarkStatus();
-    }, [movie]);
-
-    const bookmarkSrc = isBookmarkedState
-      ? "../../assets/icon-bookmark-full.svg"
-      : "../../assets/icon-bookmark-empty.svg";
-
-    return bookmarkSrc;
+    } catch (error) {
+      console.error("Error fetching bookmarked items:", error);
+    }
   }
-  /**
-  function isBookmarked(movie_id: number): boolean {
-    //some method checks if any array elements pass a test
-    //Reikia jungtis prie DB ir ziureti ar yra duombazej
-    //const isBookmarked = bookmarks.some((bm) => bm.id === movie_id);
 
-    return false;
-  }
- */
-
-  const [bookmarkedItems, setBookmarkedItems] = useState<number[]>([]);
+  // Call this function in useEffect when the component mounts
+  useEffect(() => {
+    fetchBookmarkedItems();
+  }, []);
 
   async function isBookmarked(
     id: number,
@@ -86,22 +74,23 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
     }
   }
 
-  async function handleBookmarkClick(movie: movieType | seriesType) {
+  async function handleBookmarkClick(
+    movie: movieType | seriesType
+  ): Promise<void> {
     const mediaType = isMovieType(movie) ? "movie" : "series";
     const isBookmarkedStatus = await isBookmarked(movie.id, mediaType);
 
     if (isBookmarkedStatus) {
       await removeBookmark(movie.id, mediaType);
     } else {
-      await bookmarkContent(movie, movie.id, mediaType);
+      await bookmarkContent(movie.id, mediaType);
     }
   }
 
   async function bookmarkContent(
-    movie: movieType | seriesType,
     id: number,
     media_type: string
-  ) {
+  ): Promise<void> {
     try {
       const res = await axios.post("http://localhost:8081/bookmark_item", {
         id,
@@ -110,13 +99,13 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
         media_type,
       });
       console.log(res.data.message);
-      setBookmarkedItems((prev) => [...prev, id]); // Add to bookmarked state
+      setBookmarkedItems((prev) => [...prev, id]);
     } catch (err) {
       console.log("Error bookmarking:", err);
     }
   }
 
-  async function removeBookmark(id: number, media_type: string) {
+  async function removeBookmark(id: number, media_type: string): Promise<void> {
     try {
       const res = await axios.post(
         "http://localhost:8081/remove_bookmarked_item",
@@ -126,9 +115,8 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
           media_type,
         }
       );
-
       console.log(res.data.message);
-      setBookmarkedItems((prev) => prev.filter((item) => item !== id)); // Remove from bookmarked state
+      setBookmarkedItems((prev) => prev.filter((item) => item !== id));
     } catch (err) {
       console.log("Error removing bookmark:", err);
     }
@@ -152,7 +140,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
       );
     } else navigate(`${location.pathname}/${formattedTitle}`);
   }
-    */
+  */
 
   useEffect(() => {
     async function updateContentState() {
@@ -162,7 +150,6 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
           path === PATHS.RetreiveBookmarkedSeries
         ) {
           updateMovies(await getContentPostReq(path, userID));
-          //updateBookmarks(await getContentPostReq(path, userID));
         } else {
           updateMovies(await getContentGetReq(path));
         }
@@ -172,17 +159,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
       }
     }
     updateContentState();
-  }, [debouncedSearchValue]);
-
-  function getBookmarksFromStorage(): any[] {
-    return JSON.parse(localStorage.getItem("bookmarks") || "[]");
-  }
-
-  /**
-  useEffect(() => {
-    localStorage.setItem("bookmarks", JSON.stringify(bookmarks));
-  }, [bookmarks]);
-  */
+  }, [debouncedSearchValue, bookmarkedItems]);
 
   return (
     <>
@@ -255,7 +232,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
                     className="absolute flex justify-center items-center top-0 right-0 m-1 w-[8.53vw] h-[8.53vw]"
                   >
                     <img
-                      className="relative z-30"
+                      className="relative z-10"
                       src={
                         bookmarkedItems.includes(movie.id)
                           ? "../../assets/icon-bookmark-full.svg"

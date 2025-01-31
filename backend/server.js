@@ -142,48 +142,45 @@ app.post("/bookmark_item", async (req, res) => {
 
   try {
     const sql_insert_movie_record = `INSERT INTO ${
-      media_type === `movie` ? `b_movies` : `b_series`
-    } (id, ${media_type === `movie` ? `title` : `name`}, poster_path, ${
-      media_type === `movie` ? `release_date` : `first_air_date`
+      media_type === "movie" ? "b_movies" : "b_series"
+    } (id, ${media_type === "movie" ? "title" : "name"}, poster_path, ${
+      media_type === "movie" ? "release_date" : "first_air_date"
     }, vote_average) VALUES (?, ?, ?, ?, ?)`;
 
     const sql_insert_bookmark_record = `INSERT INTO ${
-      media_type === `movie` ? `b_user_movies` : `b_user_series`
+      media_type === "movie" ? "b_user_movies" : "b_user_series"
     } (user_id, content_id) VALUES (?, ?)`;
 
     const alreadyInDBList = await alreadyInDatabaseList(movie_id, media_type);
     if (!alreadyInDBList) {
       const specific_movie = movies_list.find((movie) => movie.id === movie_id);
-      db.query(
-        sql_insert_movie_record,
-        [
-          specific_movie.id,
-          media_type === `movie` ? specific_movie.title : specific_movie.name,
-          specific_movie.poster_path,
-          media_type === `movie`
-            ? specific_movie.release_date
-            : specific_movie.first_air_date,
-          specific_movie.vote_average,
-        ],
-        (err) => {
-          if (err) return res.json({ error: err.message });
 
-          db.query(sql_insert_bookmark_record, [user_id, movie_id], (err) => {
-            if (err) return res.json({ error: err.message });
-
-            return res.json({
-              message: `Content with id ${movie_id} was bookmarked`,
-            });
-          });
-        }
-      );
+      await new Promise((resolve, reject) => {
+        db.query(
+          sql_insert_movie_record,
+          [
+            specific_movie.id,
+            media_type === "movie" ? specific_movie.title : specific_movie.name,
+            specific_movie.poster_path,
+            media_type === "movie"
+              ? specific_movie.release_date
+              : specific_movie.first_air_date,
+            specific_movie.vote_average,
+          ],
+          (err) => {
+            if (err) return reject(err);
+            resolve();
+          }
+        );
+      });
     }
 
     const isBookmarked = await alreadyBookmarked(user_id, movie_id, media_type);
     if (!isBookmarked) {
       db.query(sql_insert_bookmark_record, [user_id, movie_id], (err) => {
-        if (err) return res.json({ error: err.message });
-
+        if (err) {
+          return res.status(500).json({ error: err.message });
+        }
         return res.json({
           message: `Content with id ${movie_id} was bookmarked`,
         });
@@ -276,6 +273,43 @@ app.post("/retreive_bookmarked_series", (req, res) => {
       return res.json(return_array);
     });
   });
+});
+
+app.post("/get_bookmarked_items", async (req, res) => {
+  const { userID } = req.body;
+
+  try {
+    const sql_movies = `
+      SELECT b_movies.id, b_movies.title, b_movies.poster_path, b_movies.release_date, b_movies.vote_average 
+      FROM b_user_movies 
+      JOIN b_movies ON b_user_movies.content_id = b_movies.id 
+      WHERE b_user_movies.user_id = ?`;
+
+    const sql_series = `
+      SELECT b_series.id, b_series.name, b_series.poster_path, b_series.first_air_date, b_series.vote_average 
+      FROM b_user_series 
+      JOIN b_series ON b_user_series.content_id = b_series.id 
+      WHERE b_user_series.user_id = ?`;
+
+    const movies = await new Promise((resolve, reject) => {
+      db.query(sql_movies, [userID], (err, results) => {
+        if (err) return reject(err);
+        resolve(results);
+      });
+    });
+
+    const series = await new Promise((resolve, reject) => {
+      db.query(sql_series, [userID], (err, results) => {
+        if (err) return reject(err);
+        resolve(results);
+      });
+    });
+
+    return res.json({ movies, series });
+  } catch (error) {
+    console.error("Error in /get_bookmarked_items:", error);
+    return res.status(500).json({ error: "Database error" });
+  }
 });
 
 app.listen(8081, () => {

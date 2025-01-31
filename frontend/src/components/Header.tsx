@@ -69,7 +69,7 @@ function Header() {
           className={
             !userModal
               ? "hidden"
-              : "block absolute z-20 mt-[14.93vw] p-6 top-0 right-0 w-[53.33vw] h-auto bg-[#161D2F] rounded-bl-xl"
+              : "block absolute z-50 mt-[14.93vw] p-6 top-0 right-0 w-[53.33vw] h-auto bg-[#161D2F] rounded-bl-xl"
           }
         >
           <ul>
@@ -89,7 +89,7 @@ function Header() {
         className={
           !userModal
             ? "hidden"
-            : "fixed top-0 z-10 left-0 mt-[14.93vw] block w-full h-screen bg-black opacity-70"
+            : "fixed top-0 z-40 left-0 mt-[14.93vw] block w-full h-screen bg-black opacity-70"
         }
         onClick={() => setUserModal(false)}
       ></div>
