@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import styleObjectType from "../types/styleObjectType";
+import axios from "axios";
 
 function Header() {
   const { userModal, setUserModal, setLoggedInStatus } = useContext(Context);
@@ -47,6 +48,13 @@ function Header() {
     }
   }, [location.pathname]);
 
+  function logoutUser() {
+    axios
+      .post("http://localhost:8081/logout")
+      .then((res) => console.log(res.data.message))
+      .catch((err) => console.log(err));
+  }
+
   return (
     <>
       <div className="flex items-center justify-between w-full p-[4.8vw] h-[14.93vw] bg-[#161D2F] text-white mb-[6.4vw]">
@@ -77,6 +85,7 @@ function Header() {
               onClick={() => {
                 setLoggedInStatus(false);
                 setUserModal(false);
+                logoutUser();
               }}
               className="pl-4 pb-2 float-left clear-both text-[3.73vw]"
             >

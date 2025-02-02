@@ -4,6 +4,7 @@ const express = require("express");
 const mysql = require("mysql");
 const cors = require("cors");
 const env = require("dotenv");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 
@@ -17,6 +18,13 @@ const db = mysql.createConnection({
   user: process.env.DB_USER,
   password: "",
   database: process.env.DB_NAME,
+});
+
+app.post("/logout", (req, res) => {
+  res.json({
+    message: "User logged out",
+    isLoggedIn: false,
+  });
 });
 
 app.post("/login", (req, res) => {
@@ -41,7 +49,7 @@ app.post("/login", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-  const sql_select = `SELECT COUNT(*) AS count FROM users_list WHERE email = ?`;
+  const sql_select = `SELECT COUNT(*) AS count FROM users WHERE email = ?`;
   const sql_insert = `INSERT INTO users (email, password) VALUES (?, ?)`;
   let emailExists;
 
@@ -199,7 +207,9 @@ app.post("/remove_bookmarked_item", async (req, res) => {
   try {
     const isBookmarked = await alreadyBookmarked(user_id, movie_id, media_type);
     if (!isBookmarked) {
-      return res.json({ message: "Aleary not bookmarked, nothing to delete" });
+      return res.json({
+        message: "Aleary not bookmarked, nothing to delete",
+      });
     }
 
     const sql_delete = `DELETE FROM ${
@@ -275,42 +285,73 @@ app.post("/retreive_bookmarked_series", (req, res) => {
   });
 });
 
-app.post("/get_bookmarked_items", async (req, res) => {
-  const { userID } = req.body;
+app.post("/get_bookmarked_items", authenticateToken, async (req, res) => {
+  if (req.user.email) {
+    try {
+      const { userID } = req.body;
+      const sql_movies = `
+          SELECT b_movies.id, b_movies.title, b_movies.poster_path, b_movies.release_date, b_movies.vote_average 
+          FROM b_user_movies 
+          JOIN b_movies ON b_user_movies.content_id = b_movies.id 
+          WHERE b_user_movies.user_id = ?`;
 
-  try {
-    const sql_movies = `
-      SELECT b_movies.id, b_movies.title, b_movies.poster_path, b_movies.release_date, b_movies.vote_average 
-      FROM b_user_movies 
-      JOIN b_movies ON b_user_movies.content_id = b_movies.id 
-      WHERE b_user_movies.user_id = ?`;
+      const sql_series = `
+          SELECT b_series.id, b_series.name, b_series.poster_path, b_series.first_air_date, b_series.vote_average 
+          FROM b_user_series 
+          JOIN b_series ON b_user_series.content_id = b_series.id 
+          WHERE b_user_series.user_id = ?`;
 
-    const sql_series = `
-      SELECT b_series.id, b_series.name, b_series.poster_path, b_series.first_air_date, b_series.vote_average 
-      FROM b_user_series 
-      JOIN b_series ON b_user_series.content_id = b_series.id 
-      WHERE b_user_series.user_id = ?`;
-
-    const movies = await new Promise((resolve, reject) => {
-      db.query(sql_movies, [userID], (err, results) => {
-        if (err) return reject(err);
-        resolve(results);
+      const movies = await new Promise((resolve, reject) => {
+        db.query(sql_movies, [userID], (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
       });
-    });
 
-    const series = await new Promise((resolve, reject) => {
-      db.query(sql_series, [userID], (err, results) => {
-        if (err) return reject(err);
-        resolve(results);
+      const series = await new Promise((resolve, reject) => {
+        db.query(sql_series, [userID], (err, results) => {
+          if (err) return reject(err);
+          resolve(results);
+        });
       });
-    });
 
-    return res.json({ movies, series });
-  } catch (error) {
-    console.error("Error in /get_bookmarked_items:", error);
-    return res.status(500).json({ error: "Database error" });
+      return res.json({ movies, series });
+    } catch (error) {
+      console.error("Error in /get_bookmarked_items:", error);
+      return res.status(500).json({ error: "Database error" });
+    }
+  } else {
+    return res.sendStatus(403);
   }
 });
+
+app.get("/secret_data", authenticateToken, (req, res) => {
+  //req.user.email - thats authenticated user, use this variable to give access
+  const data = [
+    { useremail: "new@new.com", secret_data: "1,2,3,4,5" },
+    { useremail: "a@a.com", secret_data: "5,4,3,2,1" },
+  ];
+
+  const filteredData = data.filter((item) => item.useremail === req.user.email);
+
+  if (req.user) {
+    return res.json({
+      data: filteredData,
+    });
+  }
+});
+
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers["authorization"];
+  const token = authHeader && authHeader.split(" ")[1];
+  if (token == null) return res.json({ error: "Not authenticated request" });
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) return res.json({ error: "Token no longer valid" });
+    req.user = user;
+    next();
+  });
+}
 
 app.listen(8081, () => {
   console.log("Listening on port 8081");
