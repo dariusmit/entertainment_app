@@ -6,8 +6,14 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
-  const { setUserID, inputError, setInputError, setLoggedInStatus } =
-    useContext(Context);
+  const {
+    setUserID,
+    inputError,
+    setInputError,
+    setLoggedInStatus,
+    setAccessToken,
+    setRefreshToken,
+  } = useContext(Context);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
@@ -21,12 +27,14 @@ function LoginForm() {
       return;
     }
     axios
-      .post("http://localhost:8081/login", { email, password })
+      .post("http://localhost:8091/login", { email, password })
       .then((res) => {
-        if (res.data.isLoggedIn) {
+        if (res.data.message === "Login successful") {
+          setAccessToken(res.data.accessToken);
+          //setRefreshToken(res.data.refreshToken);
           setInputError("");
-          setLoggedInStatus(res.data.isLoggedIn);
           navigate("/");
+          setLoggedInStatus(true);
           setUserID(res.data.user[0].user_id);
         } else {
           setInputError(res.data.message);

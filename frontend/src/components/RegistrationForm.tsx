@@ -21,7 +21,7 @@ function RegistrationForm() {
     }
     if (password === repeatedPassword) {
       axios
-        .post("http://localhost:8081/register", { email, password })
+        .post("http://localhost:8091/register", { email, password })
         .then((res) => {
           if (!res.data.emailExists) {
             setInputError("");

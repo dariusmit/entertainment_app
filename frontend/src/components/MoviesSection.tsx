@@ -16,7 +16,8 @@ interface Props {
 function MoviesSection({ title, path, horizontalSection }: Props) {
   const posterRootURL = "https://image.tmdb.org/t/p/original";
 
-  const { userID, debouncedSearchValue, PATHS } = useContext(Context);
+  const { userID, debouncedSearchValue, PATHS, accessToken, axiosJWT } =
+    useContext(Context);
 
   const [isLoading, changeLoadingStatus] = useState<boolean>(true);
   const [movies, updateMovies] = useState<movieType[] | seriesType[]>([]);
@@ -28,13 +29,19 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
     return "release_date" in movie;
   }
 
+  const config = {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  };
+
   async function fetchBookmarkedItems() {
     try {
-      const res = await axios.post(
+      //This route now needs access token to be accessible
+      const res = await axiosJWT.post(
         "http://localhost:8081/get_bookmarked_items",
         {
           userID,
-        }
+        },
+        config
       );
 
       if (res.data) {

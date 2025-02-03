@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NoPage from "./pages/NoPage";
 import { Context } from "./context/storeContext";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import useDebounce from "./hooks/useDebounce";
 import movieType from "./types/movieType";
@@ -13,23 +13,51 @@ import ShowsPage from "./pages/ShowsPage";
 import BookmarksPage from "./pages/BookmarksPage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import { jwtDecode } from "jwt-decode";
 
 function App() {
   const [searchValue, changeSearchValue] = useState<string>("");
+  const [accessToken, setAccessToken] = useState<string>("");
   const [isLoading, UpdateLoadingStatus] = useState<boolean | undefined>();
   const [searchError, setSearchError] = useState<string>("");
   const [userModal, setUserModal] = useState<boolean>(false);
+  const axiosJWT = axios.create();
   const [searchCompleted, setSearchCompletion] = useState<
     boolean | undefined
   >();
   const [userID, setUserID] = useState<number>(() => {
     return getUserIDFromStorage();
   });
-  const [isLoggedIn, setLoggedInStatus] = useState<boolean>(() => {
-    return getLoggedInStatus();
-  });
+  const [isLoggedIn, setLoggedInStatus] = useState<boolean>(false);
   const [inputError, setInputError] = useState<string>("");
   const debouncedSearchValue = useDebounce(searchValue);
+
+  const renewToken = async () => {
+    try {
+      const res = await axios.post("http://localhost:8091/refreshtoken", {
+        userID: userID,
+      });
+      setAccessToken(res.data.accessToken);
+      return res.data;
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  axiosJWT.interceptors.request.use(
+    async (config) => {
+      let currentTime = new Date();
+      const decodedToken = jwtDecode(accessToken);
+      if (decodedToken.exp! * 1000 < currentTime.getTime()) {
+        const data = await renewToken();
+        config.headers["Authorization"] = `Bearer ${data.accessToken}`;
+      }
+      return config;
+    },
+    (err) => {
+      return Promise.reject(err);
+    }
+  );
 
   //Do I need these?
   const [movieList, updateMovieList] = useState<movieType[]>(() => {
@@ -48,9 +76,11 @@ function App() {
     return JSON.parse(sessionStorage.getItem("user_id") || "0");
   }
 
+  /**
   function getLoggedInStatus(): boolean {
     return JSON.parse(sessionStorage.getItem("logged_in_status") || "false");
   }
+   */
 
   function retreiveBookmarksFromDB(): void {
     axios
@@ -71,9 +101,11 @@ function App() {
       });
   }
 
+  /**
   useEffect(() => {
     sessionStorage.setItem("logged_in_status", JSON.stringify(isLoggedIn));
   }, [isLoggedIn]);
+   */
 
   useEffect(() => {
     sessionStorage.setItem("user_id", JSON.stringify(userID));
@@ -105,6 +137,9 @@ function App() {
         setUserID,
         debouncedSearchValue,
         PATHS,
+        accessToken,
+        setAccessToken,
+        axiosJWT,
       }}
     >
       <BrowserRouter>

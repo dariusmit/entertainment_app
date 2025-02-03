@@ -22,9 +22,52 @@ const db = mysql.createConnection({
   database: process.env.DB_NAME,
 });
 
-let refreshTokens = [];
+function generateAccessToken(user) {
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
+}
 
-//functions
+function generateRefreshToken(user) {
+  return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
+}
+
+async function storeRefreshToken(UserID, token) {
+  const sql = `INSERT INTO refresh_tokens (user_id, value) 
+  VALUES (?, ?) 
+  ON DUPLICATE KEY UPDATE value = VALUES(value)`;
+
+  return new Promise((resolve, reject) => {
+    db.query(sql, [UserID, token], (err) => {
+      if (err) return reject(err);
+      resolve();
+    });
+  });
+}
+
+async function getRefreshTokenFromDB(UserID) {
+  const sql_select = `SELECT * FROM refresh_tokens WHERE user_id = ?`;
+
+  return new Promise((resolve, reject) => {
+    db.query(sql_select, [UserID], (err, result) => {
+      if (err) return reject(err);
+      if (result.length === 0) return resolve(null); // Handle case where no token is found
+      resolve(result[0].value);
+    });
+  });
+}
+
+async function deleteRefreshToken(token) {
+  const sql_delete = `DELETE FROM refresh_tokens
+  WHERE value = ?`;
+
+  return new Promise((resolve, reject) => {
+    db.query(sql_delete, [token], (err, result) => {
+      if (err) return reject(err);
+
+      resolve(result);
+    });
+  });
+}
+
 app.post("/register", async (req, res) => {
   const sql_select = `SELECT COUNT(*) AS count FROM users WHERE email = ?`;
   const sql_insert = `INSERT INTO users (email, password) VALUES (?, ?)`;
@@ -73,12 +116,12 @@ app.post("/login", (req, res) => {
 
       if (await bcrypt.compare(password, user.password)) {
         const accessToken = generateAccessToken(user);
-        const refreshToken = jwt.sign(user, process.env.REFRESH_TOKEN_SECRET);
-        refreshTokens.push(refreshToken);
+        const refreshToken = generateRefreshToken(user);
+        await storeRefreshToken(results[0].user_id, refreshToken);
         res.json({
           message: "Login successful",
           accessToken: accessToken,
-          refreshToken: refreshToken,
+          user: results,
         });
       } else {
         res.json({
@@ -91,27 +134,27 @@ app.post("/login", (req, res) => {
   }
 });
 
-function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15s" });
-}
+app.post("/refreshtoken", async (req, res) => {
+  const userID = req.body.userID;
+  const refreshTokenFromDB = await getRefreshTokenFromDB(userID);
 
-app.post("/newtoken", (req, res) => {
-  const refreshToken = req.body.token;
+  if (!refreshTokenFromDB) return res.sendStatus(401);
 
-  if (refreshToken && !refreshTokens.includes(refreshToken)) {
-    return res.sendStatus(401);
-  }
-
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403);
-    const accessToken = generateAccessToken({ email: user.email });
-    return res.json({ accessToken: accessToken });
-  });
+  jwt.verify(
+    refreshTokenFromDB,
+    process.env.REFRESH_TOKEN_SECRET,
+    async (err, user) => {
+      if (err) return res.sendStatus(403);
+      const NewAccessToken = generateAccessToken({ email: user.email });
+      return res.json({
+        accessToken: NewAccessToken,
+      });
+    }
+  );
 });
 
-app.delete("/logout", (req, res) => {
-  refreshTokens = refreshTokens.filter((item) => item !== req.body.token);
-  console.log(refreshTokens);
+app.post("/logout", async (req, res) => {
+  await deleteRefreshToken(req.body.token);
   return res.json({
     message: "User logged out",
     isLoggedIn: false,

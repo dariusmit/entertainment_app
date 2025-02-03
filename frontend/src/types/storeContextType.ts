@@ -1,6 +1,7 @@
 import pathsType from "./pathsType";
 import movieType from "./movieType";
 import seriesType from "./seriesType";
+import { AxiosInstance } from "axios";
 
 interface storeContextType {
   movieList: movieType[];
@@ -31,6 +32,9 @@ interface storeContextType {
   debouncedSearchValue: string;
   //getContent: (path: string) => Promise<any>;
   PATHS: pathsType;
+  accessToken: string;
+  setAccessToken: React.Dispatch<React.SetStateAction<string>>;
+  axiosJWT: AxiosInstance;
 }
 
 export default storeContextType;
