@@ -12,7 +12,6 @@ function LoginForm() {
     setInputError,
     setLoggedInStatus,
     setAccessToken,
-    setRefreshToken,
   } = useContext(Context);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
@@ -31,7 +30,6 @@ function LoginForm() {
       .then((res) => {
         if (res.data.message === "Login successful") {
           setAccessToken(res.data.accessToken);
-          //setRefreshToken(res.data.refreshToken);
           setInputError("");
           navigate("/");
           setLoggedInStatus(true);

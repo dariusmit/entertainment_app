@@ -1,10 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NoPage from "./pages/NoPage";
 import { Context } from "./context/storeContext";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 import useDebounce from "./hooks/useDebounce";
-import movieType from "./types/movieType";
 import PATHS from "./resources/paths";
 import HomePage from "./pages/HomePage";
 import MoviesPage from "./pages/MoviesPage";
@@ -25,9 +24,7 @@ function App() {
   const [searchCompleted, setSearchCompletion] = useState<
     boolean | undefined
   >();
-  const [userID, setUserID] = useState<number>(() => {
-    return getUserIDFromStorage();
-  });
+  const [userID, setUserID] = useState<number>(0);
   const [isLoggedIn, setLoggedInStatus] = useState<boolean>(false);
   const [inputError, setInputError] = useState<string>("");
   const debouncedSearchValue = useDebounce(searchValue);
@@ -38,6 +35,7 @@ function App() {
         userID: userID,
       });
       setAccessToken(res.data.accessToken);
+      setLoggedInStatus(res.data.isLoggedIn);
       return res.data;
     } catch (error) {
       console.error("Error:", error);
@@ -59,66 +57,9 @@ function App() {
     }
   );
 
-  //Do I need these?
-  const [movieList, updateMovieList] = useState<movieType[]>(() => {
-    return getMoviesFromStorage();
-  });
-  const [bookmarkedMovies, setBookmarkedMovies] = useState<movieType[]>(() => {
-    return getMoviesFromStorage();
-  });
-  //
-
-  function getMoviesFromStorage(): movieType[] {
-    return JSON.parse(localStorage.getItem("movie_list") || "[]");
-  }
-
-  function getUserIDFromStorage(): number {
-    return JSON.parse(sessionStorage.getItem("user_id") || "0");
-  }
-
-  /**
-  function getLoggedInStatus(): boolean {
-    return JSON.parse(sessionStorage.getItem("logged_in_status") || "false");
-  }
-   */
-
-  function retreiveBookmarksFromDB(): void {
-    axios
-      .post("http://localhost:8081/retreive_bookmarked_movies", { userID })
-      .then((res) => {
-        let bookmarked_movies: string[] = [];
-        for (let i = 0; i < res.data.results.length; i++) {
-          bookmarked_movies.push(res.data.results[i].movie_title);
-        }
-        setBookmarkedMovies(
-          movieList.filter((item: movieType) => {
-            return bookmarked_movies.includes(item.title);
-          })
-        );
-      })
-      .catch((err: any) => {
-        if (err) console.log(err.message);
-      });
-  }
-
-  /**
-  useEffect(() => {
-    sessionStorage.setItem("logged_in_status", JSON.stringify(isLoggedIn));
-  }, [isLoggedIn]);
-   */
-
-  useEffect(() => {
-    sessionStorage.setItem("user_id", JSON.stringify(userID));
-  }, [userID]);
-
   return (
     <Context.Provider
       value={{
-        movieList,
-        retreiveBookmarksFromDB,
-        updateMovieList,
-        bookmarkedMovies,
-        setBookmarkedMovies,
         searchValue,
         changeSearchValue,
         isLoading,

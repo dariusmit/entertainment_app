@@ -1,4 +1,4 @@
-import { useEffect, useContext } from "react";
+import { useContext, useEffect } from "react";
 import { Context } from "../context/storeContext";
 import MoviesSection from "../components/MoviesSection";
 import Search from "../components/Search";
@@ -19,48 +19,53 @@ function MoviesPage() {
 
   return (
     <>
-      <Header />
-      <Search />
-      {searchCompleted && (
-        <MoviesSection
-          title="Search Results"
-          path={`${PATHS.SearchMovies}&query=${searchValue}`}
-        />
-      )}
-      {!searchCompleted && (
-        <MoviesSection
-          title="Action Movies"
-          path={PATHS.ActionMovies}
-          horizontalSection
-        />
-      )}
-      {!searchCompleted && (
-        <MoviesSection
-          title="Comedy Movies"
-          path={PATHS.ComedyMovies}
-          horizontalSection
-        />
-      )}
-      {!searchCompleted && (
-        <MoviesSection
-          title="Horror Movies"
-          path={PATHS.HorrorMovies}
-          horizontalSection
-        />
-      )}
-      {!searchCompleted && (
-        <MoviesSection
-          title="Romance Movies"
-          path={PATHS.RomanceMovies}
-          horizontalSection
-        />
-      )}
-      {!searchCompleted && (
-        <MoviesSection
-          title="Documentary Movies"
-          path={PATHS.DocumentaryMovies}
-          horizontalSection
-        />
+      {isLoggedIn && (
+        <>
+          {" "}
+          <Header />
+          <Search />
+          {searchCompleted && (
+            <MoviesSection
+              title="Search Results"
+              path={`${PATHS.SearchMovies}&query=${searchValue}`}
+            />
+          )}
+          {!searchCompleted && (
+            <MoviesSection
+              title="Action Movies"
+              path={PATHS.ActionMovies}
+              horizontalSection
+            />
+          )}
+          {!searchCompleted && (
+            <MoviesSection
+              title="Comedy Movies"
+              path={PATHS.ComedyMovies}
+              horizontalSection
+            />
+          )}
+          {!searchCompleted && (
+            <MoviesSection
+              title="Horror Movies"
+              path={PATHS.HorrorMovies}
+              horizontalSection
+            />
+          )}
+          {!searchCompleted && (
+            <MoviesSection
+              title="Romance Movies"
+              path={PATHS.RomanceMovies}
+              horizontalSection
+            />
+          )}
+          {!searchCompleted && (
+            <MoviesSection
+              title="Documentary Movies"
+              path={PATHS.DocumentaryMovies}
+              horizontalSection
+            />
+          )}
+        </>
       )}
     </>
   );

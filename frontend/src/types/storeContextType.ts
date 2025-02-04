@@ -1,14 +1,7 @@
 import pathsType from "./pathsType";
-import movieType from "./movieType";
-import seriesType from "./seriesType";
 import { AxiosInstance } from "axios";
 
 interface storeContextType {
-  movieList: movieType[];
-  updateMovieList: React.Dispatch<React.SetStateAction<movieType[]>>;
-  bookmarkedMovies: movieType[];
-  setBookmarkedMovies: React.Dispatch<React.SetStateAction<movieType[]>>;
-  retreiveBookmarksFromDB: () => void;
   searchValue: string;
   changeSearchValue: React.Dispatch<React.SetStateAction<string>>;
   isLoading: boolean | undefined;
@@ -30,7 +23,6 @@ interface storeContextType {
   userID: number;
   setUserID: React.Dispatch<React.SetStateAction<number>>;
   debouncedSearchValue: string;
-  //getContent: (path: string) => Promise<any>;
   PATHS: pathsType;
   accessToken: string;
   setAccessToken: React.Dispatch<React.SetStateAction<string>>;

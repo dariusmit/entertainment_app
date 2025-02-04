@@ -1,4 +1,4 @@
-import { useEffect, useContext } from "react";
+import { useContext, useEffect } from "react";
 import { Context } from "../context/storeContext";
 import MoviesSection from "../components/MoviesSection";
 import Search from "../components/Search";
@@ -18,19 +18,23 @@ function BookmarksPage() {
 
   return (
     <>
-      <Header />
-      <Search />
-      {!searchCompleted && (
-        <MoviesSection
-          title="Bookmarked Movies"
-          path={`${PATHS.RetreiveBookmarkedMovies}`}
-        />
-      )}
-      {!searchCompleted && (
-        <MoviesSection
-          title="Bookmarked Series"
-          path={`${PATHS.RetreiveBookmarkedSeries}`}
-        />
+      {isLoggedIn && (
+        <>
+          <Header />
+          <Search />
+          {!searchCompleted && (
+            <MoviesSection
+              title="Bookmarked Movies"
+              path={`${PATHS.RetreiveBookmarkedMovies}`}
+            />
+          )}
+          {!searchCompleted && (
+            <MoviesSection
+              title="Bookmarked Series"
+              path={`${PATHS.RetreiveBookmarkedSeries}`}
+            />
+          )}
+        </>
       )}
     </>
   );

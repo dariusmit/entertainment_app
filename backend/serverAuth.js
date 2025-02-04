@@ -148,6 +148,7 @@ app.post("/refreshtoken", async (req, res) => {
       const NewAccessToken = generateAccessToken({ email: user.email });
       return res.json({
         accessToken: NewAccessToken,
+        isLoggedIn: true,
       });
     }
   );
