@@ -21,7 +21,6 @@ function MoviesPage() {
     <>
       {isLoggedIn && (
         <>
-          {" "}
           <Header />
           <Search />
           {searchCompleted && (

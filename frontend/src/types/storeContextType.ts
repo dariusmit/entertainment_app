@@ -1,5 +1,4 @@
 import pathsType from "./pathsType";
-import { AxiosInstance } from "axios";
 
 interface storeContextType {
   searchValue: string;
@@ -20,13 +19,10 @@ interface storeContextType {
   setInputError: React.Dispatch<React.SetStateAction<string>>;
   userModal: boolean;
   setUserModal: React.Dispatch<React.SetStateAction<boolean>>;
-  userID: number;
-  setUserID: React.Dispatch<React.SetStateAction<number>>;
   debouncedSearchValue: string;
   PATHS: pathsType;
   accessToken: string;
   setAccessToken: React.Dispatch<React.SetStateAction<string>>;
-  axiosJWT: AxiosInstance;
 }
 
 export default storeContextType;

@@ -3,11 +3,18 @@ import Navigation from "./Navigation";
 import { Context } from "../context/storeContext";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import { axiosJWT, config } from "../resources/functions";
 import { useEffect, useState } from "react";
 import styleObjectType from "../types/styleObjectType";
 
 function Header() {
-  const { userModal, setUserModal, setLoggedInStatus } = useContext(Context);
+  const {
+    userModal,
+    setUserModal,
+    setLoggedInStatus,
+    setAccessToken,
+    accessToken,
+  } = useContext(Context);
   const location = useLocation();
 
   const style = "svg-white-filter";
@@ -47,6 +54,19 @@ function Header() {
     }
   }, [location.pathname]);
 
+  const logout = async () => {
+    try {
+      await axiosJWT.post(
+        "http://localhost:8081/logout",
+        {},
+        config(accessToken)
+      );
+      setAccessToken("");
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  };
+
   return (
     <>
       <div className="flex items-center justify-between w-full p-[4.8vw] h-[14.93vw] bg-[#161D2F] text-white mb-[6.4vw]">
@@ -77,6 +97,7 @@ function Header() {
               onClick={() => {
                 setLoggedInStatus(false);
                 setUserModal(false);
+                logout();
               }}
               className="pl-4 pb-2 float-left clear-both text-[3.73vw]"
             >

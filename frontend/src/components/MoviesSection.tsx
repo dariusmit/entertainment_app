@@ -1,11 +1,13 @@
 import { Context } from "../context/storeContext";
 import { useContext, useState, useEffect } from "react";
-import axios from "axios";
+import { axiosJWT } from "../resources/functions";
+import { config } from "../resources/functions";
 import { motion } from "framer-motion";
 import movieType from "../types/movieType";
 import seriesType from "../types/seriesType";
 import { getContentGetReq, getContentPostReq } from "../resources/functions";
 import LoadingAnimatedItem from "./LoadingAnimatedItem";
+import { useAxiosInterceptor } from "../resources/interceptor";
 
 interface Props {
   title: string;
@@ -16,7 +18,7 @@ interface Props {
 function MoviesSection({ title, path, horizontalSection }: Props) {
   const posterRootURL = "https://image.tmdb.org/t/p/original";
 
-  const { userID, debouncedSearchValue, PATHS, accessToken, axiosJWT } =
+  const { debouncedSearchValue, PATHS, accessToken, setAccessToken } =
     useContext(Context);
 
   const [isLoading, changeLoadingStatus] = useState<boolean>(true);
@@ -29,19 +31,16 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
     return "release_date" in movie;
   }
 
-  const config = {
-    headers: { Authorization: `Bearer ${accessToken}` },
-  };
-
   async function fetchBookmarkedItems() {
+    if (!accessToken) {
+      console.error("Access token not yet available!");
+      return;
+    }
     try {
-      //This route now needs access token to be accessible
       const res = await axiosJWT.post(
         "http://localhost:8081/get_bookmarked_items",
-        {
-          userID,
-        },
-        config
+        {},
+        config(accessToken)
       );
 
       if (res.data) {
@@ -66,11 +65,14 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
     media_type: string
   ): Promise<boolean> {
     try {
-      const res = await axios.post("http://localhost:8081/is_bookmarked", {
-        userID,
-        id,
-        media_type,
-      });
+      const res = await axiosJWT.post(
+        "http://localhost:8081/is_bookmarked",
+        {
+          id,
+          media_type,
+        },
+        config(accessToken)
+      );
 
       return typeof res.data.isBookmarked === "boolean"
         ? res.data.isBookmarked
@@ -99,12 +101,15 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
     media_type: string
   ): Promise<void> {
     try {
-      const res = await axios.post("http://localhost:8081/bookmark_item", {
-        id,
-        userID,
-        movies,
-        media_type,
-      });
+      const res = await axiosJWT.post(
+        "http://localhost:8081/bookmark_item",
+        {
+          id,
+          movies,
+          media_type,
+        },
+        config(accessToken)
+      );
       console.log(res.data.message);
       setBookmarkedItems((prev) => [...prev, id]);
     } catch (err) {
@@ -114,13 +119,13 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
 
   async function removeBookmark(id: number, media_type: string): Promise<void> {
     try {
-      const res = await axios.post(
+      const res = await axiosJWT.post(
         "http://localhost:8081/remove_bookmarked_item",
         {
           id,
-          userID,
           media_type,
-        }
+        },
+        config(accessToken)
       );
       console.log(res.data.message);
       setBookmarkedItems((prev) => prev.filter((item) => item !== id));
@@ -156,7 +161,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
           path === PATHS.RetreiveBookmarkedMovies ||
           path === PATHS.RetreiveBookmarkedSeries
         ) {
-          updateMovies(await getContentPostReq(path, userID));
+          updateMovies(await getContentPostReq(path, config(accessToken)));
         } else {
           updateMovies(await getContentGetReq(path));
         }
