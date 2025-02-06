@@ -17,13 +17,7 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || origin === "http://localhost:5173") {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: "http://localhost:5173",
     credentials: true,
   })
 );
@@ -36,7 +30,7 @@ const db = mysql.createConnection({
 });
 
 function generateAccessToken(user) {
-  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "30s" });
+  return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" });
 }
 
 function generateRefreshToken(user) {
@@ -53,7 +47,7 @@ app.post("/register", async (req, res) => {
   try {
     const encryptedPassword = await bcrypt.hash(password, 10);
 
-    db.query(sql_select, [email, password], (err, results) => {
+    db.query(sql_select, [email], (err, results) => {
       if (err) return res.json(err.message);
 
       const count = results[0].count;
@@ -70,10 +64,6 @@ app.post("/register", async (req, res) => {
       } else {
         return res.json({ error: "User already exists" });
       }
-
-      res.json({
-        message: "User registered successfully. Sign in now.",
-      });
     });
   } catch (err) {
     return res.json({ error: err.message });
@@ -102,21 +92,25 @@ app.post("/login", async (req, res) => {
         return res.status(400).json({ error: "Incorrect password" });
       }
 
-      const accessToken = generateAccessToken({ user });
-      const refreshToken = generateRefreshToken({ user });
+      const accessToken = generateAccessToken({
+        id: user.id,
+        email: user.email,
+      });
+      const refreshToken = generateRefreshToken({
+        id: user.id,
+        email: user.email,
+      });
 
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        secure: false,
+        sameSite: "Lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
       res.json({
         message: "Login successful",
         accessToken: accessToken,
-        user: { id: user.id, email: user.email },
       });
     });
   } catch (err) {
@@ -134,7 +128,10 @@ app.post("/refreshtoken", async (req, res) => {
     process.env.REFRESH_TOKEN_SECRET,
     async (err, decodedUser) => {
       if (err) return res.sendStatus(403);
-      const NewAccessToken = generateAccessToken(decodedUser);
+      const NewAccessToken = generateAccessToken({
+        id: decodedUser.id,
+        email: decodedUser.email,
+      });
       return res.json({ accessToken: NewAccessToken });
     }
   );
@@ -145,21 +142,21 @@ app.post("/logout", authenticateToken, (req, res) => {
   res.json({ message: "Logged out" });
 });
 
-function alreadyBookmarked(user_id, content_id, content_type) {
+function alreadyBookmarked(id, content_id, content_type) {
   return new Promise((resolve, reject) => {
     const sql = `SELECT COUNT(*) AS count FROM ${
       content_type === `movie` ? `b_user_movies` : `b_user_series`
     } WHERE user_id = ? AND content_id = ?`;
 
-    db.query(sql, [user_id, content_id], (err, results) => {
+    db.query(sql, [id, content_id], (err, results) => {
       if (err) {
         console.error("Database error:", err.message);
-        return reject(err); // Reject the Promise if there's an error
+        return reject(err);
       }
 
       if (!results || results.length === 0) {
         console.warn("No results returned from database");
-        return resolve(false); // Return false if no data is found
+        return resolve(false);
       }
 
       const count = results[0].count;
@@ -178,12 +175,12 @@ function alreadyInDatabaseList(content_id, content_type) {
     db.query(sql, [content_id], (err, results) => {
       if (err) {
         console.error("Database error:", err.message);
-        return reject(err); // Reject the Promise if there's an error
+        return reject(err);
       }
 
       if (!results || results.length === 0) {
         console.warn("No results returned from database");
-        return resolve(false); // Return false if no data is found
+        return resolve(false);
       }
 
       const count = results[0].count;
@@ -194,7 +191,7 @@ function alreadyInDatabaseList(content_id, content_type) {
 }
 
 app.post("/is_bookmarked", authenticateToken, async (req, res) => {
-  const userID = req.user.user.user_id;
+  const userID = req.user.id;
   const { id: content_id, media_type: content_type } = req.body;
 
   try {
@@ -212,7 +209,7 @@ app.post("/is_bookmarked", authenticateToken, async (req, res) => {
 });
 
 app.post("/bookmark_item", authenticateToken, async (req, res) => {
-  const userID = req.user.user.user_id;
+  const userID = req.user.id;
   const {
     id: movie_id,
     movies: movies_list,
@@ -274,7 +271,7 @@ app.post("/bookmark_item", authenticateToken, async (req, res) => {
 });
 
 app.post("/remove_bookmarked_item", authenticateToken, async (req, res) => {
-  const userID = req.user.user.user_id;
+  const userID = req.user.id;
   const { id: movie_id, media_type: media_type } = req.body;
   try {
     const isBookmarked = await alreadyBookmarked(userID, movie_id, media_type);
@@ -302,7 +299,7 @@ app.post("/remove_bookmarked_item", authenticateToken, async (req, res) => {
 });
 
 app.post("/retreive_bookmarked_movies", authenticateToken, (req, res) => {
-  const userID = req.user.user.user_id;
+  const userID = req.user.id;
   const sql = `SELECT * FROM b_user_movies WHERE user_id = ?`;
   const sql1 = `SELECT * FROM b_movies`;
 
@@ -330,7 +327,7 @@ app.post("/retreive_bookmarked_movies", authenticateToken, (req, res) => {
 });
 
 app.post("/retreive_bookmarked_series", authenticateToken, (req, res) => {
-  const userID = req.user.user.user_id;
+  const userID = req.user.id;
   const sql = `SELECT * FROM b_user_series WHERE user_id = ?`;
   const sql1 = `SELECT * FROM b_series`;
 
@@ -358,7 +355,8 @@ app.post("/retreive_bookmarked_series", authenticateToken, (req, res) => {
 });
 
 app.post("/get_bookmarked_items", authenticateToken, async (req, res) => {
-  const userID = req.user.user.user_id;
+  const userID = req.user.id;
+  if (!userID) return res.json({ error: "user id not found" });
 
   try {
     const sql_movies = `
@@ -402,7 +400,7 @@ function authenticateToken(req, res, next) {
 
   jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
     if (err) return res.status(403).json({ error: "Token no longer valid" });
-    req.user = user;
+    req.user = { id: user.id, email: user.email };
     next();
   });
 }

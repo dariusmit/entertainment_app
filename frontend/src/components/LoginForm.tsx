@@ -21,7 +21,11 @@ function LoginForm() {
       return;
     }
     axios
-      .post("http://localhost:8081/login", { email, password })
+      .post(
+        "http://localhost:8081/login",
+        { email, password },
+        { withCredentials: true }
+      )
       .then((res) => {
         if (res.data.message === "Login successful") {
           setAccessToken(res.data.accessToken);
