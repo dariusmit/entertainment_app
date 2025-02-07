@@ -5,7 +5,7 @@ export const axiosJWT = axios.create({
   withCredentials: true,
 });
 
-export const config = (accessToken: string): {} => {
+export const config = (accessToken: string | null): {} => {
   if (!accessToken) {
     console.error("Access token is missing");
     return {};

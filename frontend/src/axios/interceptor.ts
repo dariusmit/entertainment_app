@@ -1,17 +1,15 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { Dispatch, SetStateAction, useEffect, useRef } from "react";
-import { axiosJWT } from "./functions";
+import { useEffect, useRef } from "react";
+import { axiosJWT } from "./axios";
 
-// Define the shape of the decoded token
 interface DecodedToken {
-  exp: number; // Expiration time (Unix timestamp)
+  exp: number;
 }
 
-// Function to set up the Axios interceptor only once.
 export const useAxiosInterceptor = (
-  accessToken: string,
-  setAccessToken: Dispatch<SetStateAction<string>>
+  accessToken: string | null,
+  setAccessToken: (token: string | null) => void
 ) => {
   // Use a ref to always have access to the latest token
   const tokenRef = useRef(accessToken);
@@ -21,7 +19,6 @@ export const useAxiosInterceptor = (
   }, [accessToken]);
 
   useEffect(() => {
-    // Add the interceptor once
     const interceptor = axiosJWT.interceptors.request.use(
       async (config) => {
         // Skip the interceptor for the refresh token endpoint
@@ -39,22 +36,20 @@ export const useAxiosInterceptor = (
         const currentTime = new Date().getTime();
         const decodedToken: DecodedToken = jwtDecode(currentToken);
 
-        // If token is expired, attempt to refresh it.
         if (decodedToken.exp * 1000 < currentTime) {
           try {
-            // Request a new access token using the refresh token.
-            // Make sure withCredentials is set so that HTTP-only cookies are sent.
             const res = await axios.post<{ accessToken: string }>(
               "http://localhost:8081/refreshtoken",
               {},
               { withCredentials: true }
             );
 
-            // Update React state and the ref with the new access token.
-            setAccessToken(res.data.accessToken);
-            tokenRef.current = res.data.accessToken;
+            await new Promise((resolve) => {
+              setAccessToken(res.data.accessToken);
+              tokenRef.current = res.data.accessToken;
+              resolve(null);
+            });
 
-            // Update the request header with the new token.
             config.headers["Authorization"] = `Bearer ${res.data.accessToken}`;
           } catch (error) {
             console.error("Error refreshing token:", error);
@@ -73,5 +68,5 @@ export const useAxiosInterceptor = (
     return () => {
       axiosJWT.interceptors.request.eject(interceptor);
     };
-  }, [setAccessToken]); // Run only once (or when setAccessToken function changes)
+  }, [setAccessToken]);
 };

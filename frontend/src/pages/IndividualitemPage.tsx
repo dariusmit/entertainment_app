@@ -1,4 +1,4 @@
-import { Context } from "../context/storeContext";
+import { Context } from "../context/StoreContext";
 import { useContext } from "react";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";

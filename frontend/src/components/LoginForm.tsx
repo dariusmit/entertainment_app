@@ -1,16 +1,20 @@
 import axios from "axios";
-import { Context } from "../context/storeContext";
+import { Context } from "../context/StoreContext";
 import { useContext } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+import { jwtDecode } from "jwt-decode";
 
 function LoginForm() {
-  const { inputError, setInputError, setLoggedInStatus, setAccessToken } =
-    useContext(Context);
+  const { inputError, setInputError } = useContext(Context);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext);
+
+  const { setAccessToken } = useContext(AuthContext);
 
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
@@ -31,7 +35,13 @@ function LoginForm() {
           setAccessToken(res.data.accessToken);
           setInputError("");
           navigate("/");
-          setLoggedInStatus(true);
+          const accessToken = res.data.accessToken;
+          const decodedUser = jwtDecode(accessToken);
+
+          // Cast decoded user to CustomJwtPayload type
+          const user = decodedUser as { id: number; email: string };
+
+          setUser(user);
         } else {
           setInputError(res.data.message);
         }
@@ -52,6 +62,18 @@ function LoginForm() {
         <h1 className="text-[8.53vw] font-light tracking-[-0.13vw] mb-[6.67vw]">
           Login
         </h1>
+        <h1 className="undeline text-gray-300 mb-4">Test users:</h1>
+        <div className="flex mb-4">
+          <div className="text-gray-400 text-[3vw] mr-6">
+            <p>root@root.com</p>
+            <p>root</p>
+          </div>
+          <div className="text-gray-400 text-[3vw]">
+            <p>test@test.com</p>
+            <p>test</p>
+          </div>
+        </div>
+
         <div>
           <div>
             <div>

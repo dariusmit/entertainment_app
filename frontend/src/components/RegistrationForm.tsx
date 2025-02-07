@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Context } from "../context/storeContext";
+import { Context } from "../context/StoreContext";
 import { useContext } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";

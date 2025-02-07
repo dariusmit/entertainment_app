@@ -1,25 +1,28 @@
 import { useContext, useEffect } from "react";
-import { Context } from "../context/storeContext";
+import { Context } from "../context/StoreContext";
 import Search from "../components/Search";
 import Header from "../components/Header";
 import MoviesSection from "../components/MoviesSection";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
 
 function HomePage() {
-  const { isLoggedIn, searchCompleted, PATHS, searchValue } =
-    useContext(Context);
+  const { searchCompleted, PATHS, searchValue } = useContext(Context);
+  const { user, isLoading } = useContext(AuthContext);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isLoading && !user) {
       navigate("/login");
     }
-  }, [isLoggedIn]);
+  }, [user, isLoading, navigate]);
+
+  if (isLoading) return <p>Loading...</p>;
 
   return (
     <>
-      {isLoggedIn && (
+      {user && (
         <>
           <Header />
           <Search />

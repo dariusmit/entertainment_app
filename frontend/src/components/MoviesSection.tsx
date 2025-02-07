@@ -1,13 +1,16 @@
-import { Context } from "../context/storeContext";
+import { Context } from "../context/StoreContext";
 import { useContext, useState, useEffect } from "react";
-import { axiosJWT } from "../resources/functions";
-import { config } from "../resources/functions";
 import { motion } from "framer-motion";
 import movieType from "../types/movieType";
 import seriesType from "../types/seriesType";
-import { getContentGetReq, getContentPostReq } from "../resources/functions";
+import {
+  axiosJWT,
+  config,
+  getContentGetReq,
+  getContentPostReq,
+} from "../axios/axios";
 import LoadingAnimatedItem from "./LoadingAnimatedItem";
-import { useAxiosInterceptor } from "../resources/interceptor";
+import { AuthContext } from "../context/AuthContext";
 
 interface Props {
   title: string;
@@ -18,10 +21,11 @@ interface Props {
 function MoviesSection({ title, path, horizontalSection }: Props) {
   const posterRootURL = "https://image.tmdb.org/t/p/original";
 
-  const { debouncedSearchValue, PATHS, accessToken, setAccessToken } =
-    useContext(Context);
+  const { debouncedSearchValue, PATHS } = useContext(Context);
 
-  const [isLoading, changeLoadingStatus] = useState<boolean>(true);
+  const { isLoading, accessToken } = useContext(AuthContext);
+
+  const [isLoadingAI, changeLoadingStatusAI] = useState<boolean>(true);
   const [movies, updateMovies] = useState<movieType[] | seriesType[]>([]);
   const [bookmarkedItems, setBookmarkedItems] = useState<number[]>([]);
 
@@ -32,7 +36,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
   }
 
   async function fetchBookmarkedItems() {
-    if (!accessToken) {
+    if (isLoading || !accessToken) {
       console.error("Access token not yet available!");
       return;
     }
@@ -55,10 +59,10 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
     }
   }
 
-  // Call this function in useEffect when the component mounts
   useEffect(() => {
+    if (isLoading || !accessToken) return;
     fetchBookmarkedItems();
-  }, []);
+  }, [isLoading, accessToken]);
 
   async function isBookmarked(
     id: number,
@@ -155,28 +159,42 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
   */
 
   useEffect(() => {
+    if (isLoading) return;
+    if (!accessToken) {
+      console.log("Access token not available yet, waiting...");
+      return;
+    }
     async function updateContentState() {
       try {
+        let data: movieType[] | seriesType[];
+
         if (
           path === PATHS.RetreiveBookmarkedMovies ||
           path === PATHS.RetreiveBookmarkedSeries
         ) {
-          updateMovies(await getContentPostReq(path, config(accessToken)));
+          data = (await getContentPostReq(path, config(accessToken))) as
+            | movieType[]
+            | seriesType[];
         } else {
-          updateMovies(await getContentGetReq(path));
+          data = (await getContentGetReq(path)) as movieType[] | seriesType[];
         }
-        changeLoadingStatus(false);
+
+        updateMovies(data);
+        changeLoadingStatusAI(false);
       } catch (err: any) {
-        console.log(err.message);
+        console.error("Error fetching movies:", err.message);
+      } finally {
+        changeLoadingStatusAI(false);
       }
     }
+
     updateContentState();
-  }, [debouncedSearchValue, bookmarkedItems]);
+  }, [isLoading, accessToken, debouncedSearchValue]);
 
   return (
     <>
       <h1 className="font-light text-[5.33vw] mb-2 m-4">{title}</h1>
-      {isLoading ? (
+      {isLoadingAI ? (
         <LoadingAnimatedItem />
       ) : (
         <motion.div

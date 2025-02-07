@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import { Context } from "../context/storeContext";
+import { Context } from "../context/StoreContext";
 import storeContextType from "../types/storeContextType";
 import LoadingAnimatedItem from "./LoadingAnimatedItem";
 import { useLocation } from "react-router-dom";
@@ -10,8 +10,8 @@ function Search() {
     searchValue,
     changeSearchValue,
     searchCompleted,
-    isLoading,
-    UpdateLoadingStatus,
+    isLoadingAI,
+    UpdateLoadingStatusAI,
     debouncedSearchValue,
     setSearchCompletion,
     searchError,
@@ -22,10 +22,10 @@ function Search() {
 
   useEffect(() => {
     if (searchValue != "") {
-      UpdateLoadingStatus(true);
+      UpdateLoadingStatusAI(true);
       //setFoundValues(0);
     } else {
-      setTimeout(() => UpdateLoadingStatus(false), 1000);
+      setTimeout(() => UpdateLoadingStatusAI(false), 1000);
     }
   }, [searchValue]);
 
@@ -55,7 +55,7 @@ function Search() {
     //countFoundValues();
     if (searchValue !== "") {
       setSearchCompletion(true);
-      UpdateLoadingStatus(false);
+      UpdateLoadingStatusAI(false);
     } else {
       setSearchCompletion(false);
     }
@@ -73,7 +73,7 @@ function Search() {
           onChange={(e) => changeSearchValue(e.target.value)}
           placeholder="Search for movies or TV series"
         />
-        {isLoading && (
+        {isLoadingAI && (
           <div className="ml-4">
             <LoadingAnimatedItem />
           </div>

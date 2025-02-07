@@ -1,21 +1,22 @@
 import { useContext } from "react";
 import Navigation from "./Navigation";
-import { Context } from "../context/storeContext";
+import { Context } from "../context/StoreContext";
 import { Link } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import { axiosJWT, config } from "../resources/functions";
+import { axiosJWT, config } from "../axios/axios";
 import { useEffect, useState } from "react";
 import styleObjectType from "../types/styleObjectType";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 function Header() {
-  const {
-    userModal,
-    setUserModal,
-    setLoggedInStatus,
-    setAccessToken,
-    accessToken,
-  } = useContext(Context);
+  const { userModal, setUserModal, setLoggedInStatus } = useContext(Context);
   const location = useLocation();
+
+  const { user, setUser, setAccessToken, accessToken } =
+    useContext(AuthContext);
+
+  const navigate = useNavigate();
 
   const style = "svg-white-filter";
   const [styleObject, ChangeStyleObject] = useState<
@@ -61,6 +62,8 @@ function Header() {
         {},
         config(accessToken)
       );
+      setUser(null);
+      navigate("/login");
       setAccessToken("");
     } catch (error) {
       console.error("Logout failed:", error);
@@ -93,15 +96,19 @@ function Header() {
           }
         >
           <ul>
+            <li className="flex pl-4 mb-6 float-left clear-both font-light text-[3.5vw]">
+              <p className="mr-2 text-gray-200">Hey,</p>
+              <p className="text-[#FC4747]"> {user!.email}</p>
+            </li>
             <li
               onClick={() => {
                 setLoggedInStatus(false);
                 setUserModal(false);
                 logout();
               }}
-              className="pl-4 pb-2 float-left clear-both text-[3.73vw]"
+              className="pl-4 pb-2 float-left text-gray-200 clear-both font-light text-[3.5vw]"
             >
-              Logout
+              - Logout -
             </li>
           </ul>
         </div>
