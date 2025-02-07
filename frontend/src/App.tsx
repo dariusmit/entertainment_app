@@ -22,8 +22,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/movies" element={<MoviesPage />} />
-        <Route path="/movies/:slug" element={<IndividualItemPage />} />
-        <Route path="/shows/:slug" element={<IndividualItemPage />} />
+        <Route path="/movies/:id/:slug" element={<IndividualItemPage />} />
+        <Route path="/shows/:id/:slug" element={<IndividualItemPage />} />
         <Route path="/shows" element={<ShowsPage />} />
         <Route path="/bookmarks" element={<BookmarksPage />} />
         <Route path="*" element={<NoPage />} />

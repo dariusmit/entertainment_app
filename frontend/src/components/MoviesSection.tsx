@@ -3,6 +3,8 @@ import { useContext, useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import movieType from "../types/movieType";
 import seriesType from "../types/seriesType";
+import { isMovieType } from "../helpers/isMovieType";
+import { posterRootURL } from "../helpers/posterRootURL";
 import {
   axiosJWT,
   config,
@@ -11,6 +13,7 @@ import {
 } from "../axios/axios";
 import LoadingAnimatedItem from "./LoadingAnimatedItem";
 import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 interface Props {
   title: string;
@@ -19,7 +22,7 @@ interface Props {
 }
 
 function MoviesSection({ title, path, horizontalSection }: Props) {
-  const posterRootURL = "https://image.tmdb.org/t/p/original";
+  const navigate = useNavigate();
 
   const { debouncedSearchValue, PATHS } = useContext(Context);
 
@@ -28,12 +31,6 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
   const [isLoadingAI, changeLoadingStatusAI] = useState<boolean>(true);
   const [movies, updateMovies] = useState<movieType[] | seriesType[]>([]);
   const [bookmarkedItems, setBookmarkedItems] = useState<number[]>([]);
-
-  //A type guard in TypeScript, which is used to narrow down a union type to a specific type and prevent error about missing properties being thrown
-  //"is" - is type predicate, is a special syntax in TypeScript that informs the compiler about the type of a variable when a condition is true.
-  function isMovieType(movie: movieType | seriesType): movie is movieType {
-    return "release_date" in movie;
-  }
 
   async function fetchBookmarkedItems() {
     if (isLoading || !accessToken) {
@@ -138,30 +135,30 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
     }
   }
 
-  /** 
-  function viewContent(): void {
-    const formattedTitle = movie.title.replace(/\s+/g, "_").toLowerCase();
+  function viewContent(movie: movieType | seriesType): void {
+    const formattedTitle = isMovieType(movie)
+      ? movie.title.replace(/\s+/g, "_").toLowerCase()
+      : movie.name.replace(/\s+/g, "_").toLowerCase();
 
     if (location.pathname === "/") {
       navigate(
-        `${
-          movie.media_type === "movie" ? `/movies` : `/shows`
+        `${isMovieType(movie) ? `/movies` : `/shows`}/${
+          movie.id
         }/${formattedTitle}`
       );
     } else if (location.pathname === "/bookmarks") {
       navigate(
-        `${
-          movie.media_type === "movie" ? `/movies` : `/shows`
+        `${isMovieType(movie) ? `/movies` : `/shows`}/${
+          movie.id
         }/${formattedTitle}`
       );
-    } else navigate(`${location.pathname}/${formattedTitle}`);
+    } else navigate(`${location.pathname}/${movie.id}/${formattedTitle}`);
   }
-  */
 
   useEffect(() => {
     if (isLoading) return;
     if (!accessToken) {
-      console.log("Access token not available yet, waiting...");
+      console.log("Access token not available yet");
       return;
     }
     async function updateContentState() {
@@ -189,7 +186,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
     }
 
     updateContentState();
-  }, [isLoading, accessToken, debouncedSearchValue]);
+  }, [movies, isLoading, accessToken, debouncedSearchValue]);
 
   return (
     <>
@@ -222,6 +219,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
                       horizontalSection ? `h-full object-cover` : `h-auto`
                     } w-full rounded-lg transition-transform hover:scale-105 hover:cursor-pointer mb-2`}
                     src={posterRootURL + movie.poster_path}
+                    onClick={() => viewContent(movie)}
                   />
                   <div className={horizontalSection ? "hidden" : ""}>
                     <div className="flex text-[3.47vw] font-extralight">

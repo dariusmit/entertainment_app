@@ -10,7 +10,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 function Header() {
-  const { userModal, setUserModal, setLoggedInStatus } = useContext(Context);
+  const { userModal, setUserModal } = useContext(Context);
   const location = useLocation();
 
   const { user, setUser, setAccessToken, accessToken } =
@@ -96,19 +96,18 @@ function Header() {
           }
         >
           <ul>
-            <li className="flex pl-4 mb-6 float-left clear-both font-light text-[3.5vw]">
+            <li className="flex pl-2 mb-6 float-left clear-both font-light text-[3.5vw]">
               <p className="mr-2 text-gray-200">Hey,</p>
               <p className="text-[#FC4747]"> {user!.email}</p>
             </li>
             <li
               onClick={() => {
-                setLoggedInStatus(false);
                 setUserModal(false);
                 logout();
               }}
               className="pl-4 pb-2 float-left text-gray-200 clear-both font-light text-[3.5vw]"
             >
-              - Logout -
+              Logout
             </li>
           </ul>
         </div>

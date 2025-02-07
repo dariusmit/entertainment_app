@@ -1,77 +1,106 @@
-import { Context } from "../context/StoreContext";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
+import { AuthContext } from "../context/AuthContext";
+import movieType from "../types/movieType";
+import seriesType from "../types/seriesType";
+import { isMovieType } from "../helpers/isMovieType";
+import axios from "axios";
+import { posterRootURL } from "../helpers/posterRootURL";
+
+interface genresType {
+  id: number;
+  name: string;
+}
 
 function IndividualItemPage() {
-  const { movieList, isLoggedIn } = useContext(Context);
+  const { user, isLoading } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
 
+  const [content, setContent] = useState<movieType | seriesType>(
+    {} as movieType | seriesType
+  );
+
   useEffect(() => {
-    if (!isLoggedIn) {
+    if (!isLoading && !user) {
       navigate("/login");
     }
+  }, [user, isLoading, navigate]);
+
+  //Get content ID from pathname
+  const match = location.pathname.match(/^\/(movies|shows)\/(\d+)\/.*/);
+  let contentID: string;
+
+  const [genres, setGenres] = useState<genresType[]>([]);
+
+  useEffect(() => {
+    if (match) {
+      contentID = match[2];
+    }
+    const fetchContent = async () => {
+      return await axios
+        .get(
+          `https://api.themoviedb.org/3/${
+            location.pathname.includes("movies") ? "movie" : "tv"
+          }/${contentID}?api_key=fc3044a6adda941a338057c80a65b637`
+        )
+        .then((res) => {
+          setGenres(res.data.genres);
+          setContent(res.data);
+          return res.data;
+        })
+        .catch((err) => console.log("Error: " + err.message));
+    };
+    fetchContent();
   }, []);
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/login");
-    }
-  }, [isLoggedIn]);
-
-  function formatTitle(inputString: string): string {
-    const regex = /\/movies\/|\/shows\//g;
-    return inputString
-      .replace(regex, "") // Replace words /movies/ and /shows/ with empty space
-      .replace(/_/g, " ") // Replace _ with " "
-      .split(" ") // Split the string into words by spaces
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
-      .join(" "); // Join the words back into a single string
-  }
-
-  const movie_title = formatTitle(location.pathname);
 
   return (
     <>
-      <Header />
-      {movieList &&
-        movieList.length > 0 &&
-        movieList.map((item) => {
-          if (item.title === movie_title) {
-            return (
-              <div className="px-[4.27vw] pb-[16.27vw]" key={item.id}>
-                <img
-                  className="w-full mb-[4.27vw] rounded-lg"
-                  src={`../.${item.thumbnail.regular.small}`}
-                />
-                <div>
-                  <div className="flex text-[3.47vw] font-extralight">
-                    <p className="mr-[1.6vw]">{item.year}</p>
-                    <p className="mr-[1.6vw]">·</p>
-                    <div className="flex items-center mr-[1.6vw]">
-                      <img
-                        src={
-                          item.category === "Movie"
-                            ? "../../assets/icon-category-movie.svg"
-                            : "../../assets/icon-category-tv.svg"
-                        }
-                        className="w-[2.67vw] h-[2.67vw] mr-1"
-                      />
-                      <p>{item.category}</p>
-                    </div>
-                    <p className="mr-[1.6vw]">·</p>
-                    <p>{item.rating}</p>
-                  </div>
-                  <p className="text-[4vw]">{item.title}</p>
+      {user && (
+        <>
+          <div></div>
+          <Header />
+          <div className="px-[4.27vw] pb-[16.27vw]" key={content.id}>
+            <img
+              className="w-full mb-[4.27vw] rounded-lg"
+              src={posterRootURL + content.poster_path}
+            />
+            <div>
+              <div className="flex text-[3.47vw] font-extralight">
+                <p className="mr-[1.6vw]">
+                  {isMovieType(content)
+                    ? content.release_date
+                    : content.first_air_date}
+                </p>
+                <p className="mr-[1.6vw]">·</p>
+                <div className="flex items-center mr-[1.6vw]">
+                  <img
+                    src={
+                      isMovieType(content)
+                        ? "../../assets/icon-category-movie.svg"
+                        : "../../assets/icon-category-tv.svg"
+                    }
+                    className="w-[2.67vw] h-[2.67vw] mr-1"
+                  />
+                  <p>{isMovieType(content) ? "Movie" : "Series"}</p>
                 </div>
+                <p className="mr-[1.6vw]">·</p>
+                <p>{content.vote_average}</p>
               </div>
-            );
-          }
-          return;
-        })}
+              <p className="text-[4vw]">
+                {isMovieType(content) ? content.title : content.name}
+              </p>
+            </div>
+            {genres &&
+              genres.map((item: genresType) => {
+                return <p key={item.id}>{item.name}</p>;
+              })}
+          </div>
+        </>
+      )}
     </>
   );
 }
