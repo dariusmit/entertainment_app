@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 
 function RegistrationForm() {
-  const { inputError, setInputError, isLoggedIn } = useContext(Context);
+  const { inputError, setInputError } = useContext(Context);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [repeatedPassword, setRepeatedPassword] = useState<string>("");
@@ -112,7 +112,6 @@ function RegistrationForm() {
           </Link>
         </p>
       </form>
-      {isLoggedIn && <p>User is Logged In!</p>}
       <ToastContainer />
     </div>
   );

@@ -9,6 +9,7 @@ import seriesType from "../types/seriesType";
 import { isMovieType } from "../helpers/isMovieType";
 import axios from "axios";
 import { posterRootURL } from "../helpers/posterRootURL";
+import { API_KEY } from "../axios/paths";
 
 interface genresType {
   id: number;
@@ -45,7 +46,7 @@ function IndividualItemPage() {
         .get(
           `https://api.themoviedb.org/3/${
             location.pathname.includes("movies") ? "movie" : "tv"
-          }/${contentID}?api_key=fc3044a6adda941a338057c80a65b637`
+          }/${contentID}?api_key=${API_KEY}`
         )
         .then((res) => {
           setGenres(res.data.genres);

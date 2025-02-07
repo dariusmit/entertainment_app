@@ -5,9 +5,10 @@ import Search from "../components/Search";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { PATHS } from "../axios/paths";
 
 function MoviesPage() {
-  const { searchCompleted, PATHS, searchValue } = useContext(Context);
+  const { searchCompleted, searchValue } = useContext(Context);
 
   const navigate = useNavigate();
 

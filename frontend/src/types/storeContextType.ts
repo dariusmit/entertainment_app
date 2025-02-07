@@ -1,5 +1,3 @@
-import pathsType from "./pathsType";
-
 interface storeContextType {
   searchValue: string;
   changeSearchValue: React.Dispatch<React.SetStateAction<string>>;
@@ -18,7 +16,6 @@ interface storeContextType {
   userModal: boolean;
   setUserModal: React.Dispatch<React.SetStateAction<boolean>>;
   debouncedSearchValue: string;
-  PATHS: pathsType;
 }
 
 export default storeContextType;

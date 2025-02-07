@@ -3,8 +3,6 @@ import storeContextType from "../types/storeContextType";
 import { ReactNode } from "react";
 import { useState } from "react";
 import useDebounce from "../hooks/useDebounce";
-import PATHS from "../axios/paths";
-
 //{} as storeContextType is a TypeScript type assertion, which tells the compiler to treat {} as if it were of type storeContextType
 export const Context = createContext<storeContextType>({} as storeContextType);
 
@@ -41,7 +39,6 @@ export const StoreContextProvider = ({
         userModal,
         setUserModal,
         debouncedSearchValue,
-        PATHS,
       }}
     >
       {children}

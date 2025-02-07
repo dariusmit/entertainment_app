@@ -1,9 +1,9 @@
 import pathsType from "../types/pathsType";
 
-const API_KEY = "api_key=fc3044a6adda941a338057c80a65b637";
-const BASE_URL = "https://api.themoviedb.org/3";
-const LANG = "language=en-US";
-const PATHS: pathsType = {
+export const API_KEY: string = `api_key=${import.meta.env.VITE_API_KEY}`;
+export const BASE_URL: string = "https://api.themoviedb.org/3";
+const LANG: string = "language=en-US";
+export const PATHS: pathsType = {
   TrendingMovies: `${BASE_URL}/trending/movie/day?${API_KEY}&${LANG}`,
   TrendingSeries: `${BASE_URL}/discover/tv?${API_KEY}&${LANG}&sort_by=popularity.desc`,
   TopRatedMovies: `${BASE_URL}/movie/top_rated?${API_KEY}&${LANG}`,
@@ -18,5 +18,3 @@ const PATHS: pathsType = {
   RetreiveBookmarkedMovies: `http://localhost:8081/retreive_bookmarked_movies`,
   RetreiveBookmarkedSeries: `http://localhost:8081/retreive_bookmarked_series`,
 };
-
-export default PATHS;

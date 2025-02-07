@@ -5,9 +5,10 @@ import Search from "../components/Search";
 import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { PATHS } from "../axios/paths";
 
 function BookmarksPage() {
-  const { searchCompleted, PATHS } = useContext(Context);
+  const { searchCompleted } = useContext(Context);
 
   const navigate = useNavigate();
 

@@ -5,9 +5,10 @@ import Header from "../components/Header";
 import MoviesSection from "../components/MoviesSection";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { PATHS } from "../axios/paths";
 
 function HomePage() {
-  const { searchCompleted, PATHS, searchValue } = useContext(Context);
+  const { searchCompleted, searchValue } = useContext(Context);
   const { user, isLoading } = useContext(AuthContext);
 
   const navigate = useNavigate();
