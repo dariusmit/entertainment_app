@@ -5,7 +5,6 @@ import movieType from "../types/movieType";
 import seriesType from "../types/seriesType";
 import { isMovieType } from "../helpers/isMovieType";
 import { posterRootURL } from "../helpers/posterRootURL";
-import { PATHS } from "../axios/paths";
 
 import {
   axiosJWT,
@@ -20,10 +19,11 @@ import { useNavigate } from "react-router-dom";
 interface Props {
   title: string;
   path: string;
+  reqType?: string;
   horizontalSection?: boolean;
 }
 
-function MoviesSection({ title, path, horizontalSection }: Props) {
+function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   const navigate = useNavigate();
 
   const { debouncedSearchValue } = useContext(Context);
@@ -167,11 +167,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
     async function updateContentState() {
       try {
         let data: movieType[] | seriesType[];
-
-        if (
-          path === PATHS.RetreiveBookmarkedMovies ||
-          path === PATHS.RetreiveBookmarkedSeries
-        ) {
+        if (reqType === "auth") {
           data = (await getContentPostReq(path, config(accessToken))) as
             | movieType[]
             | seriesType[];
@@ -212,7 +208,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
             movies.map((movie: movieType | seriesType) => {
               return (
                 <div
-                  key={movie.poster_path}
+                  key={movie.id}
                   className={`${
                     horizontalSection ? `w-[64vw] h-auto` : ``
                   } relative overflow-hidden rounded-lg`}

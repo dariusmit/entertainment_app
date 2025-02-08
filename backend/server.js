@@ -334,17 +334,22 @@ function authenticateToken(req, res, next) {
   });
 }
 
-app.get("/search_bookmarks", async (req, res) => {
-  const query = req.query;
+app.post("/search_bookmarks", authenticateToken, async (req, res) => {
+  const userID = req.user.id;
+  const query = `%${req.query.search}%`; //Wildcard required for LIKE operator to work
 
-  const sql = `SELECT * FROM b_user_movies WHERE title LIKE ?`;
-  const sql1 = `SELECT * FROM b_user_series WHERE name LIKE ?`;
+  if (!query) {
+    return res.status(400).json({ error: "Missing search query" });
+  }
 
-  //Get titles from both tables, then search geneal list to add missing properties
+  const sql = `
+SELECT * FROM b_user_movies WHERE user_id = ? AND title LIKE ?
+`;
 
-  //Connect to db and return mergen list
-
-  return res.json(query);
+  db.query(sql, [userID, query], (err, results) => {
+    if (err) return res.json(err.message);
+    return res.json(results);
+  });
 });
 
 app.listen(8081, () => {

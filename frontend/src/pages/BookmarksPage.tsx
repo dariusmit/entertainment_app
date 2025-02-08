@@ -30,18 +30,21 @@ function BookmarksPage() {
             <MoviesSection
               title="Search Results"
               path={`${PATHS.SearchBookmarks}?search=${searchValue}`}
+              reqType="auth"
             />
           )}
           {!searchCompleted && (
             <MoviesSection
               title="Bookmarked Movies"
               path={`${PATHS.RetreiveBookmarkedMovies}`}
+              reqType="auth"
             />
           )}
           {!searchCompleted && (
             <MoviesSection
               title="Bookmarked Series"
               path={`${PATHS.RetreiveBookmarkedSeries}`}
+              reqType="auth"
             />
           )}
         </>
