@@ -10,7 +10,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 function Header() {
-  const { userModal, setUserModal } = useContext(Context);
+  const { userModal, setUserModal, changeSearchValue } = useContext(Context);
   const location = useLocation();
 
   const { user, setUser, setAccessToken, accessToken } =
@@ -69,6 +69,10 @@ function Header() {
       console.error("Logout failed:", error);
     }
   };
+
+  useEffect(() => {
+    changeSearchValue("");
+  }, [location.pathname]);
 
   return (
     <>

@@ -5,6 +5,8 @@ import movieType from "../types/movieType";
 import seriesType from "../types/seriesType";
 import { isMovieType } from "../helpers/isMovieType";
 import { posterRootURL } from "../helpers/posterRootURL";
+import { PATHS } from "../axios/paths";
+
 import {
   axiosJWT,
   config,
@@ -24,7 +26,7 @@ interface Props {
 function MoviesSection({ title, path, horizontalSection }: Props) {
   const navigate = useNavigate();
 
-  const { debouncedSearchValue, PATHS } = useContext(Context);
+  const { debouncedSearchValue } = useContext(Context);
 
   const { isLoading, accessToken } = useContext(AuthContext);
 
@@ -46,7 +48,8 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
 
       if (res.data) {
         const { movies, series } = res.data;
-        setBookmarkedItems([
+        setBookmarkedItems((prev) => [
+          ...prev,
           ...movies.map((m: any) => m.id),
           ...series.map((s: any) => s.id),
         ]);
@@ -87,11 +90,13 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
   async function handleBookmarkClick(
     movie: movieType | seriesType
   ): Promise<void> {
+    console.log(movie);
     const mediaType = isMovieType(movie) ? "movie" : "series";
     const isBookmarkedStatus = await isBookmarked(movie.id, mediaType);
 
     if (isBookmarkedStatus) {
       await removeBookmark(movie.id, mediaType);
+      location.reload();
     } else {
       await bookmarkContent(movie.id, mediaType);
     }
@@ -102,7 +107,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
     media_type: string
   ): Promise<void> {
     try {
-      const res = await axiosJWT.post(
+      await axiosJWT.post(
         "http://localhost:8081/bookmark_item",
         {
           id,
@@ -111,7 +116,6 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
         },
         config(accessToken)
       );
-      console.log(res.data.message);
       setBookmarkedItems((prev) => [...prev, id]);
     } catch (err) {
       console.log("Error bookmarking:", err);
@@ -120,7 +124,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
 
   async function removeBookmark(id: number, media_type: string): Promise<void> {
     try {
-      const res = await axiosJWT.post(
+      await axiosJWT.post(
         "http://localhost:8081/remove_bookmarked_item",
         {
           id,
@@ -128,7 +132,6 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
         },
         config(accessToken)
       );
-      console.log(res.data.message);
       setBookmarkedItems((prev) => prev.filter((item) => item !== id));
     } catch (err) {
       console.log("Error removing bookmark:", err);
@@ -186,7 +189,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
     }
 
     updateContentState();
-  }, [movies, isLoading, accessToken, debouncedSearchValue]);
+  }, [isLoading, accessToken, debouncedSearchValue]);
 
   return (
     <>
@@ -209,7 +212,7 @@ function MoviesSection({ title, path, horizontalSection }: Props) {
             movies.map((movie: movieType | seriesType) => {
               return (
                 <div
-                  key={movie.id}
+                  key={movie.poster_path}
                   className={`${
                     horizontalSection ? `w-[64vw] h-auto` : ``
                   } relative overflow-hidden rounded-lg`}

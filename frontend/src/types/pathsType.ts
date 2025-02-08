@@ -10,6 +10,7 @@ interface pathsType {
   SearchMovies: string;
   SearchSeries: string;
   SearchAll: string;
+  SearchBookmarks: string;
   RetreiveBookmarkedMovies: string;
   RetreiveBookmarkedSeries: string;
 }

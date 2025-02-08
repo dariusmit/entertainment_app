@@ -8,7 +8,7 @@ import { AuthContext } from "../context/AuthContext";
 import { PATHS } from "../axios/paths";
 
 function BookmarksPage() {
-  const { searchCompleted } = useContext(Context);
+  const { searchCompleted, searchValue } = useContext(Context);
 
   const navigate = useNavigate();
 
@@ -26,6 +26,12 @@ function BookmarksPage() {
         <>
           <Header />
           <Search />
+          {searchCompleted && (
+            <MoviesSection
+              title="Search Results"
+              path={`${PATHS.SearchBookmarks}?search=${searchValue}`}
+            />
+          )}
           {!searchCompleted && (
             <MoviesSection
               title="Bookmarked Movies"

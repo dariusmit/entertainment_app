@@ -146,33 +146,9 @@ function alreadyBookmarked(id, content_id, content_type) {
   return new Promise((resolve, reject) => {
     const sql = `SELECT COUNT(*) AS count FROM ${
       content_type === `movie` ? `b_user_movies` : `b_user_series`
-    } WHERE user_id = ? AND content_id = ?`;
+    } WHERE user_id = ? AND id = ?`;
 
     db.query(sql, [id, content_id], (err, results) => {
-      if (err) {
-        console.error("Database error:", err.message);
-        return reject(err);
-      }
-
-      if (!results || results.length === 0) {
-        console.warn("No results returned from database");
-        return resolve(false);
-      }
-
-      const count = results[0].count;
-
-      resolve(count === 1);
-    });
-  });
-}
-
-function alreadyInDatabaseList(content_id, content_type) {
-  return new Promise((resolve, reject) => {
-    const sql = `SELECT COUNT(*) AS count FROM ${
-      content_type === `movie` ? `b_movies` : `b_series`
-    } WHERE id = ?`;
-
-    db.query(sql, [content_id], (err, results) => {
       if (err) {
         console.error("Database error:", err.message);
         return reject(err);
@@ -216,51 +192,40 @@ app.post("/bookmark_item", authenticateToken, async (req, res) => {
     media_type: media_type,
   } = req.body;
 
+  const specific_movie = movies_list.find((movie) => movie.id === movie_id);
+
   try {
-    const sql_insert_movie_record = `INSERT INTO ${
-      media_type === "movie" ? "b_movies" : "b_series"
-    } (id, ${media_type === "movie" ? "title" : "name"}, poster_path, ${
-      media_type === "movie" ? "release_date" : "first_air_date"
-    }, vote_average) VALUES (?, ?, ?, ?, ?)`;
-
-    const sql_insert_bookmark_record = `INSERT INTO ${
-      media_type === "movie" ? "b_user_movies" : "b_user_series"
-    } (user_id, content_id) VALUES (?, ?)`;
-
-    const alreadyInDBList = await alreadyInDatabaseList(movie_id, media_type);
-    if (!alreadyInDBList) {
-      const specific_movie = movies_list.find((movie) => movie.id === movie_id);
-
-      await new Promise((resolve, reject) => {
-        db.query(
-          sql_insert_movie_record,
-          [
-            specific_movie.id,
-            media_type === "movie" ? specific_movie.title : specific_movie.name,
-            specific_movie.poster_path,
-            media_type === "movie"
-              ? specific_movie.release_date
-              : specific_movie.first_air_date,
-            specific_movie.vote_average,
-          ],
-          (err) => {
-            if (err) return reject(err);
-            resolve();
-          }
-        );
-      });
-    }
+    const sql = `INSERT INTO ${
+      media_type === `movie` ? `b_user_movies` : `b_user_series`
+    } (user_id, id, ${
+      media_type === `movie` ? `title` : `name`
+    }, poster_path, ${
+      media_type === `movie` ? `release_date` : `first_air_date`
+    }, vote_average) VALUES (?, ?, ?, ?, ?, ?)`;
 
     const isBookmarked = await alreadyBookmarked(userID, movie_id, media_type);
     if (!isBookmarked) {
-      db.query(sql_insert_bookmark_record, [userID, movie_id], (err) => {
-        if (err) {
-          return res.status(500).json({ error: err.message });
+      db.query(
+        sql,
+        [
+          userID,
+          movie_id,
+          media_type === "movie" ? specific_movie.title : specific_movie.name,
+          specific_movie.poster_path,
+          media_type === "movie"
+            ? specific_movie.release_date
+            : specific_movie.first_air_date,
+          specific_movie.vote_average,
+        ],
+        (err) => {
+          if (err) {
+            return res.status(500).json({ error: err.message });
+          }
+          return res.json({
+            message: `Content with id ${movie_id} was bookmarked`,
+          });
         }
-        return res.json({
-          message: `Content with id ${movie_id} was bookmarked`,
-        });
-      });
+      );
     } else {
       return res.json({ message: "Already bookmarked" });
     }
@@ -283,7 +248,7 @@ app.post("/remove_bookmarked_item", authenticateToken, async (req, res) => {
 
     const sql_delete = `DELETE FROM ${
       media_type === `movie` ? `b_user_movies` : `b_user_series`
-    } WHERE user_id = ? AND content_id = ?`;
+    } WHERE user_id = ? AND id = ?`;
 
     db.query(sql_delete, [userID, movie_id], (err) => {
       if (err) return res.json({ error: err.message });
@@ -301,75 +266,39 @@ app.post("/remove_bookmarked_item", authenticateToken, async (req, res) => {
 app.post("/retreive_bookmarked_movies", authenticateToken, (req, res) => {
   const userID = req.user.id;
   const sql = `SELECT * FROM b_user_movies WHERE user_id = ?`;
-  const sql1 = `SELECT * FROM b_movies`;
 
   db.query(sql, [userID], (err, results) => {
     if (err) return res.json(err.message);
 
-    const users_bookmarks_list = results;
-
-    db.query(sql1, (err, results) => {
-      if (err) return res.json(err.message);
-
-      let return_array = [];
-      const content_array = results;
-
-      for (let i = 0; i < content_array.length; i++) {
-        for (let j = 0; j < users_bookmarks_list.length; j++) {
-          if (content_array[i].id === users_bookmarks_list[j].content_id) {
-            return_array.push(content_array[i]);
-          }
-        }
-      }
-      return res.json(return_array);
-    });
+    return res.json(results);
   });
 });
 
 app.post("/retreive_bookmarked_series", authenticateToken, (req, res) => {
   const userID = req.user.id;
   const sql = `SELECT * FROM b_user_series WHERE user_id = ?`;
-  const sql1 = `SELECT * FROM b_series`;
 
   db.query(sql, [userID], (err, results) => {
     if (err) return res.json(err.message);
 
-    const users_bookmarks_list = results;
-
-    db.query(sql1, (err, results) => {
-      if (err) return res.json(err.message);
-
-      let return_array = [];
-      const content_array = results;
-
-      for (let i = 0; i < content_array.length; i++) {
-        for (let j = 0; j < users_bookmarks_list.length; j++) {
-          if (content_array[i].id === users_bookmarks_list[j].content_id) {
-            return_array.push(content_array[i]);
-          }
-        }
-      }
-      return res.json(return_array);
-    });
+    return res.json(results);
   });
 });
 
 app.post("/get_bookmarked_items", authenticateToken, async (req, res) => {
   const userID = req.user.id;
-  if (!userID) return res.json({ error: "user id not found" });
+  if (!userID) return res.json({ error: "User ID not found" });
 
   try {
     const sql_movies = `
-          SELECT b_movies.id, b_movies.title, b_movies.poster_path, b_movies.release_date, b_movies.vote_average 
-          FROM b_user_movies 
-          JOIN b_movies ON b_user_movies.content_id = b_movies.id 
-          WHERE b_user_movies.user_id = ?`;
+      SELECT id, title, poster_path, release_date, vote_average 
+      FROM b_user_movies 
+      WHERE user_id = ?`;
 
     const sql_series = `
-          SELECT b_series.id, b_series.name, b_series.poster_path, b_series.first_air_date, b_series.vote_average 
-          FROM b_user_series 
-          JOIN b_series ON b_user_series.content_id = b_series.id 
-          WHERE b_user_series.user_id = ?`;
+      SELECT id, name AS title, poster_path, first_air_date AS release_date, vote_average 
+      FROM b_user_series 
+      WHERE user_id = ?`;
 
     const movies = await new Promise((resolve, reject) => {
       db.query(sql_movies, [userID], (err, results) => {
@@ -404,6 +333,19 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+
+app.get("/search_bookmarks", async (req, res) => {
+  const query = req.query;
+
+  const sql = `SELECT * FROM b_user_movies WHERE title LIKE ?`;
+  const sql1 = `SELECT * FROM b_user_series WHERE name LIKE ?`;
+
+  //Get titles from both tables, then search geneal list to add missing properties
+
+  //Connect to db and return mergen list
+
+  return res.json(query);
+});
 
 app.listen(8081, () => {
   console.log("Listening on port 8081");

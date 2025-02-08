@@ -2,7 +2,7 @@ import pathsType from "../types/pathsType";
 
 export const API_KEY: string = `api_key=${import.meta.env.VITE_API_KEY}`;
 export const BASE_URL: string = "https://api.themoviedb.org/3";
-const LANG: string = "language=en-US";
+export const LANG: string = "language=en-US";
 export const PATHS: pathsType = {
   TrendingMovies: `${BASE_URL}/trending/movie/day?${API_KEY}&${LANG}`,
   TrendingSeries: `${BASE_URL}/discover/tv?${API_KEY}&${LANG}&sort_by=popularity.desc`,
@@ -15,6 +15,7 @@ export const PATHS: pathsType = {
   SearchMovies: `${BASE_URL}/search/movie?${API_KEY}&${LANG}`,
   SearchSeries: `${BASE_URL}/search/tv?${API_KEY}&${LANG}`,
   SearchAll: `${BASE_URL}/search/multi?${API_KEY}&${LANG}`,
+  SearchBookmarks: `http://localhost:8081/search_bookmarks`,
   RetreiveBookmarkedMovies: `http://localhost:8081/retreive_bookmarked_movies`,
   RetreiveBookmarkedSeries: `http://localhost:8081/retreive_bookmarked_series`,
 };

@@ -9,11 +9,16 @@ import seriesType from "../types/seriesType";
 import { isMovieType } from "../helpers/isMovieType";
 import axios from "axios";
 import { posterRootURL } from "../helpers/posterRootURL";
-import { API_KEY } from "../axios/paths";
+import { API_KEY, LANG } from "../axios/paths";
 
 interface genresType {
   id: number;
   name: string;
+}
+
+interface contentVideosType {
+  key: string;
+  type: string;
 }
 
 function IndividualItemPage() {
@@ -36,25 +41,39 @@ function IndividualItemPage() {
   let contentID: string;
 
   const [genres, setGenres] = useState<genresType[]>([]);
+  const [contentVideos, setContentVideos] = useState<contentVideosType[]>([]);
 
   useEffect(() => {
     if (match) {
       contentID = match[2];
     }
-    const fetchContent = async () => {
-      return await axios
+
+    const fetchVideos = async (): Promise<void> => {
+      await axios
         .get(
           `https://api.themoviedb.org/3/${
             location.pathname.includes("movies") ? "movie" : "tv"
-          }/${contentID}?api_key=${API_KEY}`
+          }/${contentID}/videos?${API_KEY}&${LANG}`
+        )
+        .then((res) => {
+          setContentVideos(res.data.results);
+        })
+        .catch((err) => console.log("Error: " + err.message));
+    };
+    const fetchContent = async (): Promise<void> => {
+      await axios
+        .get(
+          `https://api.themoviedb.org/3/${
+            location.pathname.includes("movies") ? "movie" : "tv"
+          }/${contentID}?${API_KEY}&${LANG}`
         )
         .then((res) => {
           setGenres(res.data.genres);
           setContent(res.data);
-          return res.data;
         })
         .catch((err) => console.log("Error: " + err.message));
     };
+    fetchVideos();
     fetchContent();
   }, []);
 
@@ -66,11 +85,14 @@ function IndividualItemPage() {
           <Header />
           <div className="px-[4.27vw] pb-[16.27vw]" key={content.id}>
             <img
-              className="w-full mb-[4.27vw] rounded-lg"
-              src={posterRootURL + content.poster_path}
+              className="w-full h-auto mb-1 rounded-lg"
+              src={posterRootURL + content.backdrop_path}
             />
             <div>
-              <div className="flex text-[3.47vw] font-extralight">
+              <h1 className="text-[6vw] font-medium">
+                {isMovieType(content) ? content.title : content.name}
+              </h1>
+              <div className="flex [3.47vw] font-extralight text-gray-400">
                 <p className="mr-[1.6vw]">
                   {isMovieType(content)
                     ? content.release_date
@@ -89,15 +111,33 @@ function IndividualItemPage() {
                   <p>{isMovieType(content) ? "Movie" : "Series"}</p>
                 </div>
                 <p className="mr-[1.6vw]">·</p>
-                <p>{content.vote_average}</p>
+                <p>{String(Math.round(content.vote_average * 10) / 10)}</p>
               </div>
-              <p className="text-[4vw]">
-                {isMovieType(content) ? content.title : content.name}
-              </p>
+              <div className="flex text-[3.47vw] mb-3 font-extralight text-gray-400">
+                {genres &&
+                  genres.map((item: genresType) => {
+                    return (
+                      <p className="mr-2" key={item.id}>
+                        • {item.name}
+                      </p>
+                    );
+                  })}
+              </div>
+              <p className="mb-6">{content.overview}</p>
             </div>
-            {genres &&
-              genres.map((item: genresType) => {
-                return <p key={item.id}>{item.name}</p>;
+
+            {contentVideos &&
+              contentVideos.map((item) => {
+                if (item.type === "Trailer") {
+                  return (
+                    <div key={item.key}>
+                      <iframe
+                        className="w-full h-[84vw] mb-4 rounded-lg"
+                        src={`https://www.youtube.com/embed/${item.key}`}
+                      ></iframe>
+                    </div>
+                  );
+                }
               })}
           </div>
         </>
