@@ -342,13 +342,25 @@ app.post("/search_bookmarks", authenticateToken, async (req, res) => {
     return res.status(400).json({ error: "Missing search query" });
   }
 
-  const sql = `
-SELECT * FROM b_user_movies WHERE user_id = ? AND title LIKE ?
-`;
+  const sql = `SELECT id, title, NULL AS name, poster_path, release_date, NULL AS first_air_date, vote_average
+  FROM b_user_movies 
+  WHERE user_id = ? AND title LIKE ? 
+  UNION ALL 
+  SELECT id, NULL AS title, name, poster_path, NULL AS release_date, first_air_date, vote_average
+  FROM b_user_series 
+  WHERE user_id = ? AND name LIKE ?`;
 
-  db.query(sql, [userID, query], (err, results) => {
-    if (err) return res.json(err.message);
-    return res.json(results);
+  db.query(sql, [userID, query, userID, query], (err, results) => {
+    if (err) return res.status(500).json({ Error: err.message });
+
+    //Remove null values
+    const cleanResults = results.map((item) => {
+      return Object.fromEntries(
+        Object.entries(item).filter(([key, value]) => value !== null)
+      );
+    });
+
+    return res.json(cleanResults);
   });
 });
 
