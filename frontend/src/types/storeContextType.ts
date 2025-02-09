@@ -1,3 +1,5 @@
+import inputErrorsType from "./inputErrorsType";
+
 interface storeContextType {
   searchValue: string;
   changeSearchValue: React.Dispatch<React.SetStateAction<string>>;
@@ -11,8 +13,8 @@ interface storeContextType {
   setSearchCompletion: React.Dispatch<
     React.SetStateAction<boolean | undefined>
   >;
-  inputError: string;
-  setInputError: React.Dispatch<React.SetStateAction<string>>;
+  inputError: inputErrorsType;
+  setInputError: React.Dispatch<React.SetStateAction<inputErrorsType>>;
   userModal: boolean;
   setUserModal: React.Dispatch<React.SetStateAction<boolean>>;
   debouncedSearchValue: string;

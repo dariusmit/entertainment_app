@@ -3,6 +3,7 @@ import storeContextType from "../types/storeContextType";
 import { ReactNode } from "react";
 import { useState } from "react";
 import useDebounce from "../hooks/useDebounce";
+import inputErrorsType from "../types/inputErrorsType";
 //{} as storeContextType is a TypeScript type assertion, which tells the compiler to treat {} as if it were of type storeContextType
 export const Context = createContext<storeContextType>({} as storeContextType);
 
@@ -20,8 +21,12 @@ export const StoreContextProvider = ({
   const [searchCompleted, setSearchCompletion] = useState<
     boolean | undefined
   >();
-  const [inputError, setInputError] = useState<string>("");
   const debouncedSearchValue = useDebounce(searchValue);
+  const [inputError, setInputError] = useState<inputErrorsType>({
+    emailError: "",
+    passError: "",
+    repeatPassError: "",
+  });
 
   return (
     <Context.Provider

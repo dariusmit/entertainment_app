@@ -81,8 +81,8 @@ function Header() {
           <img className="w-[6.67vw] h-[5.33vw]" src="../../assets/logo.svg" />
         </Link>
         <Navigation styleObject={styleObject} />
-        <img
-          className="w-[6.4vw] h-[6.4vw] border border-white rounded-full"
+        <div
+          className="flex bg-gray-950 items-center justify-center w-[6.4vw] h-[6.4vw] border border-white rounded-full"
           onClick={() => {
             if (!userModal) {
               setUserModal(true);
@@ -90,8 +90,9 @@ function Header() {
               setUserModal(false);
             }
           }}
-          src="../../assets/image-avatar.png"
-        />
+        >
+          <p>{user?.email[0].toUpperCase()}</p>
+        </div>
         <div
           className={
             !userModal

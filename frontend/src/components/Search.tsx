@@ -1,15 +1,13 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { Context } from "../context/StoreContext";
 import storeContextType from "../types/storeContextType";
 import LoadingAnimatedItem from "./LoadingAnimatedItem";
 import { useLocation } from "react-router-dom";
-import useDebounce from "../hooks/useDebounce";
 
 function Search() {
   const {
     searchValue,
     changeSearchValue,
-    searchCompleted,
     isLoadingAI,
     UpdateLoadingStatusAI,
     debouncedSearchValue,
@@ -17,42 +15,17 @@ function Search() {
     searchError,
   } = useContext<storeContextType>(Context);
 
-  const [foundValues, setFoundValues] = useState<number>(0);
   const location = useLocation();
 
   useEffect(() => {
     if (searchValue != "") {
       UpdateLoadingStatusAI(true);
-      //setFoundValues(0);
     } else {
       setTimeout(() => UpdateLoadingStatusAI(false), 1000);
     }
   }, [searchValue]);
 
-  /** 
-  function countFoundValues(): void {
-    if (location.pathname === "/") {
-      setFoundValues(filteredMovieList.length);
-    } else if (location.pathname === "/movies") {
-      for (let i = 0; i < filteredMovieList.length; i++) {
-        if (filteredMovieList[i].category === "Movie") {
-          setFoundValues((prev) => prev + 1);
-        }
-      }
-    } else if (location.pathname === "/shows") {
-      for (let i = 0; i < filteredMovieList.length; i++) {
-        if (filteredMovieList[i].category === "TV Series") {
-          setFoundValues((prev) => prev + 1);
-        }
-      }
-    } else {
-      setFoundValues(filteredMovieList.length);
-    }
-  }
-
-  */
   useEffect(() => {
-    //countFoundValues();
     if (searchValue !== "") {
       setSearchCompletion(true);
       UpdateLoadingStatusAI(false);
@@ -60,6 +33,22 @@ function Search() {
       setSearchCompletion(false);
     }
   }, [debouncedSearchValue]);
+
+  function placeholderSelect(): string {
+    switch (location.pathname) {
+      case "/":
+        return "Search for Movies or TV Series";
+      case "/movies":
+        return "Search for Movies";
+      case "/shows":
+        return "Search for TV Series";
+      case "/bookmarks":
+        return "Search in Bookmarks";
+      default:
+        break;
+    }
+    return "";
+  }
 
   return (
     <>
@@ -71,7 +60,7 @@ function Search() {
           name="search"
           value={searchValue}
           onChange={(e) => changeSearchValue(e.target.value)}
-          placeholder="Search for movies or TV series"
+          placeholder={placeholderSelect()}
         />
         {isLoadingAI && (
           <div className="ml-4">
@@ -79,11 +68,6 @@ function Search() {
           </div>
         )}
       </div>
-      {searchCompleted && (
-        <h1 className="pl-[4.27vw] mt-[4.27vw] font-light text-[5.33vw]">
-          Found {foundValues} results for '{searchValue}'
-        </h1>
-      )}
       <p className="text-red-500 px-[4.27vw] mt-[4.27vw]"> {searchError}</p>
     </>
   );

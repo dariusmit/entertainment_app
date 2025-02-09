@@ -26,7 +26,8 @@ interface Props {
 function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   const navigate = useNavigate();
 
-  const { debouncedSearchValue } = useContext(Context);
+  const { debouncedSearchValue, searchValue, searchCompleted } =
+    useContext(Context);
 
   const { isLoading, accessToken } = useContext(AuthContext);
 
@@ -90,7 +91,6 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   async function handleBookmarkClick(
     movie: movieType | seriesType
   ): Promise<void> {
-    console.log(movie);
     const mediaType = isMovieType(movie) ? "movie" : "series";
     const isBookmarkedStatus = await isBookmarked(movie.id, mediaType);
 
@@ -189,7 +189,11 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
 
   return (
     <>
-      <h1 className="font-light text-[5.33vw] mb-2 m-4">{title}</h1>
+      <h1 className="font-light text-[5.33vw] mb-2 m-4">
+        {searchCompleted
+          ? `Found ${movies.length} results for '${searchValue}'`
+          : title}
+      </h1>
       {isLoadingAI ? (
         <LoadingAnimatedItem />
       ) : (

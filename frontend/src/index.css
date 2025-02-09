@@ -11,3 +11,9 @@ body {
 .svg-white-filter {
   filter: brightness(0) saturate(100%) invert(100%) sepia(2%) saturate(8%) hue-rotate(353deg) brightness(104%) contrast(104%);
 }
+
+.center {
+  right: 0;
+  top: 50%;
+  transform: translate(0%, -50%);
+}

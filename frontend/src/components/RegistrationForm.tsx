@@ -4,45 +4,74 @@ import { useContext } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
+import formValid from "../helpers/formValidation";
 
 function RegistrationForm() {
   const { inputError, setInputError } = useContext(Context);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [repeatedPassword, setRepeatedPassword] = useState<string>("");
+  const [showPassCriteria, setshowPassCriteria] = useState<boolean>(false);
+  const [isPassVisible, setPassVisibility] = useState<boolean>(false);
+  const [isRepeatPassVisible, setRepeatPassVisibility] =
+    useState<boolean>(false);
+
+  const resetErrors = {
+    emailError: "",
+    passError: "",
+    repeatPassError: "",
+    globalError: "",
+  };
+  const emptyErrors = {
+    emailError: "Field can't be empty!",
+    passError: "Field can't be empty!",
+    repeatPassError: "Field can't be empty!",
+    globalError: "Field can't be empty!",
+  };
+
+  const toastSettings: object = {
+    position: "bottom-center",
+    autoClose: 3000,
+    hideProgressBar: false,
+    closeOnClick: false,
+    pauseOnHover: false,
+    draggable: false,
+    progress: undefined,
+    theme: "dark",
+  };
 
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> {
     e.preventDefault();
-    if (!email || !password || !repeatedPassword) {
-      setInputError("Fields can't be empty!");
-      return;
+    if (
+      formValid(
+        email,
+        password,
+        repeatedPassword,
+        inputError,
+        setInputError,
+        setshowPassCriteria
+      )
+    ) {
+      console.log("form data is valid and can be submitted");
     }
-    if (password === repeatedPassword) {
+    /**
       axios
         .post("http://localhost:8081/register", { email, password })
         .then((res) => {
           if (!res.data.emailExists) {
-            setInputError("");
-            toast.success("User Created! Now you can login.", {
-              position: "bottom-center",
-              autoClose: 3000,
-              hideProgressBar: false,
-              closeOnClick: false,
-              pauseOnHover: false,
-              draggable: false,
-              progress: undefined,
-              theme: "dark",
-            });
+            setInputError(resetErrors);
+            toast.success("User Created! You can sign in now.", toastSettings);
           } else {
-            setInputError("Email already in use!");
+            setInputError({
+              ...inputError,
+              emailError: "Email already in use!",
+            });
           }
         })
         .catch((err) => console.log(err));
-    } else {
-      setInputError("Passwords does not match!");
-    }
+        */
   }
 
   return (
@@ -54,6 +83,7 @@ function RegistrationForm() {
       <form
         className="bg-[#161D2F] w-full h-auto rounded-2xl p-[6.4vw]"
         onSubmit={handleSubmit}
+        noValidate
       >
         <h1 className="text-[8.53vw] font-light tracking-[-0.13vw] mb-[6.67vw]">
           Sign Up
@@ -65,39 +95,106 @@ function RegistrationForm() {
                 type="email"
                 name="email"
                 placeholder="Email address"
-                autoComplete="nope"
+                autoComplete="no"
                 onChange={(e) => setEmail(e.target.value)}
                 className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2 w-full"
               />
+              <p className="text-[3vw] font-extralight mb-3 text-red-500">
+                {inputError.emailError}
+              </p>
             </div>
           </div>
           <div className="flex min-[1024px]:w-[50%]">
             <div className="w-full">
-              <input
-                type="password"
-                name="password"
-                placeholder="Password"
-                autoComplete="nope"
-                onChange={(e) => setPassword(e.target.value)}
-                className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2 w-full"
-              />
+              <div className="relative flex">
+                <input
+                  type={isPassVisible ? "text" : "password"}
+                  name="password"
+                  placeholder="Password"
+                  autoComplete="no"
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="font-extralight w-full text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2"
+                />
+                <button
+                  className={
+                    password !== "" ? "block absolute center" : "hidden"
+                  }
+                  onClick={() =>
+                    isPassVisible
+                      ? setPassVisibility(false)
+                      : setPassVisibility(true)
+                  }
+                >
+                  <div className="flex items-center justify-center mb-2 w-[30px] h-[25px]">
+                    {isPassVisible ? (
+                      <img
+                        className="w-[20px] h-auto"
+                        src="../../assets/open-eye.svg"
+                      />
+                    ) : (
+                      <img
+                        className="w-[20px] h-auto"
+                        src="../../assets/closed-eye.svg"
+                      />
+                    )}
+                  </div>
+                </button>
+              </div>
+              <p className="text-[3vw] font-extralight text-red-500">
+                {inputError.passError}
+              </p>
+              {showPassCriteria && (
+                <ul className="ml-4 text-[3vw] list-disc font-extralight mb-3 text-red-500">
+                  <li>At least 8 characters</li>
+                  <li>At least one uppercase letter (A-Z)</li>
+                  <li>At least one lowercase letter (a-z)</li>
+                  <li>At least one digit (0-9)</li>
+                  <li>At least one special character (@#$%^&*! etc.)</li>
+                </ul>
+              )}
             </div>
           </div>
           <div className="flex min-[1024px]:w-[50%]">
             <div className="w-full">
-              <input
-                type="password"
-                name="repeat_password"
-                placeholder="Repeat Password"
-                autoComplete="nope"
-                onChange={(e) => setRepeatedPassword(e.target.value)}
-                className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-[8.67vw] w-full"
-              />
+              <div className="relative flex">
+                <input
+                  type={isRepeatPassVisible ? "text" : "password"}
+                  name="repeat_password"
+                  placeholder="Repeat Password"
+                  autoComplete="no"
+                  onChange={(e) => setRepeatedPassword(e.target.value)}
+                  className="font-extralight text-[4vw] bg-[#161D2F] mb-2 p-3 border-b border-b-[#5A698F] w-full"
+                />
+                <button
+                  className={
+                    repeatedPassword !== "" ? "block absolute center" : "hidden"
+                  }
+                  onClick={() =>
+                    isRepeatPassVisible
+                      ? setRepeatPassVisibility(false)
+                      : setRepeatPassVisibility(true)
+                  }
+                >
+                  <div className="flex items-center justify-center mb-2 w-[30px] h-[25px]">
+                    {isRepeatPassVisible ? (
+                      <img
+                        className="w-[20px] h-auto"
+                        src="../../assets/open-eye.svg"
+                      />
+                    ) : (
+                      <img
+                        className="w-[20px] h-auto"
+                        src="../../assets/closed-eye.svg"
+                      />
+                    )}
+                  </div>
+                </button>
+              </div>
+              <p className="text-[3vw] font-extralight mb-[8.67vw] text-red-500">
+                {inputError.repeatPassError}
+              </p>
             </div>
           </div>
-          <p className="text-[4vw] font-extralight mt-[-20px] mb-[8.67vw] text-red-500">
-            {inputError}
-          </p>
         </div>
         <button
           type="submit"
