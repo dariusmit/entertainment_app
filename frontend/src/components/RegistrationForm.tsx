@@ -1,33 +1,24 @@
 import axios from "axios";
 import { Context } from "../context/StoreContext";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import formValid from "../helpers/formValidation";
+import formValid from "../validation/formValidation";
+import useDebounce from "../hooks/useDebounce";
 
 function RegistrationForm() {
-  const { inputError, setInputError } = useContext(Context);
+  const { inputError, setInputError, emptyErrorObject } = useContext(Context);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [repeatedPassword, setRepeatedPassword] = useState<string>("");
-  const [showPassCriteria, setshowPassCriteria] = useState<boolean>(false);
+
+  //Too much states I think
+  const [isSubmitClicked, setIsSubmitClicked] = useState<boolean>(false);
   const [isPassVisible, setPassVisibility] = useState<boolean>(false);
+
   const [isRepeatPassVisible, setRepeatPassVisibility] =
     useState<boolean>(false);
-
-  const resetErrors = {
-    emailError: "",
-    passError: "",
-    repeatPassError: "",
-    globalError: "",
-  };
-  const emptyErrors = {
-    emailError: "Field can't be empty!",
-    passError: "Field can't be empty!",
-    repeatPassError: "Field can't be empty!",
-    globalError: "Field can't be empty!",
-  };
 
   const toastSettings: object = {
     position: "bottom-center",
@@ -39,23 +30,30 @@ function RegistrationForm() {
     progress: undefined,
     theme: "dark",
   };
+  useEffect(() => {
+    formValid(
+      email,
+      password,
+      repeatedPassword,
+      inputError,
+      setInputError,
+      isSubmitClicked
+    );
+  }, [email, password, repeatedPassword]);
 
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> {
     e.preventDefault();
-    if (
-      formValid(
-        email,
-        password,
-        repeatedPassword,
-        inputError,
-        setInputError,
-        setshowPassCriteria
-      )
-    ) {
-      console.log("form data is valid and can be submitted");
-    }
+    setIsSubmitClicked(true);
+    console.log(
+      JSON.stringify(email),
+      JSON.stringify(password),
+      JSON.stringify(repeatedPassword)
+    );
+    console.log(typeof email, typeof password, typeof repeatedPassword);
+    console.log(email === "" && password === "" && repeatedPassword === "");
+
     /**
       axios
         .post("http://localhost:8081/register", { email, password })
@@ -141,15 +139,25 @@ function RegistrationForm() {
                 </button>
               </div>
               <p className="text-[3vw] font-extralight text-red-500">
-                {inputError.passError}
+                {inputError.passErrors.passGlobalErr}
               </p>
-              {showPassCriteria && (
+              {inputError.passErrors.passGlobalErr !== "" && (
                 <ul className="ml-4 text-[3vw] list-disc font-extralight mb-3 text-red-500">
-                  <li>At least 8 characters</li>
-                  <li>At least one uppercase letter (A-Z)</li>
-                  <li>At least one lowercase letter (a-z)</li>
-                  <li>At least one digit (0-9)</li>
-                  <li>At least one special character (@#$%^&*! etc.)</li>
+                  {inputError.passErrors.passCritErr1 && (
+                    <li>{inputError.passErrors.passCritErr1}</li>
+                  )}
+                  {inputError.passErrors.passCritErr2 && (
+                    <li>{inputError.passErrors.passCritErr2}</li>
+                  )}
+                  {inputError.passErrors.passCritErr3 && (
+                    <li>{inputError.passErrors.passCritErr3}</li>
+                  )}
+                  {inputError.passErrors.passCritErr4 && (
+                    <li>{inputError.passErrors.passCritErr4}</li>
+                  )}
+                  {inputError.passErrors.passCritErr5 && (
+                    <li>{inputError.passErrors.passCritErr5}</li>
+                  )}
                 </ul>
               )}
             </div>

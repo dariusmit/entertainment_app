@@ -1,6 +1,8 @@
+import passCriteriaErrors from "./passCriteriaErrors";
+
 interface inputErrorsType {
   emailError: string;
-  passError: string;
+  passErrors: passCriteriaErrors;
   repeatPassError: string;
 }
 

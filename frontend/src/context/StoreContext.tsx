@@ -22,11 +22,20 @@ export const StoreContextProvider = ({
     boolean | undefined
   >();
   const debouncedSearchValue = useDebounce(searchValue);
-  const [inputError, setInputError] = useState<inputErrorsType>({
+  const emptyErrorObject = {
     emailError: "",
-    passError: "",
+    passErrors: {
+      passGlobalErr: "",
+      passCritErr1: "",
+      passCritErr2: "",
+      passCritErr3: "",
+      passCritErr4: "",
+      passCritErr5: "",
+    },
     repeatPassError: "",
-  });
+  };
+  const [inputError, setInputError] =
+    useState<inputErrorsType>(emptyErrorObject);
 
   return (
     <Context.Provider
@@ -44,6 +53,7 @@ export const StoreContextProvider = ({
         userModal,
         setUserModal,
         debouncedSearchValue,
+        emptyErrorObject,
       }}
     >
       {children}

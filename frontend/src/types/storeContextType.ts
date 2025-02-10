@@ -18,6 +18,7 @@ interface storeContextType {
   userModal: boolean;
   setUserModal: React.Dispatch<React.SetStateAction<boolean>>;
   debouncedSearchValue: string;
+  emptyErrorObject: inputErrorsType;
 }
 
 export default storeContextType;
