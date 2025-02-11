@@ -1,5 +1,5 @@
 interface passCriteriaErrors {
-  passGlobalErr: string;
+  passEmptyErr?: string;
   passCritErr1: string;
   passCritErr2: string;
   passCritErr3: string;

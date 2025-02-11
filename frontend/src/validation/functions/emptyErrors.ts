@@ -7,7 +7,6 @@ function emptyErrors(
   setInputError: React.Dispatch<React.SetStateAction<inputErrorsType>>
 ) {
   if (!email || email === "") {
-    console.log("email is empty throwing error");
     setInputError((prev) => {
       return { ...prev, emailError: "Email can't be empty!" };
     });
@@ -18,7 +17,7 @@ function emptyErrors(
         ...prev,
         passErrors: {
           ...prev.passErrors,
-          passGlobalErr: "Password can't be empty!",
+          passEmptyErr: "Password can't be empty!",
         },
       };
     });

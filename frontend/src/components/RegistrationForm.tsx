@@ -1,19 +1,20 @@
 import axios from "axios";
 import { Context } from "../context/StoreContext";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useRef } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
-import formValid from "../validation/formValidation";
-import useDebounce from "../hooks/useDebounce";
+import { useLocation } from "react-router-dom";
+import formValidation from "../validation/formValidation";
 
 function RegistrationForm() {
   const { inputError, setInputError, emptyErrorObject } = useContext(Context);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [repeatedPassword, setRepeatedPassword] = useState<string>("");
+  const formValidRef = useRef<boolean>(false);
+  const location = useLocation();
 
-  //Too much states I think
   const [isSubmitClicked, setIsSubmitClicked] = useState<boolean>(false);
   const [isPassVisible, setPassVisibility] = useState<boolean>(false);
 
@@ -30,46 +31,49 @@ function RegistrationForm() {
     progress: undefined,
     theme: "dark",
   };
+
   useEffect(() => {
-    formValid(
+    formValidation(
       email,
       password,
       repeatedPassword,
-      inputError,
       setInputError,
-      isSubmitClicked
+      isSubmitClicked,
+      formValidRef,
+      setIsSubmitClicked
     );
-  }, [email, password, repeatedPassword]);
+  }, [email, password, repeatedPassword, isSubmitClicked]);
+
+  useEffect(() => {
+    setInputError(emptyErrorObject);
+  }, [location.pathname]);
 
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> {
     e.preventDefault();
-    setIsSubmitClicked(true);
-    console.log(
-      JSON.stringify(email),
-      JSON.stringify(password),
-      JSON.stringify(repeatedPassword)
-    );
-    console.log(typeof email, typeof password, typeof repeatedPassword);
-    console.log(email === "" && password === "" && repeatedPassword === "");
 
-    /**
+    setIsSubmitClicked(true);
+
+    if (formValidRef.current === true) {
       axios
         .post("http://localhost:8081/register", { email, password })
         .then((res) => {
-          if (!res.data.emailExists) {
-            setInputError(resetErrors);
-            toast.success("User Created! You can sign in now.", toastSettings);
-          } else {
-            setInputError({
-              ...inputError,
-              emailError: "Email already in use!",
-            });
+          if (res.data.error) {
+            toast.error(res.data.error, toastSettings);
+            return;
           }
+          toast.success("User Created! You can sign in now.", toastSettings);
         })
         .catch((err) => console.log(err));
-        */
+
+      formValidRef.current = false;
+      setEmail("");
+      setPassword("");
+      setRepeatedPassword("");
+      setInputError(emptyErrorObject);
+      setIsSubmitClicked(false);
+    }
   }
 
   return (
@@ -92,10 +96,11 @@ function RegistrationForm() {
               <input
                 type="email"
                 name="email"
+                value={email}
                 placeholder="Email address"
                 autoComplete="no"
                 onChange={(e) => setEmail(e.target.value)}
-                className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2 w-full"
+                className="font-extralight foutline-hidden text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2 w-full"
               />
               <p className="text-[3vw] font-extralight mb-3 text-red-500">
                 {inputError.emailError}
@@ -108,6 +113,7 @@ function RegistrationForm() {
                 <input
                   type={isPassVisible ? "text" : "password"}
                   name="password"
+                  value={password}
                   placeholder="Password"
                   autoComplete="no"
                   onChange={(e) => setPassword(e.target.value)}
@@ -117,11 +123,8 @@ function RegistrationForm() {
                   className={
                     password !== "" ? "block absolute center" : "hidden"
                   }
-                  onClick={() =>
-                    isPassVisible
-                      ? setPassVisibility(false)
-                      : setPassVisibility(true)
-                  }
+                  type="button"
+                  onClick={() => setPassVisibility((prev) => !prev)}
                 >
                   <div className="flex items-center justify-center mb-2 w-[30px] h-[25px]">
                     {isPassVisible ? (
@@ -138,11 +141,13 @@ function RegistrationForm() {
                   </div>
                 </button>
               </div>
-              <p className="text-[3vw] font-extralight text-red-500">
-                {inputError.passErrors.passGlobalErr}
-              </p>
-              {inputError.passErrors.passGlobalErr !== "" && (
+              {
                 <ul className="ml-4 text-[3vw] list-disc font-extralight mb-3 text-red-500">
+                  {inputError.passErrors.passEmptyErr && (
+                    <li className="list-none ml-[-1rem]">
+                      {inputError.passErrors.passEmptyErr}
+                    </li>
+                  )}
                   {inputError.passErrors.passCritErr1 && (
                     <li>{inputError.passErrors.passCritErr1}</li>
                   )}
@@ -159,7 +164,7 @@ function RegistrationForm() {
                     <li>{inputError.passErrors.passCritErr5}</li>
                   )}
                 </ul>
-              )}
+              }
             </div>
           </div>
           <div className="flex min-[1024px]:w-[50%]">
@@ -168,6 +173,7 @@ function RegistrationForm() {
                 <input
                   type={isRepeatPassVisible ? "text" : "password"}
                   name="repeat_password"
+                  value={repeatedPassword}
                   placeholder="Repeat Password"
                   autoComplete="no"
                   onChange={(e) => setRepeatedPassword(e.target.value)}
@@ -177,11 +183,8 @@ function RegistrationForm() {
                   className={
                     repeatedPassword !== "" ? "block absolute center" : "hidden"
                   }
-                  onClick={() =>
-                    isRepeatPassVisible
-                      ? setRepeatPassVisibility(false)
-                      : setRepeatPassVisibility(true)
-                  }
+                  type="button"
+                  onClick={() => setRepeatPassVisibility((prev) => !prev)}
                 >
                   <div className="flex items-center justify-center mb-2 w-[30px] h-[25px]">
                     {isRepeatPassVisible ? (

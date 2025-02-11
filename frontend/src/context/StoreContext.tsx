@@ -25,7 +25,7 @@ export const StoreContextProvider = ({
   const emptyErrorObject = {
     emailError: "",
     passErrors: {
-      passGlobalErr: "",
+      passEmptyErr: "",
       passCritErr1: "",
       passCritErr2: "",
       passCritErr3: "",
