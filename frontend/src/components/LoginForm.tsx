@@ -4,8 +4,10 @@ import { useContext, useEffect, useRef } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { toast, ToastContainer } from "react-toastify";
 import { AuthContext } from "../context/AuthContext";
 import { jwtDecode } from "jwt-decode";
+import toastSettings from "../helpers/toastSettings";
 
 function LoginForm() {
   const { inputError, setInputError, emptyErrorObject } = useContext(Context);
@@ -80,17 +82,18 @@ function LoginForm() {
             const user = decodedUser as { id: number; email: string };
 
             setUser(user);
-          } else {
-            setInputError(res.data.message);
+
+            isFromValid.current = false;
+            setEmail("");
+            setPassword("");
+            setInputError(emptyErrorObject);
+            setIsSubmitClicked(false);
           }
         })
-        .catch((err) => console.log(err));
-
-      isFromValid.current = false;
-      setEmail("");
-      setPassword("");
-      setInputError(emptyErrorObject);
-      setIsSubmitClicked(false);
+        .catch((err) => {
+          console.log(err.message);
+          toast.error("Incorrect credentials!", toastSettings);
+        });
     }
   }
 
@@ -125,6 +128,7 @@ function LoginForm() {
               <input
                 type="email"
                 name="email"
+                maxLength={50}
                 placeholder="Email address"
                 autoComplete="nope"
                 onChange={(e) => setEmail(e.target.value)}
@@ -142,6 +146,7 @@ function LoginForm() {
               <input
                 type="password"
                 name="password"
+                maxLength={50}
                 placeholder="Password"
                 autoComplete="nope"
                 onChange={(e) => setPassword(e.target.value)}
@@ -170,6 +175,7 @@ function LoginForm() {
           </Link>
         </p>
       </form>
+      <ToastContainer />
     </div>
   );
 }

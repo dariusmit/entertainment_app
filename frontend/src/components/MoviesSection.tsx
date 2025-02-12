@@ -1,10 +1,11 @@
 import { Context } from "../context/StoreContext";
 import { useContext, useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import movieType from "../types/movieType";
 import seriesType from "../types/seriesType";
 import { isMovieType } from "../helpers/isMovieType";
 import { posterRootURL } from "../helpers/posterRootURL";
+import Skeleton from "react-loading-skeleton";
+import "react-loading-skeleton/dist/skeleton.css";
 
 import {
   axiosJWT,
@@ -12,9 +13,10 @@ import {
   getContentGetReq,
   getContentPostReq,
 } from "../axios/axios";
-import LoadingAnimatedItem from "./LoadingAnimatedItem";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import LoadingAnimatedItem from "./LoadingAnimatedItem";
+import MoviesSectionSkeleton from "./MoviesSectionSkeleton";
 
 interface Props {
   title: string;
@@ -26,8 +28,12 @@ interface Props {
 function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   const navigate = useNavigate();
 
-  const { debouncedSearchValue, searchValue, searchCompleted } =
-    useContext(Context);
+  const {
+    debouncedSearchValue,
+    searchValue,
+    searchCompleted,
+    setIsSearchVisible,
+  } = useContext(Context);
 
   const { isLoading, accessToken } = useContext(AuthContext);
 
@@ -59,11 +65,6 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
       console.error("Error fetching bookmarked items:", error);
     }
   }
-
-  useEffect(() => {
-    if (isLoading || !accessToken) return;
-    fetchBookmarkedItems();
-  }, [isLoading, accessToken]);
 
   async function isBookmarked(
     id: number,
@@ -159,6 +160,19 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   }
 
   useEffect(() => {
+    if (bookmarkedItems.length === 0) {
+      setIsSearchVisible(false);
+    } else {
+      setIsSearchVisible(true);
+    }
+  }, [bookmarkedItems]);
+
+  useEffect(() => {
+    if (isLoading || !accessToken) return;
+    fetchBookmarkedItems();
+  }, [isLoading, accessToken]);
+
+  useEffect(() => {
     if (isLoading) return;
     if (!accessToken) {
       console.log("Access token not available yet");
@@ -190,93 +204,97 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   return (
     <>
       <h1 className="font-light text-[5.33vw] mb-2 m-4">
-        {searchCompleted
-          ? `Found ${movies.length} results for '${searchValue}'`
-          : title}
+        {searchCompleted ? (
+          `Found ${movies.length} results for '${searchValue}'`
+        ) : movies.length !== 0 ? (
+          title
+        ) : (
+          <Skeleton />
+        )}
       </h1>
-      {isLoadingAI ? (
-        <LoadingAnimatedItem />
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className={
-            horizontalSection
-              ? "grid gap-3 grid-flow-col overflow-x-scroll m-4"
-              : "grid grid-cols-2 gap-3 m-4"
-          }
-        >
-          {movies &&
-            movies.length != 0 &&
-            movies.map((movie: movieType | seriesType) => {
-              return (
-                <div
-                  key={movie.id}
+      <div
+        className={
+          horizontalSection
+            ? "grid gap-3 grid-flow-col overflow-x-scroll m-4"
+            : "grid grid-cols-2 gap-3 m-4"
+        }
+      >
+        {isLoadingAI ? (
+          //<LoadingAnimatedItem />
+          <MoviesSectionSkeleton horizontalSection={false} />
+        ) : (
+          movies &&
+          movies.length != 0 &&
+          movies.map((movie: movieType | seriesType) => {
+            return (
+              <div
+                key={movie.id}
+                className={
+                  horizontalSection
+                    ? `w-[64vw] h-auto relative overflow-hidden rounded-lg`
+                    : `relative overflow-hidden rounded-lg`
+                }
+              >
+                <img
                   className={`${
-                    horizontalSection ? `w-[64vw] h-auto` : ``
-                  } relative overflow-hidden rounded-lg`}
+                    horizontalSection ? `h-full object-cover` : `h-auto`
+                  } w-full rounded-lg transition-transform hover:scale-105 hover:cursor-pointer mb-2`}
+                  src={posterRootURL + movie.poster_path}
+                  onClick={() => viewContent(movie)}
+                />
+                <div className={horizontalSection ? "hidden" : ""}>
+                  <div className="flex text-[3.47vw] font-extralight">
+                    <p className="mr-[1.6vw]">
+                      {isMovieType(movie)
+                        ? String(movie.release_date).split("-")[0]
+                        : String(movie.first_air_date).split("-")[0]}
+                    </p>
+                    <p className="mr-[1.6vw]">·</p>
+                    <div className="flex items-center mr-[1.6vw]">
+                      {isMovieType(movie) ? (
+                        <>
+                          <img
+                            src="../../assets/icon-category-movie.svg"
+                            className="w-[2.67vw] h-[2.67vw] mr-1"
+                          />
+                          <p>Movie</p>
+                        </>
+                      ) : (
+                        <>
+                          <img
+                            src="../../assets/icon-category-tv.svg"
+                            className="w-[2.67vw] h-[2.67vw] mr-1"
+                          />
+                          <p>Series</p>
+                        </>
+                      )}
+                    </div>
+                    <p className="mr-[1.6vw]">·</p>
+                    <p>{String(Math.round(movie.vote_average * 10) / 10)}</p>
+                  </div>
+                  <p className="text-[4vw]">
+                    {isMovieType(movie) ? movie.title : movie.name}
+                  </p>
+                </div>
+                <div
+                  onClick={() => handleBookmarkClick(movie)}
+                  className="absolute flex justify-center items-center top-0 right-0 m-1 w-[8.53vw] h-[8.53vw]"
                 >
                   <img
-                    className={`${
-                      horizontalSection ? `h-full object-cover` : `h-auto`
-                    } w-full rounded-lg transition-transform hover:scale-105 hover:cursor-pointer mb-2`}
-                    src={posterRootURL + movie.poster_path}
-                    onClick={() => viewContent(movie)}
+                    className="relative z-10"
+                    src={
+                      bookmarkedItems.includes(movie.id)
+                        ? "../../assets/icon-bookmark-full.svg"
+                        : "../../assets/icon-bookmark-empty.svg"
+                    }
                   />
-                  <div className={horizontalSection ? "hidden" : ""}>
-                    <div className="flex text-[3.47vw] font-extralight">
-                      <p className="mr-[1.6vw]">
-                        {isMovieType(movie)
-                          ? String(movie.release_date).split("-")[0]
-                          : String(movie.first_air_date).split("-")[0]}
-                      </p>
-                      <p className="mr-[1.6vw]">·</p>
-                      <div className="flex items-center mr-[1.6vw]">
-                        {isMovieType(movie) ? (
-                          <>
-                            <img
-                              src="../../assets/icon-category-movie.svg"
-                              className="w-[2.67vw] h-[2.67vw] mr-1"
-                            />
-                            <p>Movie</p>
-                          </>
-                        ) : (
-                          <>
-                            <img
-                              src="../../assets/icon-category-tv.svg"
-                              className="w-[2.67vw] h-[2.67vw] mr-1"
-                            />
-                            <p>Series</p>
-                          </>
-                        )}
-                      </div>
-                      <p className="mr-[1.6vw]">·</p>
-                      <p>{String(Math.round(movie.vote_average * 10) / 10)}</p>
-                    </div>
-                    <p className="text-[4vw]">
-                      {isMovieType(movie) ? movie.title : movie.name}
-                    </p>
-                  </div>
-                  <div
-                    onClick={() => handleBookmarkClick(movie)}
-                    className="absolute flex justify-center items-center top-0 right-0 m-1 w-[8.53vw] h-[8.53vw]"
-                  >
-                    <img
-                      className="relative z-10"
-                      src={
-                        bookmarkedItems.includes(movie.id)
-                          ? "../../assets/icon-bookmark-full.svg"
-                          : "../../assets/icon-bookmark-empty.svg"
-                      }
-                    />
-                    <div className="bg-black absolute top-0 right-0 opacity-50 rounded-full w-[8.53vw] h-[8.53vw]"></div>
-                  </div>
+                  <div className="bg-black absolute top-0 right-0 opacity-50 rounded-full w-[8.53vw] h-[8.53vw]"></div>
                 </div>
-              );
-            })}
-        </motion.div>
-      )}
+              </div>
+            );
+          })
+        )}
+      </div>
     </>
   );
 }

@@ -8,7 +8,7 @@ import { AuthContext } from "../context/AuthContext";
 import { PATHS } from "../axios/paths";
 
 function BookmarksPage() {
-  const { searchCompleted, searchValue } = useContext(Context);
+  const { searchCompleted, searchValue, isSearchVisible } = useContext(Context);
 
   const navigate = useNavigate();
 
@@ -18,6 +18,7 @@ function BookmarksPage() {
       navigate("/login");
     }
   }, [user, isLoading, navigate]);
+
   if (isLoading) return <p>Loading...</p>;
 
   return (
@@ -25,7 +26,11 @@ function BookmarksPage() {
       {user && (
         <>
           <Header />
-          <Search />
+          {isSearchVisible ? (
+            <Search />
+          ) : (
+            <p className="ml-4">No bookmarked content found...</p>
+          )}
           {searchCompleted && (
             <MoviesSection
               title="Search Results"

@@ -114,7 +114,6 @@ app.post("/login", async (req, res) => {
       });
     });
   } catch (err) {
-    console.error("Error in /login:", err);
     return res.status(500).json({ error: "Server error" });
   }
 });

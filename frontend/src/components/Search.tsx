@@ -17,6 +17,22 @@ function Search() {
 
   const location = useLocation();
 
+  function placeholderSelect(): string {
+    switch (location.pathname) {
+      case "/":
+        return "Search for Movies or TV Series";
+      case "/movies":
+        return "Search for Movies";
+      case "/shows":
+        return "Search for TV Series";
+      case "/bookmarks":
+        return "Search in Bookmarks";
+      default:
+        break;
+    }
+    return "";
+  }
+
   useEffect(() => {
     if (searchValue != "") {
       UpdateLoadingStatusAI(true);
@@ -33,22 +49,6 @@ function Search() {
       setSearchCompletion(false);
     }
   }, [debouncedSearchValue]);
-
-  function placeholderSelect(): string {
-    switch (location.pathname) {
-      case "/":
-        return "Search for Movies or TV Series";
-      case "/movies":
-        return "Search for Movies";
-      case "/shows":
-        return "Search for TV Series";
-      case "/bookmarks":
-        return "Search in Bookmarks";
-      default:
-        break;
-    }
-    return "";
-  }
 
   return (
     <>

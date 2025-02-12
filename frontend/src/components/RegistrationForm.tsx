@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { useLocation } from "react-router-dom";
 import formValidation from "../validation/formValidation";
+import toastSettings from "../helpers/toastSettings";
 
 function RegistrationForm() {
   const { inputError, setInputError, emptyErrorObject } = useContext(Context);
@@ -20,17 +21,6 @@ function RegistrationForm() {
 
   const [isRepeatPassVisible, setRepeatPassVisibility] =
     useState<boolean>(false);
-
-  const toastSettings: object = {
-    position: "bottom-center",
-    autoClose: 3000,
-    hideProgressBar: false,
-    closeOnClick: false,
-    pauseOnHover: false,
-    draggable: false,
-    progress: undefined,
-    theme: "dark",
-  };
 
   useEffect(() => {
     formValidation(
@@ -96,6 +86,7 @@ function RegistrationForm() {
               <input
                 type="email"
                 name="email"
+                maxLength={50}
                 value={email}
                 placeholder="Email address"
                 autoComplete="no"
@@ -113,6 +104,7 @@ function RegistrationForm() {
                 <input
                   type={isPassVisible ? "text" : "password"}
                   name="password"
+                  maxLength={50}
                   value={password}
                   placeholder="Password"
                   autoComplete="no"
@@ -173,6 +165,7 @@ function RegistrationForm() {
                 <input
                   type={isRepeatPassVisible ? "text" : "password"}
                   name="repeat_password"
+                  maxLength={50}
                   value={repeatedPassword}
                   placeholder="Repeat Password"
                   autoComplete="no"
