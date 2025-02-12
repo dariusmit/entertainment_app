@@ -4,8 +4,6 @@ import movieType from "../types/movieType";
 import seriesType from "../types/seriesType";
 import { isMovieType } from "../helpers/isMovieType";
 import { posterRootURL } from "../helpers/posterRootURL";
-import Skeleton from "react-loading-skeleton";
-import "react-loading-skeleton/dist/skeleton.css";
 
 import {
   axiosJWT,
@@ -15,7 +13,6 @@ import {
 } from "../axios/axios";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import LoadingAnimatedItem from "./LoadingAnimatedItem";
 import MoviesSectionSkeleton from "./MoviesSectionSkeleton";
 
 interface Props {
@@ -204,13 +201,13 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   return (
     <>
       <h1 className="font-light text-[5.33vw] mb-2 m-4">
-        {searchCompleted ? (
-          `Found ${movies.length} results for '${searchValue}'`
-        ) : movies.length !== 0 ? (
-          title
-        ) : (
-          <Skeleton />
-        )}
+        {searchCompleted
+          ? `Found ${movies.length} results for '${searchValue}'`
+          : (movies.length !== 0 && title) || (
+              <div className="animated">
+                <p className="w-[150px] h-[25px] rounded-md"></p>
+              </div>
+            )}
       </h1>
       <div
         className={
@@ -220,8 +217,9 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
         }
       >
         {isLoadingAI ? (
-          //<LoadingAnimatedItem />
-          <MoviesSectionSkeleton horizontalSection={false} />
+          <MoviesSectionSkeleton
+            horizontalSection={horizontalSection ? true : false}
+          />
         ) : (
           movies &&
           movies.length != 0 &&
@@ -231,15 +229,18 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
                 key={movie.id}
                 className={
                   horizontalSection
-                    ? `w-[64vw] h-auto relative overflow-hidden rounded-lg`
-                    : `relative overflow-hidden rounded-lg`
+                    ? `w-[64vw] h-[37.33vw] relative overflow-hidden rounded-lg`
+                    : `h-auto relative overflow-hidden rounded-lg`
                 }
               >
                 <img
                   className={`${
-                    horizontalSection ? `h-full object-cover` : `h-auto`
+                    horizontalSection ? `h-full object-cover` : `h-[29.33vw]`
                   } w-full rounded-lg transition-transform hover:scale-105 hover:cursor-pointer mb-2`}
-                  src={posterRootURL + movie.poster_path}
+                  src={
+                    posterRootURL +
+                    `${movie.backdrop_path || movie.poster_path}`
+                  }
                   onClick={() => viewContent(movie)}
                 />
                 <div className={horizontalSection ? "hidden" : ""}>

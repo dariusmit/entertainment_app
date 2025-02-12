@@ -198,9 +198,9 @@ app.post("/bookmark_item", authenticateToken, async (req, res) => {
       media_type === `movie` ? `b_user_movies` : `b_user_series`
     } (user_id, id, ${
       media_type === `movie` ? `title` : `name`
-    }, poster_path, ${
+    }, poster_path, backdrop_path, ${
       media_type === `movie` ? `release_date` : `first_air_date`
-    }, vote_average) VALUES (?, ?, ?, ?, ?, ?)`;
+    }, vote_average) VALUES (?, ?, ?, ?, ?, ?, ?)`;
 
     const isBookmarked = await alreadyBookmarked(userID, movie_id, media_type);
     if (!isBookmarked) {
@@ -211,6 +211,7 @@ app.post("/bookmark_item", authenticateToken, async (req, res) => {
           movie_id,
           media_type === "movie" ? specific_movie.title : specific_movie.name,
           specific_movie.poster_path,
+          specific_movie.backdrop_path,
           media_type === "movie"
             ? specific_movie.release_date
             : specific_movie.first_air_date,
@@ -290,12 +291,12 @@ app.post("/get_bookmarked_items", authenticateToken, async (req, res) => {
 
   try {
     const sql_movies = `
-      SELECT id, title, poster_path, release_date, vote_average 
+      SELECT id, title, poster_path, backdrop_path, release_date, vote_average 
       FROM b_user_movies 
       WHERE user_id = ?`;
 
     const sql_series = `
-      SELECT id, name AS title, poster_path, first_air_date AS release_date, vote_average 
+      SELECT id, name AS title, poster_path, backdrop_path, first_air_date AS release_date, vote_average 
       FROM b_user_series 
       WHERE user_id = ?`;
 
@@ -341,11 +342,11 @@ app.post("/search_bookmarks", authenticateToken, async (req, res) => {
     return res.status(400).json({ error: "Missing search query" });
   }
 
-  const sql = `SELECT id, title, NULL AS name, poster_path, release_date, NULL AS first_air_date, vote_average
+  const sql = `SELECT id, title, NULL AS name, poster_path, backdrop_path, release_date, NULL AS first_air_date, vote_average
   FROM b_user_movies 
   WHERE user_id = ? AND title LIKE ? 
   UNION ALL 
-  SELECT id, NULL AS title, name, poster_path, NULL AS release_date, first_air_date, vote_average
+  SELECT id, NULL AS title, name, poster_path, backdrop_path, NULL AS release_date, first_air_date, vote_average
   FROM b_user_series 
   WHERE user_id = ? AND name LIKE ?`;
 

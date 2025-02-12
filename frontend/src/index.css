@@ -21,3 +21,21 @@ body {
 input:focus {
   outline: none;
 }
+
+.animated p {
+  animation: animationFrames 2s infinite ease-in-out alternate;
+}
+
+@keyframes animationFrames {
+  0% {
+    background-color: #161D2F;
+  }
+
+  50% {
+    background-color: #2E3759;
+  }
+
+  100% {
+    background-color: #161D2F;
+  }
+}
