@@ -86,7 +86,10 @@ function IndividualItemPage() {
           <div className="px-[4.27vw] pb-[16.27vw]" key={content.id}>
             <img
               className="w-full h-auto mb-1 rounded-lg"
-              src={posterRootURL + content.backdrop_path}
+              src={
+                posterRootURL +
+                `${content.backdrop_path || content.poster_path}`
+              }
             />
             <div>
               <h1 className="text-[6vw] font-medium">

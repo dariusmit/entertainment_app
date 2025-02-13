@@ -24,11 +24,11 @@ function MoviesSectionSkeleton({ horizontalSection }: Props) {
           className={horizontalSection ? "hidden" : "absolute bottom-0 left-0"}
         >
           <div className="flex mb-2">
-            <p className="mr-2 w-[24px] h-[10px] rounded-md"></p>
-            <p className="mr-2 w-[44px] h-[10px] rounded-md"></p>
-            <p className=" mr-2 w-[7px] h-[10px] rounded-md"></p>
+            <p className="mr-2 w-[6.4vw] h-[2.67vw] rounded-md"></p>
+            <p className="mr-2 w-[11.73vw] h-[2.67vw] rounded-md"></p>
+            <p className=" mr-2 w-[1.87vw] h-[2.67vw] rounded-md"></p>
           </div>
-          <p className="w-full h-[18px] rounded-md"></p>
+          <p className="w-full h-[4.8vw] rounded-md"></p>
         </div>
       </div>
     ));

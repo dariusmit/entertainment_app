@@ -67,17 +67,17 @@ function RegistrationForm() {
   }
 
   return (
-    <div className="flex flex-col items-center m-[6.4vw]">
+    <div className="flex flex-col items-center m-[6.4vw] tablet:mt-[10.42vw] tablet:mx-[23.96vw] desktop:mt-[5.42vw] desktop:mx-[36.11vw]">
       <img
-        className="w-[8.53vw] h-auto mb-[15.47vw]"
+        className="w-[8.53vw] h-auto mb-[15.47vw] tablet:w-[4.17vw] tablet:mb-[9.38vw] desktop:w-[2.22vw] desktop:mb-[5.76vw]"
         src="../../assets/logo.svg"
       />
       <form
-        className="bg-[#161D2F] w-full h-auto rounded-2xl p-[6.4vw]"
+        className="bg-[#161D2F] w-full h-auto rounded-2xl p-[6.4vw] tablet:p-[4.17vw] desktop:p-[2.22vw]"
         onSubmit={handleSubmit}
         noValidate
       >
-        <h1 className="text-[8.53vw] font-light tracking-[-0.13vw] mb-[6.67vw]">
+        <h1 className="text-[8.53vw] font-light tracking-[-0.13vw] mb-[6.67vw] tablet:text-[4.17vw] tablet:mb-[4.21vw] desktop:text-[2.22vw] desktop:mb-[1vw]">
           Sign Up
         </h1>
         <div>
@@ -91,14 +91,14 @@ function RegistrationForm() {
                 placeholder="Email address"
                 autoComplete="no"
                 onChange={(e) => setEmail(e.target.value)}
-                className="font-extralight foutline-hidden text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2 w-full"
+                className="font-extralight foutline-hidden text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2 w-full tablet:text-[1.95vw] desktop:text-[1.04vw]"
               />
-              <p className="text-[3vw] font-extralight mb-3 text-red-500">
+              <p className="text-[3vw] font-extralight mb-3 text-red-500 tablet:text-[1.6vw] desktop:text-[0.9vw]">
                 {inputError.emailError}
               </p>
             </div>
           </div>
-          <div className="flex min-[1024px]:w-[50%]">
+          <div className="flex">
             <div className="w-full">
               <div className="relative flex">
                 <input
@@ -109,7 +109,7 @@ function RegistrationForm() {
                   placeholder="Password"
                   autoComplete="no"
                   onChange={(e) => setPassword(e.target.value)}
-                  className="font-extralight w-full text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2"
+                  className="font-extralight w-full text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2 tablet:text-[1.95vw] desktop:text-[1.04vw]"
                 />
                 <button
                   className={
@@ -118,15 +118,15 @@ function RegistrationForm() {
                   type="button"
                   onClick={() => setPassVisibility((prev) => !prev)}
                 >
-                  <div className="flex items-center justify-center mb-2 w-[30px] h-[25px]">
+                  <div className="flex items-center justify-center mb-2 w-[8vw] h-[6.66vw] tablet:w-[3.9vw] tablet:h-[3.25vw] desktop:w-[2.08vw] desktop:h-[1.73vw]">
                     {isPassVisible ? (
                       <img
-                        className="w-[20px] h-auto"
+                        className="w-[5.33vw] tablet:w-[2.6vw] desktop:w-[1.39vw] h-auto"
                         src="../../assets/open-eye.svg"
                       />
                     ) : (
                       <img
-                        className="w-[20px] h-auto"
+                        className="w-[5.33vw] tablet:w-[2.6vw] desktop:w-[1.39vw] h-auto"
                         src="../../assets/closed-eye.svg"
                       />
                     )}
@@ -134,7 +134,7 @@ function RegistrationForm() {
                 </button>
               </div>
               {
-                <ul className="ml-4 text-[3vw] list-disc font-extralight mb-3 text-red-500">
+                <ul className="ml-4 text-[3vw] list-disc font-extralight mb-3 text-red-500 tablet:text-[1.6vw] desktop:text-[0.9vw]">
                   {inputError.passErrors.passEmptyErr && (
                     <li className="list-none ml-[-1rem]">
                       {inputError.passErrors.passEmptyErr}
@@ -159,7 +159,7 @@ function RegistrationForm() {
               }
             </div>
           </div>
-          <div className="flex min-[1024px]:w-[50%]">
+          <div className="flex">
             <div className="w-full">
               <div className="relative flex">
                 <input
@@ -170,7 +170,7 @@ function RegistrationForm() {
                   placeholder="Repeat Password"
                   autoComplete="no"
                   onChange={(e) => setRepeatedPassword(e.target.value)}
-                  className="font-extralight text-[4vw] bg-[#161D2F] mb-2 p-3 border-b border-b-[#5A698F] w-full"
+                  className="font-extralight text-[4vw] bg-[#161D2F] mb-3 p-3 border-b border-b-[#5A698F] w-full tablet:text-[1.95vw] desktop:text-[1.04vw]"
                 />
                 <button
                   className={
@@ -179,22 +179,22 @@ function RegistrationForm() {
                   type="button"
                   onClick={() => setRepeatPassVisibility((prev) => !prev)}
                 >
-                  <div className="flex items-center justify-center mb-2 w-[30px] h-[25px]">
+                  <div className="flex items-center justify-center mb-2 w-[8vw] h-[6.66vw] tablet:w-[3.9vw] tablet:h-[3.25vw] desktop:w-[2.08vw] desktop:h-[1.73vw]">
                     {isRepeatPassVisible ? (
                       <img
-                        className="w-[20px] h-auto"
+                        className="w-[5.33vw] tablet:w-[2.6vw] desktop:w-[1.39vw] h-auto"
                         src="../../assets/open-eye.svg"
                       />
                     ) : (
                       <img
-                        className="w-[20px] h-auto"
+                        className="w-[5.33vw] tablet:w-[2.6vw] desktop:w-[1.39vw] h-auto"
                         src="../../assets/closed-eye.svg"
                       />
                     )}
                   </div>
                 </button>
               </div>
-              <p className="text-[3vw] font-extralight mb-[8.67vw] text-red-500">
+              <p className="text-[3vw] font-extralight mb-[8.67vw] text-red-500 tablet:text-[1.6vw] tablet:mb-[5.2vw] desktop:text-[0.9vw] desktop:mb-[2.78vw]">
                 {inputError.repeatPassError}
               </p>
             </div>
@@ -202,11 +202,11 @@ function RegistrationForm() {
         </div>
         <button
           type="submit"
-          className="bg-[#FC4747] text-[4vw] mb-[6.4vw] font-extralight rounded-md py-[4vw] flex justify-center items-center w-full"
+          className="bg-[#FC4747] text-[4vw] mb-[6.4vw] font-extralight rounded-md py-[4vw] flex justify-center items-center w-full tablet:text-[1.95vw] tablet:mb-[3.13vw] tablet:py-[1.82vw] desktop:text-[1.04vw] desktop:mb-[1.67vw] desktop:py-[1.04vw]"
         >
           Create an account
         </button>
-        <p className="text-center text-[4vw] font-extralight">
+        <p className="text-center text-[4vw] font-extralight tablet:text-[1.95vw] desktop:text-[1.04vw]">
           Already have an account?{" "}
           <Link className="text-[#FC4747]" to="/login">
             Login

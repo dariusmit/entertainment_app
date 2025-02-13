@@ -18,6 +18,12 @@ body {
   transform: translate(0%, -50%);
 }
 
+.center-login {
+  right: 0;
+  top: 20%;
+  transform: translate(0%, -20%);
+}
+
 input:focus {
   outline: none;
 }
@@ -38,4 +44,27 @@ input:focus {
   100% {
     background-color: #161D2F;
   }
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #333 #141414;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  height: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #141414;
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

@@ -76,13 +76,20 @@ function Header() {
 
   return (
     <>
-      <div className="flex items-center justify-between w-full p-[4.8vw] h-[14.93vw] bg-[#161D2F] text-white mb-[6.4vw]">
+      <div
+        className="flex items-center justify-between w-full p-[4.8vw] h-[14.93vw] bg-[#161D2F] text-white mb-[6.4vw]
+      tablet:m-[3.25vw] tablet:relative tablet:z-50 tablet:rounded-lg tablet:w-auto tablet:p-[3.13vw] tablet:h-[9.36vw]
+      desktop:m-[2.22vw] desktop:fixed desktop:left-0 z-40 desktop:top-0 desktop:flex-col desktop:h-[90%] desktop:w-[6.67vw] desktop:p-[2.15vw] desktop:rounded-2xl desktop:justify-start"
+      >
         <Link to="/">
-          <img className="w-[6.67vw] h-[5.33vw]" src="../../assets/logo.svg" />
+          <img
+            className="w-[6.67vw] h-[5.33vw] tablet:w-[4.16vw] tablet:h-auto desktop:w-[2.22vw] desktop:h-[1.8vw] desktop:mb-[5.2vw] desktop:mt-2"
+            src="../../assets/logo.svg"
+          />
         </Link>
         <Navigation styleObject={styleObject} />
         <div
-          className="flex bg-gray-950 items-center justify-center w-[6.4vw] h-[6.4vw] border border-white rounded-full"
+          className="flex bg-gray-950 items-center justify-center w-[6.4vw] h-[6.4vw] border border-white rounded-full tablet:hover:cursor-pointer tablet:w-[4.17vw] tablet:h-[4.17vw] desktop:w-[2.78vw] desktop:h-[2.78vw] desktop:absolute desktop:bottom-0 desktop:mb-[2.22vw]"
           onClick={() => {
             if (!userModal) {
               setUserModal(true);
@@ -97,11 +104,11 @@ function Header() {
           className={
             !userModal
               ? "hidden"
-              : "block absolute z-50 mt-[14.93vw] p-6 top-0 right-0 w-auto h-auto bg-[#161D2F] rounded-bl-xl"
+              : "block absolute z-50 mt-[14.93vw] p-6 top-0 right-0 w-auto h-auto bg-[#161D2F] rounded-bl-xl tablet:mt-[9vw] tablet:rounded-b-lg"
           }
         >
           <ul>
-            <li className="flex pl-2 mb-6 float-left clear-both font-light text-[3.5vw]">
+            <li className="flex pl-2 mb-6 float-left clear-both font-light text-[3.5vw] tablet:text-[2vw]">
               <p className="mr-2 text-gray-200">Hey,</p>
               <p className="text-[#FC4747]"> {user!.email}</p>
             </li>
@@ -110,7 +117,7 @@ function Header() {
                 setUserModal(false);
                 logout();
               }}
-              className="pl-4 pb-2 float-left text-gray-200 clear-both font-light text-[3.5vw]"
+              className="pl-4 pb-2 float-left text-gray-200 clear-both font-light text-[3.5vw] tablet:text-[2vw]"
             >
               Logout
             </li>
@@ -121,7 +128,7 @@ function Header() {
         className={
           !userModal
             ? "hidden"
-            : "fixed top-0 z-40 left-0 mt-[14.93vw] block w-full h-screen bg-black opacity-70"
+            : "fixed top-0 z-40 left-0 mt-[14.93vw] block w-full h-screen bg-black opacity-70 tablet:mt-0"
         }
         onClick={() => setUserModal(false)}
       ></div>

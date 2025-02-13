@@ -12,7 +12,6 @@ function Search() {
     UpdateLoadingStatusAI,
     debouncedSearchValue,
     setSearchCompletion,
-    searchError,
   } = useContext<storeContextType>(Context);
 
   const location = useLocation();
@@ -52,10 +51,13 @@ function Search() {
 
   return (
     <>
-      <div className="flex px-[4.27vw] items-center">
-        <img className="mr-[4.27vw]" src="../../assets/icon-search.svg" />
+      <div className="flex px-[4.27vw] items-center tablet:px-[3.26vw] desktop:pl-[11.39vw] desktop:pr-0 desktop:mt-[4.44vw]">
+        <img
+          className="mr-[4.27vw] tablet:mr-[2.6vw]"
+          src="../../assets/icon-search.svg"
+        />
         <input
-          className="w-[70%] bg-[#10141E] text-gray-500 p-2 text-[4.27vw] font-light"
+          className="w-[70%] bg-[#10141E] text-gray-500 p-2 text-[4.27vw] font-light tablet:text-[3.1vw] desktop:text-[1.67vw]"
           type="text"
           name="search"
           value={searchValue}
@@ -68,7 +70,6 @@ function Search() {
           </div>
         )}
       </div>
-      <p className="text-red-500 px-[4.27vw] mt-[4.27vw]"> {searchError}</p>
     </>
   );
 }

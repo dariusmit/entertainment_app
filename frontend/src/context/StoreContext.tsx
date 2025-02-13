@@ -1,4 +1,4 @@
-import { createContext, useRef } from "react";
+import { createContext } from "react";
 import storeContextType from "../types/storeContextType";
 import { ReactNode } from "react";
 import { useState } from "react";
@@ -16,7 +16,6 @@ export const StoreContextProvider = ({
 }: StoreContextProviderProps) => {
   const [searchValue, changeSearchValue] = useState<string>("");
   const [isLoadingAI, UpdateLoadingStatusAI] = useState<boolean | undefined>();
-  const [searchError, setSearchError] = useState<string>("");
   const [userModal, setUserModal] = useState<boolean>(false);
   const [isSearchVisible, setIsSearchVisible] = useState<boolean>(true);
   const [searchCompleted, setSearchCompletion] = useState<
@@ -45,8 +44,6 @@ export const StoreContextProvider = ({
         changeSearchValue,
         isLoadingAI,
         UpdateLoadingStatusAI,
-        searchError,
-        setSearchError,
         searchCompleted,
         setSearchCompletion,
         inputError,

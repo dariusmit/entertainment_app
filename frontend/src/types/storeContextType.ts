@@ -7,8 +7,6 @@ interface storeContextType {
   UpdateLoadingStatusAI: React.Dispatch<
     React.SetStateAction<boolean | undefined>
   >;
-  searchError: string;
-  setSearchError: React.Dispatch<React.SetStateAction<string>>;
   searchCompleted: boolean | undefined;
   setSearchCompletion: React.Dispatch<
     React.SetStateAction<boolean | undefined>

@@ -11,6 +11,7 @@ import toastSettings from "../helpers/toastSettings";
 
 function LoginForm() {
   const { inputError, setInputError, emptyErrorObject } = useContext(Context);
+  const [isPassVisible, setPassVisibility] = useState<boolean>(false);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
@@ -98,30 +99,31 @@ function LoginForm() {
   }
 
   return (
-    <div className="flex flex-col items-center m-[6.4vw]">
+    <div className="flex flex-col items-center m-[6.4vw] tablet:mt-[10.42vw] tablet:mx-[23.96vw] desktop:mt-[5.42vw] desktop:mx-[36.11vw]">
       <img
-        className="w-[8.53vw] h-auto mb-[15.47vw]"
+        className="w-[8.53vw] h-auto mb-[15.47vw] tablet:w-[4.17vw] tablet:mb-[9.38vw] desktop:w-[2.22vw] desktop:mb-[5.76vw]"
         src="../../assets/logo.svg"
       />
       <form
-        className="bg-[#161D2F] w-full h-auto rounded-2xl p-[6.4vw]"
+        className="bg-[#161D2F] w-full h-auto rounded-2xl p-[6.4vw] tablet:p-[4.17vw] desktop:p-[2.22vw]"
         onSubmit={handleSubmit}
       >
-        <h1 className="text-[8.53vw] font-light tracking-[-0.13vw] mb-[6.67vw]">
+        <h1 className="text-[8.53vw] font-light tracking-[-0.13vw] mb-[6.67vw] tablet:text-[4.17vw] tablet:mb-[4.21vw] desktop:text-[2.22vw] desktop:mb-[2.78vw]">
           Login
         </h1>
-        <h1 className="text-[4vw] text-gray-300 mb-2">Test users:</h1>
-        <div className="flex mb-4">
-          <div className="text-gray-400 font-extralight text-[3vw] mr-6">
+        <h1 className="text-[4vw] ml-3 text-gray-300 mb-2 tablet:text-[1.95vw] desktop:text-[1.04vw]">
+          Test users:
+        </h1>
+        <div className="flex mb-4 ml-3">
+          <div className="text-gray-400 font-extralight text-[3vw] mr-6 tablet:text-[1.6vw] desktop:text-[0.9vw]">
             <p>root@root.com</p>
             <p>root</p>
           </div>
-          <div className="text-gray-400 font-extralight text-[3vw]">
+          <div className="text-gray-400 font-extralight text-[3vw] tablet:text-[1.6vw] desktop:text-[0.9vw]">
             <p>test@test.com</p>
             <p>test</p>
           </div>
         </div>
-
         <div>
           <div>
             <div>
@@ -132,30 +134,55 @@ function LoginForm() {
                 placeholder="Email address"
                 autoComplete="nope"
                 onChange={(e) => setEmail(e.target.value)}
-                className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-4 w-full"
+                className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-4 w-full tablet:text-[1.95vw] desktop:text-[1.04vw]"
               />
               {inputError.emailError && (
-                <p className="text-[3vw] font-extralight mb-3 text-red-500">
+                <p className="text-[3vw] font-extralight mb-3 text-red-500 tablet:text-[1.6vw] desktop:text-[0.9vw]">
                   {inputError.emailError}
                 </p>
               )}
             </div>
           </div>
-          <div className="flex min-[1024px]:w-[50%]">
+          <div className="flex">
             <div className="w-full">
-              <input
-                type="password"
-                name="password"
-                maxLength={50}
-                placeholder="Password"
-                autoComplete="nope"
-                onChange={(e) => setPassword(e.target.value)}
-                className={`font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] ${
-                  inputError.passErrors.passEmptyErr ? `mb-2` : `mb-[10.67vw]`
-                } w-full`}
-              />
+              <div className="relative flex">
+                <input
+                  type={isPassVisible ? "text" : "password"}
+                  name="password"
+                  maxLength={50}
+                  placeholder="Password"
+                  autoComplete="nope"
+                  onChange={(e) => setPassword(e.target.value)}
+                  className={`font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-4 tablet:text-[1.95vw] desktop:text-[1.04vw] ${
+                    inputError.passErrors.passEmptyErr
+                      ? `mb-2`
+                      : `mb-[10.67vw] tablet:mb-[5.2vw] desktop:mb-[2.78vw]`
+                  } w-full`}
+                />
+                <button
+                  className={
+                    password !== "" ? "block absolute center-login" : "hidden"
+                  }
+                  type="button"
+                  onClick={() => setPassVisibility((prev) => !prev)}
+                >
+                  <div className="flex items-center justify-center mb-2 w-[8vw] h-[6.66vw] tablet:w-[3.9vw] tablet:h-[3.25vw] desktop:w-[2.08vw] desktop:h-[1.73vw]">
+                    {isPassVisible ? (
+                      <img
+                        className="w-[5.33vw] tablet:w-[2.6vw] desktop:w-[1.39vw] h-auto"
+                        src="../../assets/open-eye.svg"
+                      />
+                    ) : (
+                      <img
+                        className="w-[5.33vw] tablet:w-[2.6vw] desktop:w-[1.39vw] h-auto"
+                        src="../../assets/closed-eye.svg"
+                      />
+                    )}
+                  </div>
+                </button>
+              </div>
               {inputError.passErrors.passEmptyErr && (
-                <p className="text-[3vw] font-extralight text-red-500 mb-[10.67vw]">
+                <p className="text-[3vw] font-extralight text-red-500 mb-[10.67vw] tablet:mb-[5.2vw] tablet:text-[1.6vw] desktop:text-[0.9vw] desktop:mb-[2.78vw]">
                   {inputError.passErrors.passEmptyErr}
                 </p>
               )}
@@ -164,11 +191,11 @@ function LoginForm() {
         </div>
         <button
           type="submit"
-          className="bg-[#FC4747] text-[4vw] mb-[6.4vw] font-extralight rounded-md py-[4vw] flex justify-center items-center w-full"
+          className="bg-[#FC4747] text-[4vw] mb-[6.4vw] font-extralight rounded-md py-[4vw] flex justify-center items-center w-full tablet:text-[1.95vw] tablet:mb-[3.13vw] tablet:py-[1.82vw] desktop:text-[1.04vw] desktop:mb-[1.67vw] desktop:py-[1.04vw]"
         >
           Login to your account
         </button>
-        <p className="text-center text-[4vw] font-extralight">
+        <p className="text-center text-[4vw] font-extralight tablet:text-[1.95vw] desktop:text-[1.04vw]">
           Don't have an account?{" "}
           <Link className="text-[#FC4747]" to="/register">
             Sign Up

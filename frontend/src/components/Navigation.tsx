@@ -7,18 +7,30 @@ interface Props {
 
 function Navigation({ styleObject }: Props) {
   return (
-    <nav className="flex">
-      <Link className={"pr-[6.4vw] " + styleObject?.homeMenuStyle} to={"/"}>
+    <nav className="flex desktop:flex-col desktop:items-center desktop:z-50">
+      <Link
+        className={
+          "pr-[6.4vw] tablet:pr-[4.17vw] desktop:pr-0 desktop:mb-[2.78vw] " +
+          styleObject?.homeMenuStyle
+        }
+        to={"/"}
+      >
         <img src="../../assets/icon-nav-home.svg"></img>
       </Link>
       <Link
-        className={"pr-[6.4vw] " + styleObject?.moviesMenuStyle}
+        className={
+          "pr-[6.4vw] tablet:pr-[4.17vw] desktop:pr-0 desktop:mb-[2.78vw] " +
+          styleObject?.moviesMenuStyle
+        }
         to={"/movies"}
       >
         <img src="../../assets/icon-nav-movies.svg"></img>
       </Link>
       <Link
-        className={"pr-[6.4vw] " + styleObject?.showsMenuStyle}
+        className={
+          "pr-[6.4vw] tablet:pr-[4.17vw] desktop:pr-0 desktop:mb-[2.78vw] " +
+          styleObject?.showsMenuStyle
+        }
         to={"/shows"}
       >
         <img src="../../assets/icon-nav-tv-series.svg"></img>
