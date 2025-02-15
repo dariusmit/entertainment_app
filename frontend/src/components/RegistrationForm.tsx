@@ -89,7 +89,9 @@ function RegistrationForm() {
                 maxLength={50}
                 value={email}
                 placeholder="Email address"
-                autoComplete="no"
+                onFocus={(event) => {
+                  event.target.setAttribute("autocomplete", "off");
+                }}
                 onChange={(e) => setEmail(e.target.value)}
                 className="font-extralight foutline-hidden text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2 w-full tablet:text-[1.95vw] desktop:text-[1.04vw]"
               />
@@ -107,7 +109,9 @@ function RegistrationForm() {
                   maxLength={50}
                   value={password}
                   placeholder="Password"
-                  autoComplete="no"
+                  onFocus={(event) => {
+                    event.target.setAttribute("autocomplete", "off");
+                  }}
                   onChange={(e) => setPassword(e.target.value)}
                   className="font-extralight w-full text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-2 tablet:text-[1.95vw] desktop:text-[1.04vw]"
                 />
@@ -168,7 +172,9 @@ function RegistrationForm() {
                   maxLength={50}
                   value={repeatedPassword}
                   placeholder="Repeat Password"
-                  autoComplete="no"
+                  onFocus={(event) => {
+                    event.target.setAttribute("autocomplete", "off");
+                  }}
                   onChange={(e) => setRepeatedPassword(e.target.value)}
                   className="font-extralight text-[4vw] bg-[#161D2F] mb-3 p-3 border-b border-b-[#5A698F] w-full tablet:text-[1.95vw] desktop:text-[1.04vw]"
                 />

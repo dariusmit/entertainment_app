@@ -1,5 +1,5 @@
 import { Context } from "../context/StoreContext";
-import { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import movieType from "../types/movieType";
 import seriesType from "../types/seriesType";
 import { isMovieType } from "../helpers/isMovieType";
@@ -93,7 +93,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
 
     if (isBookmarkedStatus) {
       await removeBookmark(movie.id, mediaType);
-      location.reload();
+      //location.reload();
     } else {
       await bookmarkContent(movie.id, mediaType);
     }
@@ -192,9 +192,58 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
     updateContentState();
   }, [isLoading, accessToken, debouncedSearchValue]);
 
+  const scrollableRef = useRef<HTMLDivElement | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+  const [scrolling, setScrolling] = useState<boolean>(false);
+  const container = scrollableRef.current;
+
+  function scrollLeft(): void {
+    if (scrolling) return;
+
+    //36 pikseliu reiketu procentais paskaiciuoti nes ant kitokios rezoliucijos nei 1903 nebeveiks
+    const ScrollAmount = container!.offsetWidth + 36;
+    console.log(ScrollAmount);
+    console.log(container!.offsetWidth);
+
+    setScrolling(true);
+    container!.scrollBy({
+      left: -ScrollAmount,
+      behavior: "smooth",
+    });
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      setScrolling(false);
+    }, 1000);
+  }
+
+  function scrollRight(): void {
+    if (scrolling) return;
+
+    //36 pikseliu reiketu procentais paskaiciuoti nes ant kitokios rezoliucijos nei 1903 nebeveiks
+    const ScrollAmount = container!.offsetWidth + 36;
+    console.log(ScrollAmount);
+    console.log(container!.offsetWidth);
+
+    setScrolling(true);
+    container!.scrollBy({
+      left: ScrollAmount,
+      behavior: "smooth",
+    });
+
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      setScrolling(false);
+    }, 1000);
+  }
+
   return (
     <>
-      <h1 className="font-light text-[5.33vw] mb-2 m-4 tablet:mx-[3.25vw] tablet:text-[4.17vw] desktop:ml-[11.39vw] desktop:text-[2.22vw]">
+      <h1 className="font-light text-[5.33vw] mb-2 m-4 tablet:mx-[3.25vw] tablet:text-[4.17vw] desktop:ml-48 desktop:text-[2.22vw]">
         {searchCompleted
           ? `Found ${movies.length} results for '${searchValue}'`
           : (movies.length !== 0 && title) || (
@@ -203,98 +252,142 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
               </div>
             )}
       </h1>
-      <div
-        className={
-          horizontalSection
-            ? "grid gap-3 grid-flow-col overflow-x-scroll m-4 tablet:mx-[3.25vw] tablet:gap-9 tablet:mb-8 desktop:ml-[11.39vw] custom-scrollbar"
-            : "grid grid-cols-2 gap-3 m-4 tablet:mx-[3.25vw] tablet:grid-cols-3 tablet:gap-9 desktop:ml-[11.39vw] desktop:grid-cols-4"
-        }
-      >
-        {isLoadingAI ? (
-          <MoviesSectionSkeleton
-            horizontalSection={horizontalSection ? true : false}
-          />
-        ) : (
-          movies &&
-          movies.length != 0 &&
-          movies.map((movie: movieType | seriesType) => {
-            return (
-              <div
-                key={movie.id}
-                className={
-                  horizontalSection
-                    ? `w-[64vw] h-[37.33vw] relative overflow-hidden rounded-lg tablet:w-[61.2vw] tablet:h-[29.95vw] desktop:w-[32.64vw] desktop:h-[15.97vw]`
-                    : `h-auto relative overflow-hidden rounded-lg`
-                }
-              >
-                <img
-                  className={`${
-                    horizontalSection
-                      ? `h-full object-cover`
-                      : `h-[29.33vw] tablet:h-[18.23vw] desktop:h-[12.08vw]`
-                  } w-full rounded-lg transition-transform hover:scale-105 hover:cursor-pointer mb-2`}
-                  src={
-                    posterRootURL +
-                    `${movie.backdrop_path || movie.poster_path}`
-                  }
-                  onClick={() => viewContent(movie)}
-                />
-                <div className={horizontalSection ? "hidden" : ""}>
-                  <div className="flex text-[3.47vw] font-extralight tablet:text-[1.69vw] desktop:text-[0.9vw]">
-                    <p className="mr-[1.6vw] tablet:mr-[1.04vw] desktop:mr-[0.56vw]">
-                      {isMovieType(movie)
-                        ? String(movie.release_date).split("-")[0]
-                        : String(movie.first_air_date).split("-")[0]}
-                    </p>
-                    <p className="mr-[1.6vw] tablet:mr-[1.04vw] desktop:mr-[0.56vw]">
-                      ·
-                    </p>
-                    <div className="flex items-center mr-[1.6vw] tablet:mr-[1.04vw] desktop:mr-[0.56vw]">
-                      {isMovieType(movie) ? (
-                        <>
-                          <img
-                            src="../../assets/icon-category-movie.svg"
-                            className="w-[2.67vw] h-[2.67vw] mr-1 tablet:mr-[1.04vw] tablet:w-[1.56vw] tablet:h-[1.56vw] desktop:mr-[0.56vw] desktop:w-[0.83vw] desktop:h-[0.83vw]"
-                          />
-                          <p>Movie</p>
-                        </>
-                      ) : (
-                        <>
-                          <img
-                            src="../../assets/icon-category-tv.svg"
-                            className="w-[2.67vw] h-[2.67vw] mr-1 tablet:mr-[1.04vw] tablet:w-[1.56vw] tablet:h-[1.56vw] desktop:mr-[0.56vw] desktop:w-[0.83vw] desktop:h-[0.83vw]"
-                          />
-                          <p>Series</p>
-                        </>
-                      )}
-                    </div>
-                    <p className="mr-[1.6vw] tablet:mr-[1.04vw] desktop:mr-[0.56vw]">
-                      ·
-                    </p>
-                    <p>{String(Math.round(movie.vote_average * 10) / 10)}</p>
-                  </div>
-                  <p className="text-[4vw] tablet:text-[2.34vw] desktop:text-[1.25vw]">
-                    {isMovieType(movie) ? movie.title : movie.name}
-                  </p>
-                </div>
+      <div className="desktop:z-30 desktop:relative">
+        <button
+          className={
+            horizontalSection
+              ? "hidden desktop:block absolute z-40 top-[6.6vw] left-[10.62vw] w-[1.56vw] h-auto hover:cursor-pointer opacity-50 hover:opacity-100 hover:scale-110 ease-in-out duration-150"
+              : "hidden"
+          }
+          onClick={scrollLeft}
+          disabled={scrolling}
+        >
+          <img onClick={scrollLeft} src="../../assets/arrow-left.svg" />
+        </button>
+        <div
+          ref={scrollableRef}
+          className={
+            horizontalSection
+              ? "grid gap-3 grid-flow-col rounded-lg overflow-x-scroll m-4 tablet:mx-[3.25vw] tablet:gap-9 tablet:mb-8 desktop:ml-48 w-auto desktop:mr-8 custom-scrollbar"
+              : "grid grid-cols-2 gap-3 m-4 tablet:mx-[3.25vw] tablet:grid-cols-3 tablet:gap-9 desktop:ml-48 desktop:grid-cols-4 desktop:mr-8"
+          }
+        >
+          {isLoadingAI ? (
+            <MoviesSectionSkeleton
+              horizontalSection={horizontalSection ? true : false}
+            />
+          ) : (
+            movies &&
+            movies.length != 0 &&
+            movies.map((movie: movieType | seriesType) => {
+              return (
                 <div
-                  onClick={() => handleBookmarkClick(movie)}
-                  className="absolute flex justify-center items-center top-0 right-0 m-1 w-[8.53vw] h-[8.53vw] tablet:w-[4.17vw] tablet:h-[4.17vw] tablet:m-3 desktop:w-[2.22vw] desktop:h-[2.22vw]"
+                  key={movie.id}
+                  className={
+                    horizontalSection
+                      ? `w-[64vw] h-auto relative overflow-x-hidden rounded-lg tablet:w-[61.2vw] desktop:w-[535.666px] desktop:h-[15.97vw]`
+                      : `h-auto relative overflow-hidden rounded-lg`
+                  }
                 >
                   <img
-                    className="relative z-10"
+                    className={`${
+                      horizontalSection
+                        ? `h-full object-cover`
+                        : `h-[29.33vw] tablet:h-[18.23vw] desktop:h-[12.08vw] mb-2 `
+                    } w-full rounded-lg hover:brightness-125 hover:cursor-pointer`}
                     src={
-                      bookmarkedItems.includes(movie.id)
-                        ? "../../assets/icon-bookmark-full.svg"
-                        : "../../assets/icon-bookmark-empty.svg"
+                      posterRootURL +
+                      `${movie.backdrop_path || movie.poster_path}`
                     }
+                    onClick={() => viewContent(movie)}
                   />
-                  <div className="bg-black absolute top-0 right-0 opacity-50 rounded-full w-[8.53vw] h-[8.53vw] tablet:w-[4.17vw] tablet:h-[4.17vw] desktop:w-[2.22vw] desktop:h-[2.22vw]"></div>
+                  <div
+                    className={
+                      horizontalSection
+                        ? "absolute bottom-0 left-0 z-10 w-full opacity-50 h-[4vw] gradient"
+                        : "hidden"
+                    }
+                  ></div>
+                  <div
+                    className={
+                      horizontalSection
+                        ? "absolute bottom-2 z-20 left-2 overflow-hidden py-1 px-2"
+                        : ""
+                    }
+                  >
+                    <div
+                      className={
+                        !horizontalSection
+                          ? "flex text-[3.47vw] font-extralight tablet:text-[1.69vw] desktop:text-[0.9vw]"
+                          : "hidden"
+                      }
+                    >
+                      <p className="mr-[1.6vw] tablet:mr-[1.04vw] desktop:mr-[0.56vw]">
+                        {isMovieType(movie)
+                          ? String(movie.release_date).split("-")[0]
+                          : String(movie.first_air_date).split("-")[0]}
+                      </p>
+                      <p className="mr-[1.6vw] tablet:mr-[1.04vw] desktop:mr-[0.56vw]">
+                        ·
+                      </p>
+                      <div className="flex items-center mr-[1.6vw] tablet:mr-[1.04vw] desktop:mr-[0.56vw]">
+                        {isMovieType(movie) ? (
+                          <>
+                            <img
+                              src="../../assets/icon-category-movie.svg"
+                              className="w-[2.67vw] h-[2.67vw] mr-1 tablet:mr-[1.04vw] tablet:w-[1.56vw] tablet:h-[1.56vw] desktop:mr-[0.56vw] desktop:w-[0.83vw] desktop:h-[0.83vw]"
+                            />
+                            <p>Movie</p>
+                          </>
+                        ) : (
+                          <>
+                            <img
+                              src="../../assets/icon-category-tv.svg"
+                              className="w-[2.67vw] h-[2.67vw] mr-1 tablet:mr-[1.04vw] tablet:w-[1.56vw] tablet:h-[1.56vw] desktop:mr-[0.56vw] desktop:w-[0.83vw] desktop:h-[0.83vw]"
+                            />
+                            <p>Series</p>
+                          </>
+                        )}
+                      </div>
+                      <p className="mr-[1.6vw] tablet:mr-[1.04vw] desktop:mr-[0.56vw]">
+                        ·
+                      </p>
+                      <p>{String(Math.round(movie.vote_average * 10) / 10)}</p>
+                    </div>
+                    <p className="text-[4vw] tablet:text-[2.34vw] desktop:text-[1.25vw]">
+                      {isMovieType(movie) ? movie.title : movie.name}
+                    </p>
+                  </div>
+                  <div
+                    onClick={() => handleBookmarkClick(movie)}
+                    className="absolute flex justify-center items-center top-0 right-0 m-1 w-[8.53vw] h-[8.53vw] tablet:w-[4.17vw] tablet:h-[4.17vw] tablet:m-3 desktop:w-[2.22vw] desktop:h-[2.22vw] [&>*]:desktop:hover:opacity-100 [&>div]:desktop:hover:border-2 [&>div]:desktop:hover:border-white desktop:cursor-pointer"
+                  >
+                    <img
+                      className="relative z-10"
+                      src={
+                        bookmarkedItems.includes(movie.id)
+                          ? "../../assets/icon-bookmark-full.svg"
+                          : "../../assets/icon-bookmark-empty.svg"
+                      }
+                    />
+                    <div className="bg-black absolute top-0 right-0 opacity-50 rounded-full w-[8.53vw] h-[8.53vw] tablet:w-[4.17vw] tablet:h-[4.17vw] desktop:w-[2.22vw] desktop:h-[2.22vw]"></div>
+                  </div>
                 </div>
-              </div>
-            );
-          })
-        )}
+              );
+            })
+          )}
+        </div>
+        <button
+          className={
+            horizontalSection
+              ? "hidden desktop:block absolute z-40 top-[6.6vw] right-[2.3vw] w-[1.56vw] h-auto hover:cursor-pointer opacity-50 hover:opacity-100 hover:scale-110 ease-in-out duration-150"
+              : "hidden"
+          }
+          onClick={scrollRight}
+          disabled={scrolling}
+        >
+          <img src="../../assets/arrow-right.svg" />
+        </button>
       </div>
     </>
   );

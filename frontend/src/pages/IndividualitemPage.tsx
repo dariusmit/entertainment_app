@@ -81,61 +81,68 @@ function IndividualItemPage() {
     <>
       {user && (
         <>
-          <div></div>
           <Header />
-          <div className="px-[4.27vw] pb-[16.27vw]" key={content.id}>
+          <div
+            className="w-full px-4 mb-12 tablet:px-6 tablet:mb-16 desktop:ml-[10.5rem] desktop:mt-10 desktop:relative desktop:mr-4 desktop:mb-10 desktop:w-auto desktop:h-[90vh]"
+            key={content.id}
+          >
             <img
-              className="w-full h-auto mb-1 rounded-lg"
+              className="w-full h-auto mb-1 rounded-xl desktop:mr-8 desktop:h-full"
               src={
                 posterRootURL +
                 `${content.backdrop_path || content.poster_path}`
               }
             />
-            <div>
-              <h1 className="text-[6vw] font-medium">
+            <div className="absolute bottom-4 left-16 z-40">
+              <h1 className="text-2xl font-medium mb-2 desktop:text-5xl desktop:mb-8">
                 {isMovieType(content) ? content.title : content.name}
               </h1>
-              <div className="flex [3.47vw] font-extralight text-gray-400">
-                <p className="mr-[1.6vw]">
+              <div className="flex text-xs font-extralight text-gray-200 desktop:text-xl">
+                <p className="mr-8">
                   {isMovieType(content)
                     ? content.release_date
                     : content.first_air_date}
                 </p>
-                <p className="mr-[1.6vw]">·</p>
-                <div className="flex items-center mr-[1.6vw]">
+                <div className="flex items-center mr-8 mb-1">
                   <img
                     src={
                       isMovieType(content)
                         ? "../../assets/icon-category-movie.svg"
                         : "../../assets/icon-category-tv.svg"
                     }
-                    className="w-[2.67vw] h-[2.67vw] mr-1"
+                    className="w-3 h-3 mr-1"
                   />
                   <p>{isMovieType(content) ? "Movie" : "Series"}</p>
                 </div>
-                <p className="mr-[1.6vw]">·</p>
-                <p>{String(Math.round(content.vote_average * 10) / 10)}</p>
+                <p>
+                  {"IMDB: " +
+                    String(Math.round(content.vote_average * 10) / 10)}
+                </p>
               </div>
-              <div className="flex text-[3.47vw] mb-3 font-extralight text-gray-400">
+              <div className="flex text-xs mb-3 font-extralight text-gray-200 desktop:text-xl desktop:mb-6">
                 {genres &&
                   genres.map((item: genresType) => {
                     return (
-                      <p className="mr-2" key={item.id}>
+                      <p className="mr-6" key={item.id}>
                         • {item.name}
                       </p>
                     );
                   })}
               </div>
-              <p className="mb-6">{content.overview}</p>
+              <p className="text-base mb-6 font-extralight desktop:max-w-2xl desktop:text-xl">
+                {content.overview}
+              </p>
             </div>
-
+            <div className="absolute bottom-0 left-6 z-10 w-[97.2%] gradient h-96 opacity-60"></div>
+          </div>
+          <div className="flex desktop:w-auto desktop:ml-48 desktop:mb-[3.25rem]">
             {contentVideos &&
               contentVideos.map((item) => {
                 if (item.type === "Trailer") {
                   return (
                     <div key={item.key}>
                       <iframe
-                        className="w-full h-[84vw] mb-4 rounded-lg"
+                        className="w-full h-[84vw] rounded-lg mr-4 desktop:w-[42.4vw] desktop:h-96 desktop:mr-10"
                         src={`https://www.youtube.com/embed/${item.key}`}
                       ></iframe>
                     </div>

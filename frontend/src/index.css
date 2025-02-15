@@ -12,6 +12,10 @@ body {
   filter: brightness(0) saturate(100%) invert(100%) sepia(2%) saturate(8%) hue-rotate(353deg) brightness(104%) contrast(104%);
 }
 
+.svg-hover-filter:hover {
+  filter: brightness(0) saturate(100%) invert(37%) sepia(28%) saturate(3657%) hue-rotate(332deg) brightness(102%) contrast(97%);
+}
+
 .center {
   right: 0;
   top: 50%;
@@ -47,24 +51,9 @@ input:focus {
 }
 
 .custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #333 #141414;
+  scrollbar-width: none;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  height: 8px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #141414;
-  border-radius: 20px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #333;
-  border-radius: 20px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #555;
+.gradient {
+  background: linear-gradient(to top, black 0%, rgba(0, 0, 0, 0.8) 40%, rgba(0, 0, 0, 0) 80%);
 }

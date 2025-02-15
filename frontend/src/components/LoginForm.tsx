@@ -132,7 +132,9 @@ function LoginForm() {
                 name="email"
                 maxLength={50}
                 placeholder="Email address"
-                autoComplete="nope"
+                onFocus={(event) => {
+                  event.target.setAttribute("autocomplete", "off");
+                }}
                 onChange={(e) => setEmail(e.target.value)}
                 className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-4 w-full tablet:text-[1.95vw] desktop:text-[1.04vw]"
               />
@@ -151,7 +153,9 @@ function LoginForm() {
                   name="password"
                   maxLength={50}
                   placeholder="Password"
-                  autoComplete="nope"
+                  onFocus={(event) => {
+                    event.target.setAttribute("autocomplete", "off");
+                  }}
                   onChange={(e) => setPassword(e.target.value)}
                   className={`font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-4 tablet:text-[1.95vw] desktop:text-[1.04vw] ${
                     inputError.passErrors.passEmptyErr

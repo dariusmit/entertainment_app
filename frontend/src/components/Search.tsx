@@ -51,14 +51,17 @@ function Search() {
 
   return (
     <>
-      <div className="flex px-[4.27vw] items-center tablet:px-[3.26vw] desktop:pl-[11.39vw] desktop:pr-0 desktop:mt-[4.44vw]">
+      <div className="flex px-[4.27vw] items-center tablet:px-[3.26vw] desktop:pl-[10vw] desktop:pr-0 desktop:mt-[4.44vw]">
         <img
-          className="mr-[4.27vw] tablet:mr-[2.6vw]"
+          className="mr-[4.27vw] tablet:mr-[2vw]"
           src="../../assets/icon-search.svg"
         />
         <input
-          className="w-[70%] bg-[#10141E] text-gray-500 p-2 text-[4.27vw] font-light tablet:text-[3.1vw] desktop:text-[1.67vw]"
+          className="w-[70%] bg-[#10141E] text-gray-500 p-2 text-[4.27vw] font-light border-b-2 border-b-transparent tablet:text-[3.1vw] desktop:text-[1.67vw] focus:border-b-2 desktop:w-[90%] focus:border-[#5A698F] caret-[#FC4747]"
           type="text"
+          onFocus={(event) => {
+            event.target.setAttribute("autocomplete", "off");
+          }}
           name="search"
           value={searchValue}
           onChange={(e) => changeSearchValue(e.target.value)}
