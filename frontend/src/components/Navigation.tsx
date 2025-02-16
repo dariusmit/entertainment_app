@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import styleObjectType from "../types/styleObjectType";
+import { motion } from "framer-motion";
 
 interface Props {
   styleObject: styleObjectType | undefined;
@@ -15,10 +16,12 @@ function Navigation({ styleObject }: Props) {
         }
         to={"/"}
       >
-        <img
+        <motion.img
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 300 }}
           className="desktop:w-[1.30vw] desktop:h-auto"
           src="../../assets/icon-nav-home.svg"
-        ></img>
+        />
       </Link>
       <Link
         className={
@@ -27,10 +30,12 @@ function Navigation({ styleObject }: Props) {
         }
         to={"/movies"}
       >
-        <img
+        <motion.img
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 300 }}
           className="desktop:w-[1.30vw] desktop:h-auto"
           src="../../assets/icon-nav-movies.svg"
-        ></img>
+        />
       </Link>
       <Link
         className={
@@ -39,10 +44,12 @@ function Navigation({ styleObject }: Props) {
         }
         to={"/shows"}
       >
-        <img
+        <motion.img
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 300 }}
           className="desktop:w-[1.30vw] desktop:h-auto"
           src="../../assets/icon-nav-tv-series.svg"
-        ></img>
+        />
       </Link>
       <Link
         className={
@@ -51,7 +58,9 @@ function Navigation({ styleObject }: Props) {
         }
         to={"/bookmarks"}
       >
-        <img
+        <motion.img
+          whileTap={{ scale: 0.9 }}
+          transition={{ type: "spring", stiffness: 300 }}
           className="desktop:w-[1.30vw] desktop:h-auto"
           src="../../assets/icon-nav-bookmark.svg"
         />

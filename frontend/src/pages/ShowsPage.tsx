@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { PATHS } from "../axios/paths";
+import { motion } from "framer-motion";
 
 function ShowsPage() {
   const { searchCompleted, searchValue } = useContext(Context);
@@ -18,7 +19,6 @@ function ShowsPage() {
       navigate("/login");
     }
   }, [user, isLoading, navigate]);
-  if (isLoading) return <p>Loading...</p>;
 
   return (
     <>
@@ -26,15 +26,21 @@ function ShowsPage() {
         <div className="desktop:mb-11">
           <Header />
           <Search />
-          {searchCompleted && (
-            <MoviesSection
-              title="Search Results"
-              path={`${PATHS.SearchSeries}&query=${searchValue}`}
-            />
-          )}
-          {!searchCompleted && (
-            <MoviesSection title="Series" path={PATHS.TrendingSeries} />
-          )}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 1 }}
+          >
+            {searchCompleted && (
+              <MoviesSection
+                title="Search Results"
+                path={`${PATHS.SearchSeries}&query=${searchValue}`}
+              />
+            )}
+            {!searchCompleted && (
+              <MoviesSection title="Series" path={PATHS.TrendingSeries} />
+            )}
+          </motion.div>
         </div>
       )}
     </>

@@ -6,6 +6,7 @@ import MoviesSection from "../components/MoviesSection";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { PATHS } from "../axios/paths";
+import { motion } from "framer-motion";
 
 function HomePage() {
   const { searchCompleted, searchValue } = useContext(Context);
@@ -19,39 +20,43 @@ function HomePage() {
     }
   }, [user, isLoading, navigate]);
 
-  if (isLoading) return <p>Loading...</p>;
-
   return (
     <>
       {user && (
         <div className="desktop:mb-11">
           <Header />
           <Search />
-          {searchCompleted && (
-            <MoviesSection
-              title="Search Results"
-              path={`${PATHS.SearchAll}&query=${searchValue}`}
-            />
-          )}
-          {!searchCompleted && (
-            <MoviesSection
-              title="Trending Movies"
-              path={PATHS.TrendingMovies}
-              horizontalSection
-            />
-          )}
-          {!searchCompleted && (
-            <MoviesSection
-              title="Trending Series"
-              path={PATHS.TrendingSeries}
-            />
-          )}
-          {!searchCompleted && (
-            <MoviesSection
-              title="Top Rated Movies"
-              path={PATHS.TopRatedMovies}
-            />
-          )}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 1 }}
+          >
+            {searchCompleted && (
+              <MoviesSection
+                title="Search Results"
+                path={`${PATHS.SearchAll}&query=${searchValue}`}
+              />
+            )}
+            {!searchCompleted && (
+              <MoviesSection
+                title="Trending Movies"
+                path={PATHS.TrendingMovies}
+                horizontalSection
+              />
+            )}
+            {!searchCompleted && (
+              <MoviesSection
+                title="Trending Series"
+                path={PATHS.TrendingSeries}
+              />
+            )}
+            {!searchCompleted && (
+              <MoviesSection
+                title="Top Rated Movies"
+                path={PATHS.TopRatedMovies}
+              />
+            )}
+          </motion.div>
         </div>
       )}
     </>

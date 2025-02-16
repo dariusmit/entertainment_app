@@ -13,6 +13,7 @@ import {
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import MoviesSectionSkeleton from "./MoviesSectionSkeleton";
+import { motion } from "framer-motion";
 
 interface Props {
   title: string;
@@ -255,17 +256,20 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
       </h1>
       <div className="desktop:z-30 desktop:relative">
         {!isLoadingAI ? (
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.15, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 300 }}
             className={
               horizontalSection
-                ? "hidden desktop:block absolute z-40 top-[6.6vw] left-[10.62vw] w-[1.56vw] h-auto hover:cursor-pointer opacity-50 hover:opacity-100 hover:scale-110 ease-in-out duration-150"
+                ? "hidden desktop:block absolute z-40 top-[6.6vw] left-[10.62vw] w-[1.56vw] h-auto opacity-50"
                 : "hidden"
             }
             onClick={scrollLeft}
             disabled={scrolling}
           >
             <img onClick={scrollLeft} src="../../assets/arrow-left.svg" />
-          </button>
+          </motion.button>
         ) : null}
         <div
           ref={scrollableRef}
@@ -359,7 +363,9 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
                       {isMovieType(movie) ? movie.title : movie.name}
                     </p>
                   </div>
-                  <div
+                  <motion.div
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ type: "spring", stiffness: 300 }}
                     onClick={() => handleBookmarkClick(movie)}
                     className="absolute flex justify-center items-center top-0 right-0 m-1 w-[8.53vw] h-[8.53vw] tablet:w-[4.17vw] tablet:h-[4.17vw] tablet:m-3 desktop:w-[2.22vw] desktop:h-[2.22vw] [&>*]:desktop:hover:opacity-100 [&>div]:desktop:hover:border-2 [&>div]:desktop:hover:border-white desktop:cursor-pointer"
                   >
@@ -372,24 +378,27 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
                       }
                     />
                     <div className="bg-black absolute top-0 right-0 opacity-50 rounded-full w-[8.53vw] h-[8.53vw] tablet:w-[4.17vw] tablet:h-[4.17vw] desktop:w-[2.22vw] desktop:h-[2.22vw]"></div>
-                  </div>
+                  </motion.div>
                 </div>
               );
             })
           )}
         </div>
         {!isLoadingAI ? (
-          <button
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            whileHover={{ scale: 1.15, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 300 }}
             className={
               horizontalSection
-                ? "hidden desktop:block absolute z-40 top-[6.6vw] right-[2.3vw] w-[1.56vw] h-auto hover:cursor-pointer opacity-50 hover:opacity-100 hover:scale-110 ease-in-out duration-150"
+                ? "hidden desktop:block absolute z-40 top-[6.6vw] right-[2.3vw] w-[1.56vw] h-auto opacity-50"
                 : "hidden"
             }
             onClick={scrollRight}
             disabled={scrolling}
           >
             <img src="../../assets/arrow-right.svg" />
-          </button>
+          </motion.button>
         ) : null}
       </div>
     </>
