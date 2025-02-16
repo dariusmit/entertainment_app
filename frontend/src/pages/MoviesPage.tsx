@@ -23,7 +23,7 @@ function MoviesPage() {
   return (
     <>
       {user && (
-        <>
+        <div className="desktop:mb-[3.35rem]">
           <Header />
           <Search />
           {searchCompleted && (
@@ -67,7 +67,7 @@ function MoviesPage() {
               horizontalSection
             />
           )}
-        </>
+        </div>
       )}
     </>
   );

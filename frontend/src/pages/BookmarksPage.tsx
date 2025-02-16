@@ -19,12 +19,10 @@ function BookmarksPage() {
     }
   }, [user, isLoading, navigate]);
 
-  if (isLoading) return <p>Loading...</p>;
-
   return (
     <>
       {user && (
-        <>
+        <div className="desktop:mb-11">
           <Header />
           {isSearchVisible ? (
             <Search />
@@ -52,7 +50,7 @@ function BookmarksPage() {
               reqType="auth"
             />
           )}
-        </>
+        </div>
       )}
     </>
   );

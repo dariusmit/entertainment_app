@@ -24,7 +24,7 @@ function HomePage() {
   return (
     <>
       {user && (
-        <>
+        <div className="desktop:mb-11">
           <Header />
           <Search />
           {searchCompleted && (
@@ -52,7 +52,7 @@ function HomePage() {
               path={PATHS.TopRatedMovies}
             />
           )}
-        </>
+        </div>
       )}
     </>
   );

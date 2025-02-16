@@ -195,9 +195,9 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   const scrollableRef = useRef<HTMLDivElement | null>(null);
   const timeoutRef = useRef<number | null>(null);
   const [scrolling, setScrolling] = useState<boolean>(false);
-  const container = scrollableRef.current;
 
   function scrollLeft(): void {
+    const container = scrollableRef.current;
     if (scrolling) return;
 
     //36 pikseliu reiketu procentais paskaiciuoti nes ant kitokios rezoliucijos nei 1903 nebeveiks
@@ -220,6 +220,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   }
 
   function scrollRight(): void {
+    const container = scrollableRef.current;
     if (scrolling) return;
 
     //36 pikseliu reiketu procentais paskaiciuoti nes ant kitokios rezoliucijos nei 1903 nebeveiks
@@ -248,22 +249,24 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
           ? `Found ${movies.length} results for '${searchValue}'`
           : (movies.length !== 0 && title) || (
               <div className="animated">
-                <p className="w-[60vw] h-[6.67vw] rounded-md tablet:h-[5.2vw] desktop:w-[40%]"></p>
+                <p className="w-[60vw] h-[6.67vw] rounded-md tablet:h-[5.2vw] desktop:w-[40%] desktop:h-[2.5vw]"></p>
               </div>
             )}
       </h1>
       <div className="desktop:z-30 desktop:relative">
-        <button
-          className={
-            horizontalSection
-              ? "hidden desktop:block absolute z-40 top-[6.6vw] left-[10.62vw] w-[1.56vw] h-auto hover:cursor-pointer opacity-50 hover:opacity-100 hover:scale-110 ease-in-out duration-150"
-              : "hidden"
-          }
-          onClick={scrollLeft}
-          disabled={scrolling}
-        >
-          <img onClick={scrollLeft} src="../../assets/arrow-left.svg" />
-        </button>
+        {!isLoadingAI ? (
+          <button
+            className={
+              horizontalSection
+                ? "hidden desktop:block absolute z-40 top-[6.6vw] left-[10.62vw] w-[1.56vw] h-auto hover:cursor-pointer opacity-50 hover:opacity-100 hover:scale-110 ease-in-out duration-150"
+                : "hidden"
+            }
+            onClick={scrollLeft}
+            disabled={scrolling}
+          >
+            <img onClick={scrollLeft} src="../../assets/arrow-left.svg" />
+          </button>
+        ) : null}
         <div
           ref={scrollableRef}
           className={
@@ -273,9 +276,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
           }
         >
           {isLoadingAI ? (
-            <MoviesSectionSkeleton
-              horizontalSection={horizontalSection ? true : false}
-            />
+            <MoviesSectionSkeleton horizontalSection={horizontalSection} />
           ) : (
             movies &&
             movies.length != 0 &&
@@ -285,7 +286,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
                   key={movie.id}
                   className={
                     horizontalSection
-                      ? `w-[64vw] h-auto relative overflow-x-hidden rounded-lg tablet:w-[61.2vw] desktop:w-[535.666px] desktop:h-[15.97vw]`
+                      ? `w-[64vw] h-[37.33vw] relative overflow-x-hidden rounded-lg tablet:w-[61.2vw] desktop:w-[535.666px] desktop:h-[15.97vw]`
                       : `h-auto relative overflow-hidden rounded-lg`
                   }
                 >
@@ -377,17 +378,19 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
             })
           )}
         </div>
-        <button
-          className={
-            horizontalSection
-              ? "hidden desktop:block absolute z-40 top-[6.6vw] right-[2.3vw] w-[1.56vw] h-auto hover:cursor-pointer opacity-50 hover:opacity-100 hover:scale-110 ease-in-out duration-150"
-              : "hidden"
-          }
-          onClick={scrollRight}
-          disabled={scrolling}
-        >
-          <img src="../../assets/arrow-right.svg" />
-        </button>
+        {!isLoadingAI ? (
+          <button
+            className={
+              horizontalSection
+                ? "hidden desktop:block absolute z-40 top-[6.6vw] right-[2.3vw] w-[1.56vw] h-auto hover:cursor-pointer opacity-50 hover:opacity-100 hover:scale-110 ease-in-out duration-150"
+                : "hidden"
+            }
+            onClick={scrollRight}
+            disabled={scrolling}
+          >
+            <img src="../../assets/arrow-right.svg" />
+          </button>
+        ) : null}
       </div>
     </>
   );

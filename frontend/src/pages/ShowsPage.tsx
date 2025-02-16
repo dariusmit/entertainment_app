@@ -23,7 +23,7 @@ function ShowsPage() {
   return (
     <>
       {user && (
-        <>
+        <div className="desktop:mb-11">
           <Header />
           <Search />
           {searchCompleted && (
@@ -35,7 +35,7 @@ function ShowsPage() {
           {!searchCompleted && (
             <MoviesSection title="Series" path={PATHS.TrendingSeries} />
           )}
-        </>
+        </div>
       )}
     </>
   );

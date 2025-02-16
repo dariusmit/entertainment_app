@@ -121,7 +121,7 @@ function Header() {
                 setUserModal(false);
                 logout();
               }}
-              className="pl-4 pb-2 float-left text-gray-200 clear-both font-light text-[3.5vw] tablet:text-[2vw] desktop:text-[1vw] desktop:hover:cursor-pointer"
+              className="pl-4 pb-2 float-left text-gray-200 clear-both font-light text-[3.5vw] tablet:text-[2vw] desktop:text-[1vw] desktop:hover:cursor-pointer desktop:hover:underline desktop:hover:underline-offset-8"
             >
               Logout
             </li>
