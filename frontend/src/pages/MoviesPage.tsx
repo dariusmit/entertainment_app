@@ -13,6 +13,10 @@ function MoviesPage() {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    window.scroll(0, 0);
+  }, []);
+
   const { user, isLoading } = useContext(AuthContext);
   useEffect(() => {
     if (!isLoading && !user) {

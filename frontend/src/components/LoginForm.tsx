@@ -1,6 +1,6 @@
 import axios from "axios";
 import { Context } from "../context/StoreContext";
-import { useContext, useEffect, useRef } from "react";
+import { useContext, useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -16,8 +16,6 @@ function LoginForm() {
   const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
   const { setUser } = useContext(AuthContext);
-  const [isSubmitClicked, setIsSubmitClicked] = useState<boolean>(false);
-  const isFromValid = useRef<boolean>(false);
 
   const { setAccessToken } = useContext(AuthContext);
 
@@ -25,76 +23,48 @@ function LoginForm() {
     setInputError(emptyErrorObject);
   }, [location.pathname]);
 
-  useEffect(() => {
-    if (isSubmitClicked) {
-      setInputError((prev) => {
-        return {
-          ...prev,
-          emailError: `${!email ? `Email can't be empty!` : ``}`,
-        };
-      });
-      setInputError((prev) => {
-        return {
-          ...prev,
-          passErrors: {
-            ...prev.passErrors,
-            passEmptyErr: `${!password ? `Password can't be empty!` : ``}`,
-          },
-        };
-      });
-    }
-
-    const hasErrors =
-      email === "" ||
-      password === "" ||
-      inputError.emailError !== "" ||
-      inputError.passErrors.passEmptyErr !== "";
-
-    isFromValid.current = !hasErrors;
-  }, [email, password, isSubmitClicked]);
-
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> {
     e.preventDefault();
 
-    setIsSubmitClicked(true);
+    const emailError = !email ? "Email can't be empty!" : "";
+    const passEmptyErr = !password ? "Password can't be empty!" : "";
 
-    if (!email || !password) {
+    setInputError((prev) => {
+      return {
+        ...prev,
+        emailError: emailError,
+        passErrors: { ...prev.passErrors, passEmptyErr: passEmptyErr },
+      };
+    });
+
+    if (emailError || passEmptyErr) {
       return;
     }
 
-    if (isFromValid.current === true) {
-      axios
-        .post(
-          "http://localhost:8081/login",
-          { email, password },
-          { withCredentials: true }
-        )
-        .then((res) => {
-          if (res.data.message === "Login successful") {
-            setAccessToken(res.data.accessToken);
-            setInputError(emptyErrorObject);
-            navigate("/");
-            const accessToken = res.data.accessToken;
-            const decodedUser = jwtDecode(accessToken);
+    try {
+      const res = await axios.post(
+        "http://localhost:8081/login",
+        { email, password },
+        { withCredentials: true }
+      );
 
-            // Cast decoded user to CustomJwtPayload type
-            const user = decodedUser as { id: number; email: string };
-
-            setUser(user);
-
-            isFromValid.current = false;
-            setEmail("");
-            setPassword("");
-            setInputError(emptyErrorObject);
-            setIsSubmitClicked(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err.message);
-          toast.error("Incorrect credentials!", toastSettings);
-        });
+      if (res.data.message === "Login successful") {
+        setAccessToken(res.data.accessToken);
+        const decodedUser = jwtDecode(res.data.accessToken) as {
+          id: number;
+          email: string;
+        };
+        setUser(decodedUser);
+        navigate("/");
+        // Reset form
+        setEmail("");
+        setPassword("");
+        setInputError(emptyErrorObject);
+      }
+    } catch (err: any) {
+      toast.error("Incorrect credentials!", toastSettings);
     }
   }
 
@@ -136,6 +106,7 @@ function LoginForm() {
                   event.target.setAttribute("autocomplete", "off");
                 }}
                 onChange={(e) => setEmail(e.target.value)}
+                value={email}
                 className="font-extralight text-[4vw] bg-[#161D2F] p-3 border-b border-b-[#5A698F] mb-4 w-full tablet:text-[1.95vw] desktop:text-[1.04vw]"
               />
               {inputError.emailError && (
@@ -152,6 +123,7 @@ function LoginForm() {
                   type={isPassVisible ? "text" : "password"}
                   name="password"
                   maxLength={50}
+                  value={password}
                   placeholder="Password"
                   onFocus={(event) => {
                     event.target.setAttribute("autocomplete", "off");

@@ -95,17 +95,17 @@ function IndividualItemPage() {
             transition={{ delay: 0.3, duration: 1 }}
           >
             <div
-              className="w-full px-4 mb-8 tablet:px-6 tablet:mb-12 desktop:ml-[10.5rem] desktop:mt-10 desktop:relative desktop:mr-4 desktop:mb-10 desktop:w-auto desktop:h-[90vh]"
+              className="w-full px-4 mb-8 tablet:px-[3.13vw] tablet:mb-12 desktop:ml-[10vw] desktop:px-0 desktop:mt-[2.1vw] desktop:relative desktop:mb-[2.1vw] desktop:w-[87.7vw] desktop:h-[89.9vh] desktopBig:w-[86.9vw]"
               key={content.id}
             >
               <img
-                className="w-full h-auto mb-1 tablet:mb-4 rounded-xl desktop:mr-8 desktop:h-full tablet:object-cover"
+                className="w-full h-auto mb-1 rounded-xl tablet:object-cover tablet:mb-4 desktop:mb-[2.1vw] desktop:h-full"
                 src={
                   posterRootURL +
                   `${content.backdrop_path || content.poster_path}`
                 }
               />
-              <div className="desktop:absolute desktop:bottom-4 desktop:left-16 desktop:z-40">
+              <div className="desktop:absolute desktop:bottom-[0.5vw] desktop:left-[2.8vw] desktop:z-40">
                 <h1 className="text-2xl font-medium mb-2 desktop:text-5xl desktop:mb-8">
                   {isMovieType(content) ? content.title : content.name}
                 </h1>
@@ -145,16 +145,16 @@ function IndividualItemPage() {
                   {content.overview}
                 </p>
               </div>
-              <div className="hidden desktop:block rounded-xl absolute bottom-0 left-6 z-10 w-[97.2%] gradient h-96 opacity-75"></div>
+              <div className="hidden desktop:block rounded-xl absolute bottom-0 left-0 z-10 w-full gradient h-96 opacity-75"></div>
             </div>
-            <div className="px-4 mb-12 desktop:flex desktop:flex-wrap desktop:w-auto desktop:ml-48 desktop:px-0 desktop:mb-[0.9rem]">
+            <div className="px-4 mb-12 grid grid-cols-1 w-full tablet:px-[3.08vw] gap-[5vw] desktop:grid-cols-2 desktop:gap-[2.1vw] desktop:w-[87vw] desktop:ml-[10vw] desktop:px-0 desktop:mb-[3.6vw] desktopBig:mt-[-0.3vw] desktopBig:mb-[2.7vw]">
               {contentTrailers &&
                 contentTrailers.map((item) => {
                   if (item.type === "Trailer") {
                     return (
                       <div key={item.key}>
                         <iframe
-                          className="w-full h-[64vw] rounded-lg mr-4 mb-4 tablet:h-[50vw] desktop:w-[42.4vw] desktop:h-96 desktop:mr-10 desktop:mb-10"
+                          className="w-full h-[64vw] rounded-lg tablet:h-[50vw] desktop:h-96"
                           src={`https://www.youtube.com/embed/${item.key}`}
                         ></iframe>
                       </div>

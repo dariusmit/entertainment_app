@@ -94,7 +94,9 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
 
     if (isBookmarkedStatus) {
       await removeBookmark(movie.id, mediaType);
-      //location.reload();
+      if (location.pathname === "/bookmarks") {
+        location.reload();
+      }
     } else {
       await bookmarkContent(movie.id, mediaType);
     }
@@ -201,8 +203,12 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
     const container = scrollableRef.current;
     if (scrolling) return;
 
-    //36 pikseliu reiketu procentais paskaiciuoti nes ant kitokios rezoliucijos nei 1903 nebeveiks
-    const ScrollAmount = container!.offsetWidth + 36;
+    //gap is 36 px prie 1903
+    //gap is 30.24px prie 1440
+    const ScrollAmount =
+      container!.offsetWidth >= 1266 && container!.offsetWidth < 1671
+        ? container!.offsetWidth + 30.24
+        : container!.offsetWidth + 40.44;
     console.log(ScrollAmount);
     console.log(container!.offsetWidth);
 
@@ -224,8 +230,12 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
     const container = scrollableRef.current;
     if (scrolling) return;
 
-    //36 pikseliu reiketu procentais paskaiciuoti nes ant kitokios rezoliucijos nei 1903 nebeveiks
-    const ScrollAmount = container!.offsetWidth + 36;
+    //gap is 36 px prie 1903
+    //gap is 30.24px prie 1440
+    const ScrollAmount =
+      container!.offsetWidth >= 1266 && container!.offsetWidth < 1671
+        ? container!.offsetWidth + 30.24
+        : container!.offsetWidth + 40.44;
     console.log(ScrollAmount);
     console.log(container!.offsetWidth);
 
@@ -245,7 +255,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
 
   return (
     <>
-      <h1 className="font-light text-[5.33vw] mb-2 m-4 tablet:mx-[3.25vw] tablet:text-[4.17vw] desktop:ml-48 desktop:text-[2.22vw]">
+      <h1 className="font-light text-[5.33vw] mb-2 m-4 tablet:mx-[3.25vw] tablet:text-[4.17vw] desktop:ml-[10vw] desktop:text-[2.22vw]">
         {searchCompleted
           ? `Found ${movies.length} results for '${searchValue}'`
           : (movies.length !== 0 && title) || (
@@ -262,7 +272,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
             transition={{ type: "spring", stiffness: 300 }}
             className={
               horizontalSection
-                ? "hidden desktop:block absolute z-40 top-[6.6vw] left-[10.62vw] w-[1.56vw] h-auto opacity-50"
+                ? "hidden desktop:block absolute z-40 top-[6.6vw] left-[10.75vw] w-[1.56vw] h-auto opacity-50"
                 : "hidden"
             }
             onClick={scrollLeft}
@@ -275,8 +285,8 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
           ref={scrollableRef}
           className={
             horizontalSection
-              ? "grid gap-3 grid-flow-col rounded-lg overflow-x-scroll m-4 tablet:mx-[3.25vw] tablet:gap-9 tablet:mb-8 desktop:ml-48 w-auto desktop:mr-8 custom-scrollbar"
-              : "grid grid-cols-2 gap-3 m-4 tablet:mx-[3.25vw] tablet:grid-cols-3 tablet:gap-9 desktop:ml-48 desktop:grid-cols-4 desktop:mr-8"
+              ? "grid gap-3 grid-flow-col rounded-lg overflow-x-scroll m-4 tablet:mx-[3.25vw] tablet:gap-9 tablet:mb-8 desktop:ml-[10vw] desktop:gap-[2.1vw] w-auto desktop:mr-[2.1vw] custom-scrollbar"
+              : "grid grid-cols-2 gap-3 m-4 tablet:mx-[3.25vw] tablet:grid-cols-3 tablet:gap-9 desktop:ml-[10vw] desktop:gap-[2.1vw] desktop:mr-[2.1vw] desktop:grid-cols-4"
           }
         >
           {isLoadingAI ? (
@@ -290,7 +300,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
                   key={movie.id}
                   className={
                     horizontalSection
-                      ? `w-[64vw] h-[37.33vw] relative overflow-x-hidden rounded-lg tablet:w-[61.2vw] desktop:w-[535.666px] desktop:h-[15.97vw]`
+                      ? `w-[64vw] h-[37.33vw] relative overflow-x-hidden rounded-lg tablet:w-[61.2vw] desktop:w-[27.9vw] desktopBig:w-[27.61vw] desktop:h-[15.97vw]`
                       : `h-auto relative overflow-hidden rounded-lg`
                   }
                 >
@@ -391,7 +401,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
             transition={{ type: "spring", stiffness: 300 }}
             className={
               horizontalSection
-                ? "hidden desktop:block absolute z-40 top-[6.6vw] right-[2.3vw] w-[1.56vw] h-auto opacity-50"
+                ? "hidden desktop:block absolute z-40 top-[6.6vw] right-[2.7vw] w-[1.56vw] h-auto opacity-50"
                 : "hidden"
             }
             onClick={scrollRight}

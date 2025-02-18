@@ -15,6 +15,10 @@ function HomePage() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    window.scroll(0, 0);
+  }, []);
+
+  useEffect(() => {
     if (!isLoading && !user) {
       navigate("/login");
     }

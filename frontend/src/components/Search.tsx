@@ -51,7 +51,7 @@ function Search() {
 
   return (
     <>
-      <div className="flex px-[4.27vw] items-center tablet:px-[3.26vw] desktop:pl-[10vw] desktop:pr-0 desktop:mt-[4.44vw]">
+      <div className="flex px-[4.27vw] items-center tablet:px-[3.26vw] desktop:pl-[10vw] desktop:pr-0 desktop:mt-[3.3vw]">
         <img
           className="mr-[4.27vw] tablet:mr-[2vw]"
           src="../../assets/icon-search.svg"
