@@ -1,12 +1,28 @@
 import { Link } from "react-router-dom";
 import styleObjectType from "../types/styleObjectType";
 import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
+import { useEffect } from "react";
 
 interface Props {
   styleObject: styleObjectType | undefined;
+  changeSearchValue: (value: string) => void;
+  setSearchCompletion: (value: boolean) => void;
 }
 
-function Navigation({ styleObject }: Props) {
+function Navigation({
+  styleObject,
+  changeSearchValue,
+  setSearchCompletion,
+}: Props) {
+  const location = useLocation();
+
+  // Reset search AFTER the route has changed
+  useEffect(() => {
+    changeSearchValue("");
+    setSearchCompletion(false);
+  }, [location.pathname]);
+
   return (
     <nav className="flex desktop:flex-col desktop:items-center desktop:z-50">
       <Link
@@ -14,7 +30,7 @@ function Navigation({ styleObject }: Props) {
           "pr-[6.4vw] tablet:pr-[4.17vw] desktop:pr-0 desktop:mb-[2.78vw] svg-hover-filter " +
           styleObject?.homeMenuStyle
         }
-        to={"/"}
+        to="/"
       >
         <motion.img
           whileTap={{ scale: 0.9 }}
@@ -23,12 +39,13 @@ function Navigation({ styleObject }: Props) {
           src="../../assets/icon-nav-home.svg"
         />
       </Link>
+
       <Link
         className={
           "pr-[6.4vw] tablet:pr-[4.17vw] desktop:pr-0 desktop:mb-[2.78vw] svg-hover-filter " +
           styleObject?.moviesMenuStyle
         }
-        to={"/movies"}
+        to="/movies"
       >
         <motion.img
           whileTap={{ scale: 0.9 }}
@@ -37,12 +54,13 @@ function Navigation({ styleObject }: Props) {
           src="../../assets/icon-nav-movies.svg"
         />
       </Link>
+
       <Link
         className={
           "pr-[6.4vw] tablet:pr-[4.17vw] desktop:pr-0 desktop:mb-[2.78vw] svg-hover-filter " +
           styleObject?.showsMenuStyle
         }
-        to={"/shows"}
+        to="/shows"
       >
         <motion.img
           whileTap={{ scale: 0.9 }}
@@ -51,12 +69,13 @@ function Navigation({ styleObject }: Props) {
           src="../../assets/icon-nav-tv-series.svg"
         />
       </Link>
+
       <Link
         className={
           "desktop:ease-in-out duration-150 svg-hover-filter " +
           styleObject?.bookmarksMenuStyle
         }
-        to={"/bookmarks"}
+        to="/bookmarks"
       >
         <motion.img
           whileTap={{ scale: 0.9 }}

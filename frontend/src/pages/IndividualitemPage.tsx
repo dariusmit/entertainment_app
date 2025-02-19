@@ -101,8 +101,10 @@ function IndividualItemPage() {
               <img
                 className="w-full h-auto mb-1 rounded-xl tablet:object-cover tablet:mb-4 desktop:mb-[2.1vw] desktop:h-full"
                 src={
-                  posterRootURL +
-                  `${content.backdrop_path || content.poster_path}`
+                  content.backdrop_path || content.poster_path
+                    ? posterRootURL +
+                      (content.backdrop_path || content.poster_path)
+                    : `../../assets/img-placeholder.png`
                 }
               />
               <div className="desktop:absolute desktop:bottom-[0.5vw] desktop:left-[2.8vw] desktop:z-40">
@@ -112,8 +114,8 @@ function IndividualItemPage() {
                 <div className="flex text-xs font-extralight text-gray-200 desktop:text-xl">
                   <p className="mr-4 desktop:mr-8">
                     {isMovieType(content)
-                      ? content.release_date
-                      : content.first_air_date}
+                      ? content.release_date || "Unknown"
+                      : content.first_air_date || "Unknown"}
                   </p>
                   <div className="flex items-center mr-4 desktop:mr-8 mb-1">
                     <img
@@ -128,7 +130,14 @@ function IndividualItemPage() {
                   </div>
                   <p>
                     {"IMDB: " +
-                      String(Math.round(content.vote_average * 10) / 10)}
+                      String(
+                        Math.round(content.vote_average * 10) / 10 === 0 ||
+                          Math.round(content.vote_average * 10) / 10 ===
+                            undefined ||
+                          Math.round(content.vote_average * 10) / 10 === null
+                          ? "Not rated"
+                          : Math.round(content.vote_average * 10) / 10
+                      )}
                   </p>
                 </div>
                 <div className="flex text-xs mb-3 font-extralight text-gray-200 desktop:text-xl desktop:mb-6">

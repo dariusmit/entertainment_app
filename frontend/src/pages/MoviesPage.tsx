@@ -35,7 +35,7 @@ function MoviesPage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3, duration: 1 }}
           >
-            {searchCompleted && (
+            {searchCompleted && searchValue && (
               <MoviesSection
                 title="Search Results"
                 path={`${PATHS.SearchMovies}&query=${searchValue}`}

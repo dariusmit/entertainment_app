@@ -203,8 +203,6 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
     const container = scrollableRef.current;
     if (scrolling) return;
 
-    //gap is 36 px prie 1903
-    //gap is 30.24px prie 1440
     const ScrollAmount =
       container!.offsetWidth >= 1266 && container!.offsetWidth < 1671
         ? container!.offsetWidth + 30.24
@@ -230,8 +228,6 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
     const container = scrollableRef.current;
     if (scrolling) return;
 
-    //gap is 36 px prie 1903
-    //gap is 30.24px prie 1440
     const ScrollAmount =
       container!.offsetWidth >= 1266 && container!.offsetWidth < 1671
         ? container!.offsetWidth + 30.24
@@ -258,11 +254,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
       <h1 className="font-light text-[5.33vw] mb-2 m-4 tablet:mx-[3.25vw] tablet:text-[4.17vw] desktop:ml-[10vw] desktop:text-[2.22vw]">
         {searchCompleted
           ? `Found ${movies.length} results for '${searchValue}'`
-          : (movies.length !== 0 && title) || (
-              <div className="animated">
-                <p className="w-[60vw] h-[6.67vw] rounded-md tablet:h-[5.2vw] desktop:w-[40%] desktop:h-[2.5vw]"></p>
-              </div>
-            )}
+          : movies.length !== 0 && title}
       </h1>
       <div className="desktop:z-30 desktop:relative">
         {!isLoadingAI ? (
@@ -300,19 +292,22 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
                   key={movie.id}
                   className={
                     horizontalSection
-                      ? `w-[64vw] h-[37.33vw] relative overflow-x-hidden rounded-lg tablet:w-[61.2vw] desktop:w-[27.9vw] desktopBig:w-[27.61vw] desktop:h-[15.97vw]`
+                      ? `w-[64vw] h-[37.33vw] relative overflow-hidden rounded-lg tablet:w-[61.2vw] desktop:w-[27.9vw] desktopBig:w-[27.61vw] desktop:h-[15.97vw]`
                       : `h-auto relative overflow-hidden rounded-lg`
                   }
                 >
                   <img
                     className={`${
                       horizontalSection
-                        ? `h-full object-cover`
+                        ? `h-full`
                         : `h-[29.33vw] tablet:h-[18.23vw] desktop:h-[12.08vw] mb-2 `
-                    } w-full rounded-lg hover:brightness-125 hover:cursor-pointer`}
+                    } w-full rounded-lg object-cover hover:brightness-125 hover:cursor-pointer`}
+                    alt="Image not found..."
                     src={
-                      posterRootURL +
-                      `${movie.backdrop_path || movie.poster_path}`
+                      movie.backdrop_path || movie.poster_path
+                        ? posterRootURL +
+                          (movie.backdrop_path || movie.poster_path)
+                        : `../../assets/img-placeholder.png`
                     }
                     onClick={() => viewContent(movie)}
                   />
@@ -339,8 +334,10 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
                     >
                       <p className="mr-[1.6vw] tablet:mr-[1.04vw] desktop:mr-[0.56vw]">
                         {isMovieType(movie)
-                          ? String(movie.release_date).split("-")[0]
-                          : String(movie.first_air_date).split("-")[0]}
+                          ? String(movie.release_date).split("-")[0] ||
+                            "Unknown"
+                          : String(movie.first_air_date).split("-")[0] ||
+                            "Unknown"}
                       </p>
                       <p className="mr-[1.6vw] tablet:mr-[1.04vw] desktop:mr-[0.56vw]">
                         ·
@@ -367,7 +364,17 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
                       <p className="mr-[1.6vw] tablet:mr-[1.04vw] desktop:mr-[0.56vw]">
                         ·
                       </p>
-                      <p>{String(Math.round(movie.vote_average * 10) / 10)}</p>
+                      <p>
+                        {"IMDB: " +
+                          String(
+                            Math.round(movie.vote_average * 10) / 10 === 0 ||
+                              Math.round(movie.vote_average * 10) / 10 ===
+                                undefined ||
+                              Math.round(movie.vote_average * 10) / 10 === null
+                              ? "Not rated"
+                              : Math.round(movie.vote_average * 10) / 10
+                          )}
+                      </p>
                     </div>
                     <p className="text-[4vw] tablet:text-[2.34vw] desktop:text-[1.25vw]">
                       {isMovieType(movie) ? movie.title : movie.name}

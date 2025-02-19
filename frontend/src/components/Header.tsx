@@ -10,7 +10,8 @@ import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 function Header() {
-  const { userModal, setUserModal, changeSearchValue } = useContext(Context);
+  const { userModal, setUserModal, changeSearchValue, setSearchCompletion } =
+    useContext(Context);
   const location = useLocation();
 
   const { user, setUser, setAccessToken, accessToken } =
@@ -70,10 +71,6 @@ function Header() {
     }
   };
 
-  useEffect(() => {
-    changeSearchValue("");
-  }, [location.pathname]);
-
   return (
     <>
       <div
@@ -87,7 +84,11 @@ function Header() {
             src="../../assets/logo.svg"
           />
         </Link>
-        <Navigation styleObject={styleObject} />
+        <Navigation
+          styleObject={styleObject}
+          changeSearchValue={changeSearchValue}
+          setSearchCompletion={setSearchCompletion}
+        />
         <div
           className="flex bg-gray-950 items-center justify-center w-[6.4vw] h-[6.4vw] border border-white rounded-full tablet:hover:cursor-pointer tablet:w-[4.17vw] tablet:h-[4.17vw] 
           desktop:w-[2.78vw] desktop:h-[2.78vw] desktop:absolute desktop:bottom-0 desktop:mb-[2.12vw] desktop:hover:border-2 desktop:hover:border-[#FC4747] desktop:hover:text-[#FC4747]"

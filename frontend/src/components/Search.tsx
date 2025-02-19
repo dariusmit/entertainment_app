@@ -3,6 +3,7 @@ import { Context } from "../context/StoreContext";
 import storeContextType from "../types/storeContextType";
 import LoadingAnimatedItem from "./LoadingAnimatedItem";
 import { useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
 
 function Search() {
   const {
@@ -51,7 +52,12 @@ function Search() {
 
   return (
     <>
-      <div className="flex px-[4.27vw] items-center tablet:px-[3.26vw] desktop:pl-[10vw] desktop:pr-0 desktop:mt-[3.3vw]">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3, duration: 1 }}
+        className="flex px-[4.27vw] items-center tablet:px-[3.26vw] desktop:pl-[10vw] desktop:pr-0 desktop:mt-[3.3vw]"
+      >
         <img
           className="mr-[4.27vw] tablet:mr-[2vw]"
           src="../../assets/icon-search.svg"
@@ -72,7 +78,7 @@ function Search() {
             <LoadingAnimatedItem />
           </div>
         )}
-      </div>
+      </motion.div>
     </>
   );
 }
