@@ -47,7 +47,10 @@ function RegistrationForm() {
 
     if (formValidRef.current === true) {
       axios
-        .post("http://localhost:8081/register", { email, password })
+        .post("https://entertainment-app-wheat.vercel.app/register", {
+          email,
+          password,
+        })
         .then((res) => {
           if (res.data.error) {
             toast.error(res.data.error, toastSettings);

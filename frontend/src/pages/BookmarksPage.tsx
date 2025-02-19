@@ -36,7 +36,7 @@ function BookmarksPage() {
     }
     try {
       const res = await axiosJWT.post(
-        "http://localhost:8081/get_bookmarked_items",
+        "https://entertainment-app-wheat.vercel.app/get_bookmarked_items",
         {},
         config(accessToken)
       );

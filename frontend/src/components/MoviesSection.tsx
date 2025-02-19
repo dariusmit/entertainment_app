@@ -45,7 +45,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
     }
     try {
       const res = await axiosJWT.post(
-        "http://localhost:8081/get_bookmarked_items",
+        "https://entertainment-app-wheat.vercel.app/get_bookmarked_items",
         {},
         config(accessToken)
       );
@@ -69,7 +69,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   ): Promise<boolean> {
     try {
       const res = await axiosJWT.post(
-        "http://localhost:8081/is_bookmarked",
+        "https://entertainment-app-wheat.vercel.app/is_bookmarked",
         {
           id,
           media_type,
@@ -108,7 +108,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   ): Promise<void> {
     try {
       await axiosJWT.post(
-        "http://localhost:8081/bookmark_item",
+        "https://entertainment-app-wheat.vercel.app/bookmark_item",
         {
           id,
           movies,
@@ -125,7 +125,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   async function removeBookmark(id: number, media_type: string): Promise<void> {
     try {
       await axiosJWT.post(
-        "http://localhost:8081/remove_bookmarked_item",
+        "https://entertainment-app-wheat.vercel.app/remove_bookmarked_item",
         {
           id,
           media_type,

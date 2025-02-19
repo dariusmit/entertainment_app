@@ -1,7 +1,7 @@
 import axios from "axios";
 
 export const axiosJWT = axios.create({
-  baseURL: "http://localhost:8081",
+  baseURL: "https://entertainment-app-wheat.vercel.app/",
   withCredentials: true,
 });
 

@@ -15,7 +15,7 @@ export const PATHS: pathsType = {
   SearchMovies: `${BASE_URL}/search/movie?${API_KEY}&${LANG}`,
   SearchSeries: `${BASE_URL}/search/tv?${API_KEY}&${LANG}`,
   SearchAll: `${BASE_URL}/search/multi?${API_KEY}&${LANG}`,
-  SearchBookmarks: `http://localhost:8081/search_bookmarks`,
-  RetreiveBookmarkedMovies: `http://localhost:8081/retreive_bookmarked_movies`,
-  RetreiveBookmarkedSeries: `http://localhost:8081/retreive_bookmarked_series`,
+  SearchBookmarks: `https://entertainment-app-wheat.vercel.app/search_bookmarks`,
+  RetreiveBookmarkedMovies: `https://entertainment-app-wheat.vercel.app/retreive_bookmarked_movies`,
+  RetreiveBookmarkedSeries: `https://entertainment-app-wheat.vercel.app/retreive_bookmarked_series`,
 };

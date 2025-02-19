@@ -45,7 +45,7 @@ function LoginForm() {
 
     try {
       const res = await axios.post(
-        "http://localhost:8081/login",
+        "https://entertainment-app-wheat.vercel.app/login",
         { email, password },
         { withCredentials: true }
       );

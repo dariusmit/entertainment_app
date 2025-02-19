@@ -39,7 +39,7 @@ export const useAxiosInterceptor = (
         if (decodedToken.exp * 1000 < currentTime) {
           try {
             const res = await axios.post<{ accessToken: string }>(
-              "http://localhost:8081/refreshtoken",
+              "https://entertainment-app-wheat.vercel.app/refreshtoken",
               {},
               { withCredentials: true }
             );
