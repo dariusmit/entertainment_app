@@ -59,7 +59,7 @@ function Header() {
   const logout = async () => {
     try {
       await axiosJWT.post(
-        "http://localhost:8081/logout",
+        "https://entertainment-app-wheat.vercel.app/logout",
         {},
         config(accessToken)
       );
