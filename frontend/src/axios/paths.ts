@@ -1,6 +1,6 @@
 import pathsType from "../types/pathsType";
 
-export const API_KEY: string = `api_key=${import.meta.env.API_KEY}`;
+export const API_KEY: string = `api_key=${import.meta.env.VITE_API_KEY}`;
 export const BASE_URL: string = "https://api.themoviedb.org/3";
 export const LANG: string = "language=en-US";
 export const PATHS: pathsType = {
