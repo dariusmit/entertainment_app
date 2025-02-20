@@ -16,6 +16,9 @@ app.use(cookieParser());
 const allowedOrigins = [
   "https://entertainment-app-frontend-gamma.vercel.app",
   "https://entertainment-app-frontend-cm8zqf8q9-darius-molotokas-projects.vercel.app",
+  "https://entertainment-app-frontend-2h5z3gudi-darius-molotokas-projects.vercel.app",
+  "https://entertainment-app-frontend-git-master-darius-molotokas-projects.vercel.app",
+  "https://entertainment-app-frontend-darius-molotokas-projects.vercel.app",
 ];
 
 const corsOptions: cors.CorsOptions = {
