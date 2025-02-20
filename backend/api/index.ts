@@ -13,12 +13,23 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(
-  cors({
-    origin: "https://entertainment-app-frontend-gamma.vercel.app/",
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  "https://entertainment-app-frontend-gamma.vercel.app",
+  "https://entertainment-app-frontend-cm8zqf8q9-darius-molotokas-projects.vercel.app",
+];
+
+const corsOptions: cors.CorsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true, // Allow cookies/auth
+};
+
+app.use(cors(corsOptions));
 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
