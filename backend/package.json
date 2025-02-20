@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "nodemon api/index.ts"
   },
   "author": "",
   "license": "ISC",
@@ -19,6 +19,12 @@
     "nodemon": "^3.1.9"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/cookie-parser": "^1.4.8",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/jsonwebtoken": "^9.0.8",
+    "@types/mysql": "^2.15.26",
     "@types/node": "^22.13.4"
   }
 }

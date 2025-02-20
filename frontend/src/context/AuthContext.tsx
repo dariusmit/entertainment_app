@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const refreshToken = async () => {
     try {
       const response = await axios.post(
-        "http://localhost:8081/refreshtoken",
+        "https://entertainment-app-frontend-gamma.vercel.app/refreshtoken",
         {},
         { withCredentials: true }
       );

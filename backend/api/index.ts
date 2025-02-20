@@ -46,6 +46,10 @@ type User = {
   email: string;
 };
 
+interface AuthenticatedRequest extends Request {
+  user: User;
+}
+
 function generateAccessToken(user: User): string {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET as string, {
     expiresIn: "15m",
@@ -106,7 +110,7 @@ app.post("/login", (req: Request, res: Response) => {
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: "Lax",
+      sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
@@ -137,7 +141,11 @@ app.post("/logout", authenticateToken, (req: Request, res: Response) => {
   res.json({ message: "Logged out" });
 });
 
-function alreadyBookmarked(id, content_id, content_type) {
+function alreadyBookmarked(
+  id: number,
+  content_id: number,
+  content_type: string
+) {
   return new Promise((resolve, reject) => {
     const sql = `SELECT COUNT(*) AS count FROM ${
       content_type === `movie` ? `b_user_movies` : `b_user_series`
@@ -394,7 +402,7 @@ function authenticateToken(req: Request, res: Response, next: NextFunction) {
     process.env.ACCESS_TOKEN_SECRET as string,
     (err, user: any) => {
       if (err) return res.status(403).json({ error: "Token no longer valid" });
-      req.user = { id: user.id, email: user.email };
+      req.user = { id: user.id, email: user.email } as AuthenticatedRequest;
       next();
     }
   );

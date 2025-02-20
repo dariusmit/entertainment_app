@@ -207,8 +207,6 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
       container!.offsetWidth >= 1266 && container!.offsetWidth < 1671
         ? container!.offsetWidth + 30.24
         : container!.offsetWidth + 40.44;
-    console.log(ScrollAmount);
-    console.log(container!.offsetWidth);
 
     setScrolling(true);
     container!.scrollBy({
@@ -232,8 +230,6 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
       container!.offsetWidth >= 1266 && container!.offsetWidth < 1671
         ? container!.offsetWidth + 30.24
         : container!.offsetWidth + 40.44;
-    console.log(ScrollAmount);
-    console.log(container!.offsetWidth);
 
     setScrolling(true);
     container!.scrollBy({
