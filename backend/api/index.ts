@@ -154,6 +154,7 @@ app.post("/logout", authenticateToken, (req: Request, res: Response) => {
     ...(process.env.MODE !== "dev" && {
       domain: ".entertainment-app-wheat.vercel.app",
     }), // Only set domain in production to avoid localhost cookie issues
+    expires: new Date(0), // Explicitly set an expired date
   });
   res.status(200).json({ message: "Logged out" });
 });

@@ -116,8 +116,16 @@ app.post("/refreshtoken", (req, res) => {
     });
 });
 app.post("/logout", authenticateToken, (req, res) => {
-    res.clearCookie("refreshToken");
-    res.json({ message: "Logged out" });
+    res.clearCookie("refreshToken", {
+        httpOnly: true,
+        secure: process.env.MODE === "dev" ? false : true,
+        sameSite: process.env.MODE === "dev" ? "lax" : "none",
+        path: "/",
+        ...(process.env.MODE !== "dev" && {
+            domain: ".entertainment-app-wheat.vercel.app",
+        }), // Only set domain in production to avoid localhost cookie issues
+    });
+    res.status(200).json({ message: "Logged out" });
 });
 function alreadyBookmarked(id, content_id, content_type) {
     return new Promise((resolve, reject) => {
