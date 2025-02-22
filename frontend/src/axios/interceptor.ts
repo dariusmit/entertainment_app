@@ -22,7 +22,11 @@ export const useAxiosInterceptor = (
     const interceptor = axiosJWT.interceptors.request.use(
       async (config) => {
         // Skip the interceptor for the refresh token endpoint
-        if (config.url?.includes("/refreshtoken")) {
+        if (
+          config.url?.includes("/refreshtoken") ||
+          config.url?.includes("/login") ||
+          config.url?.includes("/register")
+        ) {
           return config;
         }
 
@@ -39,7 +43,7 @@ export const useAxiosInterceptor = (
         if (decodedToken.exp * 1000 < currentTime) {
           try {
             const res = await axios.post<{ accessToken: string }>(
-              "https://entertainment-app-wheat.vercel.app/refreshtoken",
+              "http://localhost:8081/refreshtoken",
               {},
               { withCredentials: true }
             );

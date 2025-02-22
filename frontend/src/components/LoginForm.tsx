@@ -15,13 +15,18 @@ function LoginForm() {
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const navigate = useNavigate();
-  const { setUser } = useContext(AuthContext);
 
-  const { setAccessToken } = useContext(AuthContext);
+  const { setAccessToken, setUser, user, isLoading } = useContext(AuthContext);
 
   useEffect(() => {
     setInputError(emptyErrorObject);
   }, [location.pathname]);
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      navigate("/");
+    }
+  }, [user, isLoading, navigate]);
 
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
@@ -45,7 +50,7 @@ function LoginForm() {
 
     try {
       const res = await axios.post(
-        "https://entertainment-app-wheat.vercel.app/login",
+        "http://localhost:8081/login",
         { email, password },
         { withCredentials: true }
       );

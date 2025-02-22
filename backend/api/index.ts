@@ -12,6 +12,8 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+//Prevents cors blocking preflight requests
+app.options("*", cors());
 
 const allowedOrigins = [
   "https://entertainment-app-frontend-gamma.vercel.app",

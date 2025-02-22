@@ -2,11 +2,12 @@ import axios from "axios";
 import { Context } from "../context/StoreContext";
 import { useContext, useEffect, useRef } from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import { useLocation } from "react-router-dom";
 import formValidation from "../validation/formValidation";
 import toastSettings from "../helpers/toastSettings";
+import { AuthContext } from "../context/AuthContext";
 
 function RegistrationForm() {
   const { inputError, setInputError, emptyErrorObject } = useContext(Context);
@@ -15,7 +16,8 @@ function RegistrationForm() {
   const [repeatedPassword, setRepeatedPassword] = useState<string>("");
   const formValidRef = useRef<boolean>(false);
   const location = useLocation();
-
+  const navigate = useNavigate();
+  const { user, isLoading } = useContext(AuthContext);
   const [isSubmitClicked, setIsSubmitClicked] = useState<boolean>(false);
   const [isPassVisible, setPassVisibility] = useState<boolean>(false);
 
@@ -38,6 +40,12 @@ function RegistrationForm() {
     setInputError(emptyErrorObject);
   }, [location.pathname]);
 
+  useEffect(() => {
+    if (!isLoading && user) {
+      navigate("/");
+    }
+  }, [user, isLoading, navigate]);
+
   async function handleSubmit(
     e: React.FormEvent<HTMLFormElement>
   ): Promise<void> {
@@ -47,7 +55,7 @@ function RegistrationForm() {
 
     if (formValidRef.current === true) {
       axios
-        .post("https://entertainment-app-wheat.vercel.app/register", {
+        .post("http://localhost:8081/register", {
           email,
           password,
         })
