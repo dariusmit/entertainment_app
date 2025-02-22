@@ -65,11 +65,13 @@ function Header() {
             : `https://entertainment-app-wheat.vercel.app`
         }/logout`,
         {},
-        config(accessToken)
+        { withCredentials: true, ...config(accessToken) }
       );
       setUser(null);
-      navigate("/login");
       setAccessToken("");
+
+      // Small delay to ensure state updates before redirecting
+      setTimeout(() => navigate("/login"), 100);
     } catch (error) {
       console.error("Logout failed:", error);
     }
