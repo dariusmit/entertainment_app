@@ -10,6 +10,11 @@ import { isMovieType } from "../helpers/isMovieType";
 import axios from "axios";
 import { API_KEY, LANG } from "../axios/paths";
 import { motion } from "framer-motion";
+import { Context } from "../context/StoreContext";
+import {
+  fetchBookmarkedItems,
+  handleBookmarkClick,
+} from "../components/bookmarks_functions/bookmarksFunctions";
 
 interface genresType {
   id: number;
@@ -23,9 +28,11 @@ interface contentVideosType {
 
 function IndividualItemPage() {
   const posterRootURL = "https://image.tmdb.org/t/p/original";
-  const { user, isLoading } = useContext(AuthContext);
+  const { user, isLoading, accessToken } = useContext(AuthContext);
   const location = useLocation();
   const navigate = useNavigate();
+  const { bookmarkedItems, setBookmarkedItems, debouncedSearchValue } =
+    useContext(Context);
 
   const [content, setContent] = useState<movieType | seriesType>(
     {} as movieType | seriesType
@@ -84,6 +91,15 @@ function IndividualItemPage() {
     fetchContent();
   }, []);
 
+  useEffect(() => {
+    if (isLoading) return;
+    if (!accessToken) {
+      console.log("Access token not available yet");
+      return;
+    }
+    fetchBookmarkedItems(isLoading, accessToken, setBookmarkedItems);
+  }, [isLoading, accessToken, debouncedSearchValue]);
+
   return (
     <>
       {user && (
@@ -108,9 +124,34 @@ function IndividualItemPage() {
                 }
               />
               <div className="desktop:absolute desktop:bottom-[0.5vw] desktop:left-[2.8vw] desktop:z-40">
-                <h1 className="text-2xl font-medium mb-2 desktop:text-5xl desktop:mb-8">
-                  {isMovieType(content) ? content.title : content.name}
-                </h1>
+                <div className="flex w-full justify-between desktop:justify-start">
+                  <h1 className="text-2xl font-medium mb-4 desktop:text-5xl desktop:mb-8 desktop:mr-8">
+                    {isMovieType(content) ? content.title : content.name}
+                  </h1>
+                  <motion.div
+                    whileTap={{ scale: 0.9 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                    onClick={() =>
+                      handleBookmarkClick(
+                        content,
+                        accessToken,
+                        setBookmarkedItems,
+                        [content]
+                      )
+                    }
+                    className=" flex justify-center items-center relative m-1 w-[8.53vw] h-[8.53vw] tablet:w-[4.17vw] tablet:h-[4.17vw] tablet:m-3 desktop:w-[2.22vw] desktop:h-[2.22vw] [&>*]:desktop:hover:opacity-100 [&>div]:desktop:hover:border-2 [&>div]:desktop:hover:border-white desktop:cursor-pointer"
+                  >
+                    <img
+                      className="relative z-10"
+                      src={
+                        bookmarkedItems.includes(content.id)
+                          ? "../../assets/icon-bookmark-full.svg"
+                          : "../../assets/icon-bookmark-empty.svg"
+                      }
+                    />
+                    <div className="bg-black absolute top-0 right-0 opacity-50 rounded-full w-[8.53vw] h-[8.53vw] tablet:w-[4.17vw] tablet:h-[4.17vw] desktop:w-[2.22vw] desktop:h-[2.22vw]"></div>
+                  </motion.div>
+                </div>
                 <div className="flex text-xs font-extralight text-gray-200 desktop:text-xl">
                   <p className="mr-4 desktop:mr-8">
                     {isMovieType(content)

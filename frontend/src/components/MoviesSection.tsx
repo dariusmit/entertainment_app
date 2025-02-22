@@ -5,15 +5,15 @@ import seriesType from "../types/seriesType";
 import { isMovieType } from "../helpers/isMovieType";
 import { posterRootURL } from "../helpers/posterRootURL";
 import {
-  axiosJWT,
-  config,
-  getContentGetReq,
-  getContentPostReq,
-} from "../axios/axios";
+  fetchBookmarkedItems,
+  handleBookmarkClick,
+} from "./bookmarks_functions/bookmarksFunctions";
+import { config, getContentGetReq, getContentPostReq } from "../axios/axios";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import MoviesSectionSkeleton from "./MoviesSectionSkeleton";
 import { motion } from "framer-motion";
+import { scrollLeft, scrollRight } from "./scroll_functions/scrollFunctions";
 
 interface Props {
   title: string;
@@ -24,119 +24,21 @@ interface Props {
 
 function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
   const navigate = useNavigate();
-
   const {
     debouncedSearchValue,
     searchValue,
     searchCompleted,
     setIsSearchVisible,
+    bookmarkedItems,
+    setBookmarkedItems,
   } = useContext(Context);
-
   const { isLoading, accessToken } = useContext(AuthContext);
-
-  const [isLoadingAI, changeLoadingStatusAI] = useState<boolean>(true);
+  const [isLoadingSkeleton, changeLoadingSkeletonStatus] =
+    useState<boolean>(true);
   const [movies, updateMovies] = useState<(movieType | seriesType)[]>([]);
-  const [bookmarkedItems, setBookmarkedItems] = useState<number[]>([]);
-
-  async function fetchBookmarkedItems() {
-    if (isLoading || !accessToken) {
-      console.error("Access token not yet available!");
-      return;
-    }
-    try {
-      const res = await axiosJWT.post(
-        "https://entertainment-app-wheat.vercel.app/get_bookmarked_items",
-        {},
-        config(accessToken)
-      );
-
-      if (res.data) {
-        const { movies, series } = res.data;
-        setBookmarkedItems((prev) => [
-          ...prev,
-          ...movies.map((m: any) => m.id),
-          ...series.map((s: any) => s.id),
-        ]);
-      }
-    } catch (error) {
-      console.error("Error fetching bookmarked items:", error);
-    }
-  }
-
-  async function isBookmarked(
-    id: number,
-    media_type: string
-  ): Promise<boolean> {
-    try {
-      const res = await axiosJWT.post(
-        "https://entertainment-app-wheat.vercel.app/is_bookmarked",
-        {
-          id,
-          media_type,
-        },
-        config(accessToken)
-      );
-
-      return typeof res.data.isBookmarked === "boolean"
-        ? res.data.isBookmarked
-        : false;
-    } catch (error) {
-      console.error("Error checking bookmark status:", error);
-      return false;
-    }
-  }
-
-  async function handleBookmarkClick(
-    movie: movieType | seriesType
-  ): Promise<void> {
-    const mediaType = isMovieType(movie) ? "movie" : "series";
-    const isBookmarkedStatus = await isBookmarked(movie.id, mediaType);
-
-    if (isBookmarkedStatus) {
-      await removeBookmark(movie.id, mediaType);
-      if (location.pathname === "/bookmarks") {
-        location.reload();
-      }
-    } else {
-      await bookmarkContent(movie.id, mediaType);
-    }
-  }
-
-  async function bookmarkContent(
-    id: number,
-    media_type: string
-  ): Promise<void> {
-    try {
-      await axiosJWT.post(
-        "https://entertainment-app-wheat.vercel.app/bookmark_item",
-        {
-          id,
-          movies,
-          media_type,
-        },
-        config(accessToken)
-      );
-      setBookmarkedItems((prev) => [...prev, id]);
-    } catch (err) {
-      console.log("Error bookmarking:", err);
-    }
-  }
-
-  async function removeBookmark(id: number, media_type: string): Promise<void> {
-    try {
-      await axiosJWT.post(
-        "https://entertainment-app-wheat.vercel.app/remove_bookmarked_item",
-        {
-          id,
-          media_type,
-        },
-        config(accessToken)
-      );
-      setBookmarkedItems((prev) => prev.filter((item) => item !== id));
-    } catch (err) {
-      console.log("Error removing bookmark:", err);
-    }
-  }
+  const scrollableRef = useRef<HTMLDivElement | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+  const [scrolling, setScrolling] = useState<boolean>(false);
 
   function viewContent(movie: movieType | seriesType): void {
     const formattedTitle = isMovieType(movie)
@@ -172,7 +74,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
       console.log("Access token not available yet");
       return;
     }
-    fetchBookmarkedItems();
+    fetchBookmarkedItems(isLoading, accessToken, setBookmarkedItems);
     async function updateContentState() {
       try {
         let data: (movieType | seriesType)[];
@@ -184,66 +86,16 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
 
         data = data.filter((item) => item.media_type !== "person");
         updateMovies(data);
-        changeLoadingStatusAI(false);
+        changeLoadingSkeletonStatus(false);
       } catch (err: any) {
         console.error("Error fetching movies:", err.message);
       } finally {
-        changeLoadingStatusAI(false);
+        changeLoadingSkeletonStatus(false);
       }
     }
 
     updateContentState();
   }, [isLoading, accessToken, debouncedSearchValue]);
-
-  const scrollableRef = useRef<HTMLDivElement | null>(null);
-  const timeoutRef = useRef<number | null>(null);
-  const [scrolling, setScrolling] = useState<boolean>(false);
-
-  function scrollLeft(): void {
-    const container = scrollableRef.current;
-    if (scrolling) return;
-
-    const ScrollAmount =
-      container!.offsetWidth >= 1266 && container!.offsetWidth < 1671
-        ? container!.offsetWidth + 30.24
-        : container!.offsetWidth + 40.44;
-
-    setScrolling(true);
-    container!.scrollBy({
-      left: -ScrollAmount,
-      behavior: "smooth",
-    });
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = setTimeout(() => {
-      setScrolling(false);
-    }, 1000);
-  }
-
-  function scrollRight(): void {
-    const container = scrollableRef.current;
-    if (scrolling) return;
-
-    const ScrollAmount =
-      container!.offsetWidth >= 1266 && container!.offsetWidth < 1671
-        ? container!.offsetWidth + 30.24
-        : container!.offsetWidth + 40.44;
-
-    setScrolling(true);
-    container!.scrollBy({
-      left: ScrollAmount,
-      behavior: "smooth",
-    });
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
-    timeoutRef.current = setTimeout(() => {
-      setScrolling(false);
-    }, 1000);
-  }
 
   return (
     <>
@@ -253,7 +105,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
           : movies.length !== 0 && title}
       </h1>
       <div className="desktop:z-30 desktop:relative">
-        {!isLoadingAI ? (
+        {!isLoadingSkeleton ? (
           <motion.button
             whileTap={{ scale: 0.9 }}
             whileHover={{ scale: 1.15, opacity: 1 }}
@@ -263,10 +115,12 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
                 ? "hidden desktop:block absolute z-40 top-[6.6vw] left-[10.75vw] w-[1.56vw] h-auto opacity-50"
                 : "hidden"
             }
-            onClick={scrollLeft}
+            onClick={() =>
+              scrollLeft(scrollableRef, scrolling, setScrolling, timeoutRef)
+            }
             disabled={scrolling}
           >
-            <img onClick={scrollLeft} src="../../assets/arrow-left.svg" />
+            <img src="../../assets/arrow-left.svg" />
           </motion.button>
         ) : null}
         <div
@@ -277,7 +131,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
               : "grid grid-cols-2 gap-3 m-4 tablet:mx-[3.25vw] tablet:grid-cols-3 tablet:gap-9 desktop:ml-[10vw] desktop:gap-[2.1vw] desktop:mr-[2.1vw] desktop:grid-cols-4"
           }
         >
-          {isLoadingAI ? (
+          {isLoadingSkeleton ? (
             <MoviesSectionSkeleton horizontalSection={horizontalSection} />
           ) : (
             movies &&
@@ -379,7 +233,14 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
                   <motion.div
                     whileTap={{ scale: 0.9 }}
                     transition={{ type: "spring", stiffness: 300 }}
-                    onClick={() => handleBookmarkClick(movie)}
+                    onClick={() =>
+                      handleBookmarkClick(
+                        movie,
+                        accessToken,
+                        setBookmarkedItems,
+                        movies
+                      )
+                    }
                     className="absolute flex justify-center items-center top-0 right-0 m-1 w-[8.53vw] h-[8.53vw] tablet:w-[4.17vw] tablet:h-[4.17vw] tablet:m-3 desktop:w-[2.22vw] desktop:h-[2.22vw] [&>*]:desktop:hover:opacity-100 [&>div]:desktop:hover:border-2 [&>div]:desktop:hover:border-white desktop:cursor-pointer"
                   >
                     <img
@@ -397,7 +258,7 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
             })
           )}
         </div>
-        {!isLoadingAI ? (
+        {!isLoadingSkeleton ? (
           <motion.button
             whileTap={{ scale: 0.9 }}
             whileHover={{ scale: 1.15, opacity: 1 }}
@@ -407,7 +268,9 @@ function MoviesSection({ title, path, reqType, horizontalSection }: Props) {
                 ? "hidden desktop:block absolute z-40 top-[6.6vw] right-[2.7vw] w-[1.56vw] h-auto opacity-50"
                 : "hidden"
             }
-            onClick={scrollRight}
+            onClick={() =>
+              scrollRight(scrollableRef, scrolling, setScrolling, timeoutRef)
+            }
             disabled={scrolling}
           >
             <img src="../../assets/arrow-right.svg" />

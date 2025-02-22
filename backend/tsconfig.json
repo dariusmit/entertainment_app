@@ -1,0 +1,12 @@
+{
+    "compilerOptions": {
+      "target": "es2020",
+      "module": "NodeNext",
+      "moduleResolution": "nodenext",
+      "outDir": "dist",
+      "rootDir": "api",
+      "strict": true,
+      "esModuleInterop": true
+    }
+  }
+  

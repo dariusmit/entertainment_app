@@ -15,8 +15,6 @@ app.use(cookieParser());
 
 const allowedOrigins = [
   "https://entertainment-app-frontend-gamma.vercel.app",
-  "https://entertainment-app-frontend-cm8zqf8q9-darius-molotokas-projects.vercel.app",
-  "https://entertainment-app-frontend-2h5z3gudi-darius-molotokas-projects.vercel.app",
   "https://entertainment-app-frontend-git-master-darius-molotokas-projects.vercel.app",
   "https://entertainment-app-frontend-darius-molotokas-projects.vercel.app",
 ];
@@ -29,7 +27,7 @@ const corsOptions: cors.CorsOptions = {
       callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: true, // Allow cookies/auth
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -47,7 +45,7 @@ type User = {
 };
 
 interface AuthenticatedRequest extends Request {
-  user: User;
+  user: { id: string; email: string };
 }
 
 function generateAccessToken(user: User): string {
@@ -60,13 +58,13 @@ function generateRefreshToken(user: User): string {
   return jwt.sign(user, process.env.REFRESH_TOKEN_SECRET as string);
 }
 
-app.post("/register", async (req: Request, res: Response) => {
+app.post("/register", (req: Request, res: Response) => {
   const sqlSelect = `SELECT COUNT(*) AS count FROM users WHERE email = ?`;
   const sqlInsert = `INSERT INTO users (email, password) VALUES (?, ?)`;
   const { email, password } = req.body;
 
-  try {
-    const encryptedPassword = await bcrypt.hash(password, 10);
+  bcrypt.hash(password, 10, (hashErr, encryptedPassword) => {
+    if (hashErr) return res.json({ error: hashErr.message });
 
     db.query(sqlSelect, [email], (err, results: any) => {
       if (err) return res.json({ error: err.message });
@@ -82,9 +80,7 @@ app.post("/register", async (req: Request, res: Response) => {
         });
       });
     });
-  } catch (err) {
-    return res.json({ error: (err as Error).message });
-  }
+  });
 });
 
 app.post("/login", (req: Request, res: Response) => {
@@ -118,22 +114,32 @@ app.post("/login", (req: Request, res: Response) => {
   });
 });
 
-app.post("/refreshtoken", async (req: Request, res: Response) => {
+app.post("/refreshtoken", (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
-  if (!refreshToken) return res.sendStatus(401);
+  if (!refreshToken) {
+    res.sendStatus(401);
+    return;
+  }
 
-  jwt.verify(
-    refreshToken,
-    process.env.REFRESH_TOKEN_SECRET,
-    async (err, decodedUser) => {
-      if (err) return res.sendStatus(403);
-      const NewAccessToken = generateAccessToken({
-        id: decodedUser.id,
-        email: decodedUser.email,
-      });
-      return res.json({ accessToken: NewAccessToken });
+  const refreshSecret = process.env.REFRESH_TOKEN_SECRET;
+  if (!refreshSecret) {
+    res.status(500).json({ error: "Missing REFRESH_TOKEN_SECRET" });
+    return;
+  }
+
+  jwt.verify(refreshToken, refreshSecret, (err: any, decodedUser: any) => {
+    if (err) {
+      res.sendStatus(403);
+      return;
     }
-  );
+
+    const NewAccessToken = generateAccessToken({
+      id: decodedUser.id,
+      email: decodedUser.email,
+    });
+    res.json({ accessToken: NewAccessToken });
+    return;
+  });
 });
 
 app.post("/logout", authenticateToken, (req: Request, res: Response) => {
@@ -142,7 +148,7 @@ app.post("/logout", authenticateToken, (req: Request, res: Response) => {
 });
 
 function alreadyBookmarked(
-  id: number,
+  id: string,
   content_id: number,
   content_type: string
 ) {
@@ -173,7 +179,7 @@ app.post(
   "/is_bookmarked",
   authenticateToken,
   async (req: Request, res: Response) => {
-    const userID = req.user.id;
+    const userID = (req as AuthenticatedRequest).user.id;
     const { id: content_id, media_type: content_type } = req.body;
 
     try {
@@ -183,10 +189,12 @@ app.post(
         content_type
       );
 
-      return res.json({ isBookmarked: recordExists });
-    } catch (error) {
+      res.json({ isBookmarked: recordExists });
+      return;
+    } catch (error: any) {
       console.error("Error in /is_bookmarked route:", error.message);
-      return res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: "Database error" });
+      return;
     }
   }
 );
@@ -195,14 +203,16 @@ app.post(
   "/bookmark_item",
   authenticateToken,
   async (req: Request, res: Response) => {
-    const userID = req.user.id;
+    const userID = (req as AuthenticatedRequest).user.id;
     const {
       id: movie_id,
       movies: movies_list,
       media_type: media_type,
     } = req.body;
 
-    const specific_movie = movies_list.find((movie) => movie.id === movie_id);
+    const specific_movie = movies_list.find(
+      (movie: any) => movie.id === movie_id
+    );
 
     try {
       const sql = `INSERT INTO ${
@@ -218,6 +228,7 @@ app.post(
         movie_id,
         media_type
       );
+
       if (!isBookmarked) {
         db.query(
           sql,
@@ -234,19 +245,23 @@ app.post(
           ],
           (err) => {
             if (err) {
-              return res.status(500).json({ error: err.message });
+              res.status(500).json({ error: err.message });
+              return;
             }
-            return res.json({
+            res.json({
               message: `Content with id ${movie_id} was bookmarked`,
             });
+            return;
           }
         );
       } else {
-        return res.json({ message: "Already bookmarked" });
+        res.json({ message: "Already bookmarked" });
+        return;
       }
     } catch (error) {
       console.error("Error in /bookmark_item:", error);
-      return res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: "Database error" });
+      return;
     }
   }
 );
@@ -254,8 +269,8 @@ app.post(
 app.post(
   "/remove_bookmarked_item",
   authenticateToken,
-  async (req: Response, res: Response) => {
-    const userID = req.user.id;
+  async (req: Request, res: Response) => {
+    const userID = (req as AuthenticatedRequest).user.id;
     const { id: movie_id, media_type: media_type } = req.body;
     try {
       const isBookmarked = await alreadyBookmarked(
@@ -264,9 +279,10 @@ app.post(
         media_type
       );
       if (!isBookmarked) {
-        return res.json({
+        res.json({
           message: "Aleary not bookmarked, nothing to delete",
         });
+        return;
       }
 
       const sql_delete = `DELETE FROM ${
@@ -274,15 +290,20 @@ app.post(
       } WHERE user_id = ? AND id = ?`;
 
       db.query(sql_delete, [userID, movie_id], (err) => {
-        if (err) return res.json({ error: err.message });
+        if (err) {
+          res.json({ error: err.message });
+          return;
+        }
 
-        return res.json({
+        res.json({
           message: `Content with id ${movie_id} was removed from bookmarks`,
         });
+        return;
       });
     } catch (error) {
       console.error("Error in /remove_bookmarked_item:", error);
-      return res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: "Database error" });
+      return;
     }
   }
 );
@@ -291,7 +312,7 @@ app.post(
   "/retreive_bookmarked_movies",
   authenticateToken,
   (req: Request, res: Response) => {
-    const userID = req.user.id;
+    const userID = (req as AuthenticatedRequest).user.id;
     const sql = `SELECT * FROM b_user_movies WHERE user_id = ?`;
 
     db.query(sql, [userID], (err, results) => {
@@ -306,7 +327,7 @@ app.post(
   "/retreive_bookmarked_series",
   authenticateToken,
   (req: Request, res: Response) => {
-    const userID = req.user.id;
+    const userID = (req as AuthenticatedRequest).user.id;
     const sql = `SELECT * FROM b_user_series WHERE user_id = ?`;
 
     db.query(sql, [userID], (err, results) => {
@@ -321,8 +342,11 @@ app.post(
   "/get_bookmarked_items",
   authenticateToken,
   async (req: Request, res: Response) => {
-    const userID = req.user.id;
-    if (!userID) return res.json({ error: "User ID not found" });
+    const userID = (req as AuthenticatedRequest).user.id;
+    if (!userID) {
+      res.json({ error: "User ID not found" });
+      return;
+    }
 
     try {
       const sql_movies = `
@@ -349,10 +373,12 @@ app.post(
         });
       });
 
-      return res.json({ movies, series });
+      res.json({ movies, series });
+      return;
     } catch (error) {
       console.error("Error in /get_bookmarked_items:", error);
-      return res.status(500).json({ error: "Database error" });
+      res.status(500).json({ error: "Database error" });
+      return;
     }
   }
 );
@@ -360,12 +386,13 @@ app.post(
 app.post(
   "/search_bookmarks",
   authenticateToken,
-  async (req: Request, res: Response) => {
-    const userID = req.user.id;
+  (req: Request, res: Response) => {
+    const userID = (req as AuthenticatedRequest).user.id;
     const query = `%${req.query.search}%`; //Wildcard required for LIKE operator to work
 
     if (!query) {
-      return res.status(400).json({ error: "Missing search query" });
+      res.status(400).json({ error: "Missing search query" });
+      return;
     }
 
     const sql = `SELECT id, title, NULL AS name, poster_path, backdrop_path, release_date, NULL AS first_air_date, vote_average
@@ -380,7 +407,7 @@ app.post(
       if (err) return res.status(500).json({ Error: err.message });
 
       //Remove null values
-      const cleanResults = results.map((item) => {
+      const cleanResults = results.map((item: any) => {
         return Object.fromEntries(
           Object.entries(item).filter(([key, value]) => value !== null)
         );
@@ -391,21 +418,29 @@ app.post(
   }
 );
 
-function authenticateToken(req: Request, res: Response, next: NextFunction) {
+function authenticateToken(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): void {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
-  if (!token)
-    return res.status(401).json({ error: "Not authenticated request" });
+  if (!token) {
+    res.status(401).json({ error: "Not authenticated request" });
+    return;
+  }
 
-  jwt.verify(
-    token,
-    process.env.ACCESS_TOKEN_SECRET as string,
-    (err, user: any) => {
-      if (err) return res.status(403).json({ error: "Token no longer valid" });
-      req.user = { id: user.id, email: user.email } as AuthenticatedRequest;
-      next();
-    }
-  );
+  const secret = process.env.ACCESS_TOKEN_SECRET;
+  if (!secret) {
+    res.status(500).json({ error: "Missing ACCESS_TOKEN_SECRET" });
+    return;
+  }
+
+  jwt.verify(token, secret, (err, user: any) => {
+    if (err) return res.status(403).json({ error: "Token no longer valid" });
+    (req as AuthenticatedRequest).user = { id: user.id, email: user.email };
+    next();
+  });
 }
 
 app.listen(8081, () => {

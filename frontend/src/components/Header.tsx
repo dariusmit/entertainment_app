@@ -109,7 +109,7 @@ function Header() {
             !userModal
               ? "hidden"
               : "block absolute z-50 mt-[14.93vw] p-6 top-0 right-0 w-auto h-auto bg-[#161D2F] rounded-bl-xl tablet:mt-[9vw] tablet:rounded-b-lg" +
-                " desktop:top-auto desktop:right-auto desktop:left-24 desktop:bottom-0 desktop:rounded-r-lg desktop:rounded-bl-none"
+                " desktop:top-auto desktop:right-auto desktop:left-16 desktopBig:left-24 desktop:bottom-0 desktop:rounded-r-lg desktop:rounded-bl-none"
           }
         >
           <ul>

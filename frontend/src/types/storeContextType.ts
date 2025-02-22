@@ -19,6 +19,8 @@ interface storeContextType {
   emptyErrorObject: inputErrorsType;
   isSearchVisible: boolean;
   setIsSearchVisible: React.Dispatch<React.SetStateAction<boolean>>;
+  bookmarkedItems: number[];
+  setBookmarkedItems: React.Dispatch<React.SetStateAction<number[]>>;
 }
 
 export default storeContextType;

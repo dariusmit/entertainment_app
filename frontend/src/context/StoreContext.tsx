@@ -18,6 +18,7 @@ export const StoreContextProvider = ({
   const [isLoadingAI, UpdateLoadingStatusAI] = useState<boolean | undefined>();
   const [userModal, setUserModal] = useState<boolean>(false);
   const [isSearchVisible, setIsSearchVisible] = useState<boolean>(true);
+  const [bookmarkedItems, setBookmarkedItems] = useState<number[]>([]);
   const [searchCompleted, setSearchCompletion] = useState<
     boolean | undefined
   >();
@@ -54,6 +55,8 @@ export const StoreContextProvider = ({
         emptyErrorObject,
         isSearchVisible,
         setIsSearchVisible,
+        bookmarkedItems,
+        setBookmarkedItems,
       }}
     >
       {children}
