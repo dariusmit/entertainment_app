@@ -12,14 +12,15 @@ const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-//Prevents cors blocking preflight requests
-app.options("*", cors());
 
-const allowedOrigins = [
-  "https://entertainment-app-frontend-gamma.vercel.app",
-  "https://entertainment-app-frontend-git-master-darius-molotokas-projects.vercel.app",
-  "https://entertainment-app-frontend-darius-molotokas-projects.vercel.app",
-];
+const allowedOrigins =
+  process.env.MODE === "dev"
+    ? ["http://localhost:5173"]
+    : [
+        "https://entertainment-app-frontend-gamma.vercel.app",
+        "https://entertainment-app-frontend-git-master-darius-molotokas-projects.vercel.app",
+        "https://entertainment-app-frontend-darius-molotokas-projects.vercel.app",
+      ];
 
 const corsOptions: cors.CorsOptions = {
   origin: (origin, callback) => {
@@ -37,7 +38,7 @@ app.use(cors(corsOptions));
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
-  password: process.env.DB_PASS,
+  password: process.env.MODE === "dev" ? "" : process.env.DB_PASS,
   database: process.env.DB_NAME,
 });
 
@@ -107,8 +108,8 @@ app.post("/login", (req: Request, res: Response) => {
 
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      secure: process.env.MODE === "dev" ? false : true,
+      sameSite: process.env.MODE === "dev" ? "lax" : "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 

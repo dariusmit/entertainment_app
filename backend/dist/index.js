@@ -9,11 +9,13 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
-const allowedOrigins = [
-    "https://entertainment-app-frontend-gamma.vercel.app",
-    "https://entertainment-app-frontend-git-master-darius-molotokas-projects.vercel.app",
-    "https://entertainment-app-frontend-darius-molotokas-projects.vercel.app",
-];
+const allowedOrigins = process.env.MODE === "dev"
+    ? ["http://localhost:5173"]
+    : [
+        "https://entertainment-app-frontend-gamma.vercel.app",
+        "https://entertainment-app-frontend-git-master-darius-molotokas-projects.vercel.app",
+        "https://entertainment-app-frontend-darius-molotokas-projects.vercel.app",
+    ];
 const corsOptions = {
     origin: (origin, callback) => {
         if (!origin || allowedOrigins.includes(origin)) {
@@ -29,7 +31,7 @@ app.use(cors(corsOptions));
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
-    password: process.env.DB_PASS,
+    password: process.env.MODE === "dev" ? "" : process.env.DB_PASS,
     database: process.env.DB_NAME,
 });
 function generateAccessToken(user) {
@@ -82,8 +84,8 @@ app.post("/login", (req, res) => {
         });
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            secure: true,
-            sameSite: "none",
+            secure: process.env.MODE === "dev" ? false : true,
+            sameSite: process.env.MODE === "dev" ? "lax" : "none",
             maxAge: 7 * 24 * 60 * 60 * 1000,
         });
         res.json({ message: "Login successful", accessToken });
@@ -134,11 +136,11 @@ function alreadyBookmarked(id, content_id, content_type) {
         });
     });
 }
-app.post("/is_bookmarked", authenticateToken, (req, res) => {
+app.post("/is_bookmarked", authenticateToken, async (req, res) => {
     const userID = req.user.id;
     const { id: content_id, media_type: content_type } = req.body;
     try {
-        const recordExists = alreadyBookmarked(userID, content_id, content_type);
+        const recordExists = await alreadyBookmarked(userID, content_id, content_type);
         res.json({ isBookmarked: recordExists });
         return;
     }
@@ -148,13 +150,13 @@ app.post("/is_bookmarked", authenticateToken, (req, res) => {
         return;
     }
 });
-app.post("/bookmark_item", authenticateToken, (req, res) => {
+app.post("/bookmark_item", authenticateToken, async (req, res) => {
     const userID = req.user.id;
     const { id: movie_id, movies: movies_list, media_type: media_type, } = req.body;
     const specific_movie = movies_list.find((movie) => movie.id === movie_id);
     try {
         const sql = `INSERT INTO ${media_type === `movie` ? `b_user_movies` : `b_user_series`} (user_id, id, ${media_type === `movie` ? `title` : `name`}, poster_path, backdrop_path, ${media_type === `movie` ? `release_date` : `first_air_date`}, vote_average) VALUES (?, ?, ?, ?, ?, ?, ?)`;
-        const isBookmarked = alreadyBookmarked(userID, movie_id, media_type);
+        const isBookmarked = await alreadyBookmarked(userID, movie_id, media_type);
         if (!isBookmarked) {
             db.query(sql, [
                 userID,
@@ -188,11 +190,11 @@ app.post("/bookmark_item", authenticateToken, (req, res) => {
         return;
     }
 });
-app.post("/remove_bookmarked_item", authenticateToken, (req, res) => {
+app.post("/remove_bookmarked_item", authenticateToken, async (req, res) => {
     const userID = req.user.id;
     const { id: movie_id, media_type: media_type } = req.body;
     try {
-        const isBookmarked = alreadyBookmarked(userID, movie_id, media_type);
+        const isBookmarked = await alreadyBookmarked(userID, movie_id, media_type);
         if (!isBookmarked) {
             res.json({
                 message: "Aleary not bookmarked, nothing to delete",

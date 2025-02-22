@@ -14,7 +14,11 @@ export const fetchBookmarkedItems = async (
   }
   try {
     const res = await axiosJWT.post(
-      "https://entertainment-app-wheat.vercel.app/get_bookmarked_items",
+      `${
+        import.meta.env.VITE_MODE === "dev"
+          ? `http://localhost:8081`
+          : `https://entertainment-app-wheat.vercel.app`
+      }/get_bookmarked_items`,
       {},
       config(accessToken)
     );
@@ -39,7 +43,11 @@ const isBookmarked = async (
 ): Promise<boolean> => {
   try {
     const res = await axiosJWT.post(
-      "https://entertainment-app-wheat.vercel.app/is_bookmarked",
+      `${
+        import.meta.env.VITE_MODE === "dev"
+          ? `http://localhost:8081`
+          : `https://entertainment-app-wheat.vercel.app`
+      }/is_bookmarked`,
       {
         id,
         media_type,
@@ -93,7 +101,11 @@ const bookmarkContent = async (
 ): Promise<void> => {
   try {
     await axiosJWT.post(
-      "https://entertainment-app-wheat.vercel.app/bookmark_item",
+      `${
+        import.meta.env.VITE_MODE === "dev"
+          ? `http://localhost:8081`
+          : `https://entertainment-app-wheat.vercel.app`
+      }/bookmark_item`,
       {
         id,
         movies,
@@ -115,7 +127,11 @@ const removeBookmark = async (
 ): Promise<void> => {
   try {
     await axiosJWT.post(
-      "https://entertainment-app-wheat.vercel.app/remove_bookmarked_item",
+      `${
+        import.meta.env.VITE_MODE === "dev"
+          ? `http://localhost:8081`
+          : `https://entertainment-app-wheat.vercel.app`
+      }/remove_bookmarked_item`,
       {
         id,
         media_type,

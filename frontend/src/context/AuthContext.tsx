@@ -41,7 +41,11 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const refreshToken = async () => {
     try {
       const response = await axios.post(
-        "https://entertainment-app-wheat.vercel.app/refreshtoken",
+        `${
+          import.meta.env.VITE_MODE === "dev"
+            ? `http://localhost:8081`
+            : `https://entertainment-app-wheat.vercel.app`
+        }/refreshtoken`,
         {},
         { withCredentials: true }
       );

@@ -50,7 +50,11 @@ function LoginForm() {
 
     try {
       const res = await axios.post(
-        "https://entertainment-app-wheat.vercel.app/login",
+        `${
+          import.meta.env.VITE_MODE === "dev"
+            ? `http://localhost:8081`
+            : `https://entertainment-app-wheat.vercel.app`
+        }/login`,
         { email, password },
         { withCredentials: true }
       );
