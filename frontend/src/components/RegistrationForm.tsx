@@ -55,7 +55,7 @@ function RegistrationForm() {
 
     if (formValidRef.current === true) {
       axios
-        .post("http://localhost:8081/register", {
+        .post("https://entertainment-app-wheat.vercel.app/register", {
           email,
           password,
         })
