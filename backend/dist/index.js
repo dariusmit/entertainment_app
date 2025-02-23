@@ -10,30 +10,28 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 const allowedOrigins = process.env.MODE === "dev"
-    ? ["http://localhost:5173"]
-    : [
-        "https://entertainment-app-frontend-gamma.vercel.app",
-        "https://entertainment-app-frontend-git-master-darius-molotokas-projects.vercel.app",
-        "https://entertainment-app-frontend-darius-molotokas-projects.vercel.app",
-    ];
-const corsOptions = {
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        }
-        else {
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
+    ? "http://localhost:5173"
+    : "https://entertainment-app-frontend-gamma.vercel.app";
+app.use(cors({
+    origin: allowedOrigins,
     credentials: true,
-};
-app.use(cors(corsOptions));
+}));
 const db = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.MODE === "dev" ? "" : process.env.DB_PASS,
     database: process.env.DB_NAME,
 });
+const tokenBlocklist = [];
+// Cleanup expired tokens every 5 minutes
+setInterval(() => {
+    const now = Date.now();
+    for (let i = tokenBlocklist.length - 1; i >= 0; i--) {
+        if (tokenBlocklist[i].expiresAt < now) {
+            tokenBlocklist.splice(i, 1);
+        }
+    }
+}, 5 * 60 * 1000); // 5 minute cleanup
 function generateAccessToken(user) {
     return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
         expiresIn: "15m",
@@ -97,6 +95,10 @@ app.post("/refreshtoken", (req, res) => {
         res.sendStatus(401);
         return;
     }
+    if (refreshToken && tokenBlocklist.some((t) => t.token === refreshToken)) {
+        res.status(403).json({ error: "This token is blocked" });
+        return;
+    }
     const refreshSecret = process.env.REFRESH_TOKEN_SECRET;
     if (!refreshSecret) {
         res.status(500).json({ error: "Missing REFRESH_TOKEN_SECRET" });
@@ -116,14 +118,26 @@ app.post("/refreshtoken", (req, res) => {
     });
 });
 app.post("/logout", authenticateToken, (req, res) => {
+    const refreshToken = req.cookies.refreshToken;
+    if (refreshToken) {
+        try {
+            const decoded = jwt.decode(refreshToken);
+            if (decoded?.exp) {
+                tokenBlocklist.push({
+                    token: refreshToken,
+                    expiresAt: decoded.exp * 1000,
+                });
+            }
+        }
+        catch (error) {
+            console.error("Error decoding refresh token:", error);
+        }
+    }
     res.clearCookie("refreshToken", {
         httpOnly: true,
         secure: process.env.MODE === "dev" ? false : true,
         sameSite: process.env.MODE === "dev" ? "lax" : "none",
         path: "/",
-        ...(process.env.MODE !== "dev" && {
-            domain: ".entertainment-app-wheat.vercel.app",
-        }), // Only set domain in production to avoid localhost cookie issues
     });
     res.status(200).json({ message: "Logged out" });
 });

@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   };
 
   useEffect(() => {
-    if (!accessToken) {
+    if (!accessToken && location.pathname !== "/login") {
       refreshToken();
     }
   }, [accessToken]);
