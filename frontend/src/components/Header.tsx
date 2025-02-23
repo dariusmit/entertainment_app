@@ -7,7 +7,6 @@ import { axiosJWT, config } from "../axios/axios";
 import { useEffect, useState } from "react";
 import styleObjectType from "../types/styleObjectType";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
 
 function Header() {
   const { userModal, setUserModal, changeSearchValue, setSearchCompletion } =
@@ -16,8 +15,6 @@ function Header() {
 
   const { user, setUser, setAccessToken, accessToken } =
     useContext(AuthContext);
-
-  const navigate = useNavigate();
 
   const style = "svg-white-filter";
   const [styleObject, ChangeStyleObject] = useState<
@@ -65,13 +62,15 @@ function Header() {
             : `https://entertainment-app-wheat.vercel.app`
         }/logout`,
         {},
-        config(accessToken)
+        {
+          withCredentials: true,
+          ...config(accessToken),
+        }
       );
       setUser(null);
       setAccessToken("");
 
-      // Small delay to ensure state updates before redirecting
-      setTimeout(() => navigate("/login"), 100);
+      setTimeout(() => (window.location.href = "/login"), 100);
     } catch (error) {
       console.error("Logout failed:", error);
     }

@@ -15,25 +15,15 @@ app.use(cookieParser());
 
 const allowedOrigins =
   process.env.MODE === "dev"
-    ? ["http://localhost:5173"]
-    : [
-        "https://entertainment-app-frontend-gamma.vercel.app",
-        "https://entertainment-app-frontend-git-master-darius-molotokas-projects.vercel.app",
-        "https://entertainment-app-frontend-darius-molotokas-projects.vercel.app",
-      ];
+    ? "http://localhost:5173"
+    : "https://entertainment-app-frontend-gamma.vercel.app";
 
-const corsOptions: cors.CorsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true,
-};
-
-app.use(cors(corsOptions));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+  })
+);
 
 const db = mysql.createConnection({
   host: process.env.DB_HOST,
@@ -110,11 +100,7 @@ app.post("/login", (req: Request, res: Response) => {
       httpOnly: true,
       secure: process.env.MODE === "dev" ? false : true,
       sameSite: process.env.MODE === "dev" ? "lax" : "none",
-      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
-      ...(process.env.MODE !== "dev" && {
-        domain: ".entertainment-app-wheat.vercel.app",
-      }),
     });
 
     res.json({ message: "Login successful", accessToken });
@@ -155,9 +141,6 @@ app.post("/logout", authenticateToken, (req: Request, res: Response) => {
     secure: process.env.MODE === "dev" ? false : true,
     sameSite: process.env.MODE === "dev" ? "lax" : "none",
     path: "/",
-    ...(process.env.MODE !== "dev" && {
-      domain: ".entertainment-app-wheat.vercel.app",
-    }),
   });
   res.status(200).json({ message: "Logged out" });
 });
