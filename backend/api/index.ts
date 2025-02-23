@@ -41,6 +41,23 @@ interface AuthenticatedRequest extends Request {
   user: { id: string; email: string };
 }
 
+interface BlocklistedToken {
+  token: string;
+  expiresAt: number;
+}
+
+const tokenBlocklist: BlocklistedToken[] = [];
+
+// Cleanup expired tokens every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (let i = tokenBlocklist.length - 1; i >= 0; i--) {
+    if (tokenBlocklist[i].expiresAt < now) {
+      tokenBlocklist.splice(i, 1);
+    }
+  }
+}, 5 * 60 * 1000); // 5 minute cleanup
+
 function generateAccessToken(user: User): string {
   return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET as string, {
     expiresIn: "15m",
@@ -109,8 +126,14 @@ app.post("/login", (req: Request, res: Response) => {
 
 app.post("/refreshtoken", (req: Request, res: Response) => {
   const refreshToken = req.cookies.refreshToken;
+
   if (!refreshToken) {
     res.sendStatus(401);
+    return;
+  }
+
+  if (refreshToken && tokenBlocklist.some((t) => t.token === refreshToken)) {
+    res.status(403).json({ error: "This token is blocked" });
     return;
   }
 
@@ -136,12 +159,29 @@ app.post("/refreshtoken", (req: Request, res: Response) => {
 });
 
 app.post("/logout", authenticateToken, (req: Request, res: Response) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  if (refreshToken) {
+    try {
+      const decoded = jwt.decode(refreshToken) as { exp?: number };
+      if (decoded?.exp) {
+        tokenBlocklist.push({
+          token: refreshToken,
+          expiresAt: decoded.exp * 1000,
+        });
+      }
+    } catch (error) {
+      console.error("Error decoding refresh token:", error);
+    }
+  }
+
   res.clearCookie("refreshToken", {
     httpOnly: true,
     secure: process.env.MODE === "dev" ? false : true,
     sameSite: process.env.MODE === "dev" ? "lax" : "none",
     path: "/",
   });
+
   res.status(200).json({ message: "Logged out" });
 });
 
