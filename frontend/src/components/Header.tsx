@@ -54,6 +54,7 @@ function Header() {
   }, [location.pathname]);
 
   const logout = async () => {
+    const controller = new AbortController();
     try {
       await axiosJWT.post(
         `${
@@ -63,6 +64,7 @@ function Header() {
         }/logout`,
         {},
         {
+          signal: controller.signal,
           withCredentials: true,
           ...config(accessToken),
         }
@@ -73,6 +75,8 @@ function Header() {
       setTimeout(() => (window.location.href = "/login"), 100);
     } catch (error) {
       console.error("Logout failed:", error);
+    } finally {
+      controller.abort(); // Cancel pending requests
     }
   };
 
