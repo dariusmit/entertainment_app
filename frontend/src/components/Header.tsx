@@ -65,7 +65,7 @@ function Header() {
             : `https://entertainment-app-wheat.vercel.app`
         }/logout`,
         {},
-        { withCredentials: true, ...config(accessToken) }
+        config(accessToken)
       );
       setUser(null);
       setAccessToken("");

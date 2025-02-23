@@ -110,7 +110,11 @@ app.post("/login", (req: Request, res: Response) => {
       httpOnly: true,
       secure: process.env.MODE === "dev" ? false : true,
       sameSite: process.env.MODE === "dev" ? "lax" : "none",
+      path: "/",
       maxAge: 7 * 24 * 60 * 60 * 1000,
+      ...(process.env.MODE !== "dev" && {
+        domain: ".entertainment-app-wheat.vercel.app",
+      }),
     });
 
     res.json({ message: "Login successful", accessToken });
@@ -153,8 +157,7 @@ app.post("/logout", authenticateToken, (req: Request, res: Response) => {
     path: "/",
     ...(process.env.MODE !== "dev" && {
       domain: ".entertainment-app-wheat.vercel.app",
-    }), // Only set domain in production to avoid localhost cookie issues
-    expires: new Date(0), // Explicitly set an expired date
+    }),
   });
   res.status(200).json({ message: "Logged out" });
 });
